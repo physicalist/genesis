@@ -1,0 +1,19 @@
+The genesis/contrib directory contains contributed programs that have utility
+for some GENESIS users.
+
+The genesis-mode package provides XEmacs major modes for editing GENESIS
+scripts.  To use it:
+
+1. Put the files in the genesis mode package somewhere in your
+   home directory, e.g. in the directory "~/genesis/xemacs-mode/".
+
+2. Put in your emacs initialization file :
+   (load-file "~/genesis/xemacs-mode/genesis-vars.el")
+   (load-file "~/genesis/xemacs-mode/genesis-langs.el")
+   (load-file "~/genesis/xemacs-mode/genesis-mode.el")
+   (load-file "~/genesis/xemacs-mode/genesis-files.el")
+
+Alternatively, these can refer to the location within the contrib
+directory, e.g.
+
+(load-file "/usr/local/genesis/contrib/xemacs-mode/genesis-vars.el")

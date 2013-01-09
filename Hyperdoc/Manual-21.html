@@ -1,0 +1,812 @@
+<HTML>
+<HEAD>
+<TITLE>GENESIS Reference ManualMay 5, 2001: Customizing GENESIS</TITLE>
+</HEAD>
+<BODY>
+<A HREF="Manual-20.html">Previous</A>
+<A HREF="Manual-22.html">Next</A>
+<A HREF="Manual.html#toc21">Table of Contents</A>
+<HR>
+<H2><A NAME="Customizing"></A> <A NAME="s21">21. Customizing GENESIS</A> </H2>
+
+
+<P>GENESIS was designed to be extensible.
+If you find that the objects provided by GENESIS do not serve your
+modeling needs, you can modify the functionality of existing objects,
+or create entirely new types.  Likewise, you can extend the set of commands
+recognized by the SLI to include your own commands.
+You may do either of these within the GENESIS scripting language, by
+creating extended objects (see 
+<A HREF="Manual-11.html#Extended">Extended Objects</A>)
+and by defining script language functions.</P>
+<P>However, there are occasions when you will need the computational
+efficiency and speed gained by compiling new object and command definitions
+into your own customized version of GENESIS.
+The speed advantage of using a compiled object instead of a script-defined
+extended object is most noticeable when it is necesssary to define a new
+PROCESS action, as this action will be performed at each simulation step.
+If the simulation requires many elements made from the object, then the setup
+time for the simulation may also be longer when using script-defined objects.</P>
+<P>A GENESIS object is simply a particular C structure definition that is
+associated with a particular C function definition. Compiling these for use
+by GENESIS is equivalent to compiling a new library.
+When compiling new libraries into GENESIS, it is best to leave the
+``official'' version of the <EM>genesis/src</EM> directory and its
+subdirectories unmodified.  That way, you and other users will be able to
+create private customized versions of GENESIS, without changing the standard
+version.  Typically, you will create a directory to contain your customized
+version of GENESIS, and one or more subdirectories to contain libraries for
+your new GENESIS commands and objects.</P>
+<P>There are two main steps involved in creating a customized version of GENESIS
+which incorporates new commands or objects.  First, one must create a library
+containing the the files which define the new commands or objects.  Then,
+one or more libraries must be compiled into the new <EM>genesis</EM>
+executable.  These two steps are described in
+<A HREF="#NewObjects">Defining New Objects and Commands</A>
+and 
+<A HREF="#NewGenesis">Compiling a New Version of GENESIS</A>.</P>
+
+<H2><A NAME="NewObjects"></A> <A NAME="ss21.1">21.1 Defining New Objects and Commands</A> </H2>
+
+<P>If you have existing libraries, you may skip this section and go on to
+<A HREF="#NewGenesis">Compiling a New Version of GENESIS</A>.</P>
+
+<H3>Constructing the Library </H3>
+
+<P>The files in the <EM>Scripts/newlib</EM> directory illustrate the
+steps to follow in constructing a new GENESIS library:</P>
+<P>
+<OL>
+<LI>Set up a directory to contain the new library and all of the code
+files to go into it. For example:
+<PRE>
+     mkdir newlib
+ 
+</PRE>
+
+where 'newlib' will be the location of the new library.  As described under
+<A HREF="#NewGenesis">Compiling a New Version of GENESIS</A>, this
+directory should be created as a subdirectory of the one in which the new
+version of GENESIS will be compiled.  The following steps refer to files
+which are created within this library directory.
+</LI>
+<LI>Create an external header file.
+The example file <EM>example_ext.h</EM> contains the lines:
+<PRE>
+     #include &quot;sim_ext.h&quot;
+     #include &quot;example_struct.h&quot;
+ 
+</PRE>
+
+The file <EM>sim_ext.h</EM> is a specific GENESIS header file which must be
+included.  It resides in the <EM>genesis/include</EM> directory, and includes
+several other files which make a number of necessary definitions.
+<EM>example_struct.h</EM> is a user-defined structure definition file which
+must be created.
+</LI>
+<LI>Create the structure definition file.  
+If new object functions are being added this file should be of the form
+<PRE>
+     #include &quot;struct_defs.h&quot;
+
+     struct mystruct {
+         TYPE
+         fields ...
+     };
+
+     struct another_struct {
+         TYPE
+         other_fields ...
+     };
+
+     etc ...
+ 
+</PRE>
+
+The structure names (e.g. mystruct) are arbitrary but must not conflict with
+any existing structure names.  ``TYPE'' specifies a list of basic object
+fields.  It should be selected from one those defined in
+<EM>genesis/include/struct_defs.h</EM>:
+<PRE>
+         ELEMENT_TYPE
+         BUFFER_TYPE
+         SEGMENT_TYPE
+         CONNECTION_TYPE
+         PROJECTION_TYPE
+         CHAN_TYPE
+         LINK_TYPE
+         OUTPUT_TYPE
+ 
+</PRE>
+
+These are macros which define a set of fields depending on the class of the
+object.  The ``fields'' of the structure are additional fields that are
+completely user-defined.  When writing a new object definition, you will
+pick one of the above types which most closely matches your needs and
+supplement it with any needed additional fields.  For example, a new segment
+class object might have a structure definition like:
+<PRE>
+     struct mystruct {
+         SEGMENT_TYPE
+         float   state;
+         int     count;
+     };
+ 
+</PRE>
+
+The <EM>newlib/example_struct.h</EM> structure file contains:
+<PRE>
+ #include &quot;struct_defs.h&quot;
+
+ struct example_type {
+     ELEMENT_TYPE
+     float       input;
+     float       output;
+ };
+ 
+</PRE>
+
+You can find other examples in the <EM>genesis/include</EM> directory.
+The documentation for each GENESIS object gives the name of the file
+which defines its data structure.
+
+If no new structure definitions are to be added, then simply create an
+empty structure file. This can be accomplished using the UNIX shell
+command
+<PRE>
+     touch &quot;my_struct.h&quot;
+ 
+</PRE>
+</LI>
+<LI>Create the files containing C code to define any new routines or
+objects.  Your .c files should contain shell functions of the form:
+<PRE>
+     do_myfunc(argc,argv)
+     int argc;
+     char **argv;
+     {
+     }
+ 
+</PRE>
+
+or object functions of the form
+<PRE>
+     MyObject(element,action)
+     struct my_struct *element;
+     Action *action;
+     {
+     }
+ 
+</PRE>
+
+The names of these functions are arbitrary as long as they do not conflict
+with existing function names. If there is a conflict it will be reported
+during the link phase of compilation as a multiply defined function. In
+this case the function should be renamed. As a suggested convention, all
+shell functions should be prefixed with ``do_''.
+
+In the <EM>newlib</EM> directory, we have a separate file
+(<EM>command.c</EM>) for the new shell function (to become a new
+GENESIS routine) and another (<EM>example.c</EM>) for the new object
+function.  These could have been combined into a single file, however.
+Note that the shell functions look like any normal C function, except
+that they must have two arguments, <EM>argc</EM> and <EM>argv</EM>,
+which will be used to get the actual arguments passed by the Script
+Language Interpreter.
+
+The file <EM>newlib/command.c</EM> illustrates a simple function which will
+be bound to a new GENESIS command which returns the number of arguments:
+<PRE>
+ #include &quot;sim_ext.h&quot;
+ int do_example(argc,argv)
+ int argc;
+ char **argv;
+ {
+     printf(&quot;%d arguments passed to %s\n&quot;,argc,argv[0]);
+     /*
+     ** functions can return values which can be used in the interpreter
+     */
+     return(argc);
+ }
+ 
+</PRE>
+
+Note that it begins with a required inclusion of the definitions in
+<EM>sim_ext.h</EM>.
+
+Source files which define object functions must also include a header
+file giving structure declarations.  <EM>example.c</EM> accomplishes
+this in a somewhat indirect way with the initial statement
+<PRE>
+    #include &quot;example_ext.h&quot;
+ 
+</PRE>
+
+Thus, <EM>sim_ext.h</EM> is included, as was done with
+<EM>command.c</EM>, and an additional structure declaration file is
+also included, as described in step 3.
+
+The format for object functions is somewhat more complicated than that for
+shell functions.  In the skeleton object function given above, the example
+function ``MyObject'' takes two arguments: (1) the pointer to the instantiation
+of the object structure (element) and (2) the pointer to the instantiation
+of the structure that specifies the action to be performed (action).  Code
+which selects and implements the various actions which can be performed
+is given within the two curly brackets.
+
+The code for the example object ``ExampleObject'' is listed below in ``An
+Example Object Definition''.  It has detailed comments explaining how to
+specify the actions performed and the way that messages are processed during
+the PROCESS action.  The section on actions in 
+<A HREF="Manual-8.html#Elements">Elements</A> describes the actions which are common to many GENESIS
+objects.  In general, the best way to write an object function is to begin
+by examining the source code for an existing object which is similar.  The
+documentation for each object gives the name of the file and the name of the
+function which implements the object.
+
+</LI>
+<LI>Create a library startup script.
+Once you have written functions to define new GENESIS shell commands or
+objects, you need to associate them with the command and object names
+which will be recognized by the SLI.  This is done in a <EM>library
+startup script</EM>.  The script is typically given a name of the
+form <EM>LIBRARY_NAMElib.g</EM>, where <EM>LIBRARY_NAME</EM> is the name of the
+library.  For the example we have discussed so far, the script is called
+<EM>examplelib.g</EM>.  Although the file name is given the extension ``.g''
+(for historical reasons), this is not an ordinary script which may processed
+by GENESIS at run time.  Instead, it is processed by during compilation
+by a program called ``code_g'', and it contains <EM>library startup
+commands</EM> which are not recognized as GENESIS commands, and are not
+listed by listcommands.
+
+The following startup commands (described in the GENESIS Startup Command
+Reference) are used in library startup scripts:
+
+<TABLE BORDER><TR><TD>
+</TD><TD> </TD></TR><TR><TD>
+Command</TD><TD>Description</TD></TR><TR><TD>
+<A HREF="Manual-24.html#addfunc">addfunc </a> </TD><TD>Binds a compiled C function to the name of a GENESIS command.</TD></TR><TR><TD>
+<A HREF="Manual-24.html#newclass">newclass </a></TD><TD>Adds a new class identifier to the list of object classes.</TD></TR><TR><TD>
+<A HREF="Manual-24.html#object">object </a> </TD><TD>Defines attributes of a GENESIS object and gives it a name.</TD></TR><TR><TD>
+</TD></TR></TABLE>
+
+
+In addition, code_g recognizes the ordinary GENESIS command, addaction.
+This command is described under 
+<A HREF="Manual-11.html#Extended">Extended Objects</A>
+and in the GENESIS Command Reference section.  In a library startup script,
+it is used to add a new action name to the list of GENESIS actions, and to
+associate a numerical value with it.  This same numerical value is used in a
+case statement within the object function C code, in order to select the
+action to be performed.
+
+All four of these commands are illustrated in <EM>examplelib.g</EM>:
+<PRE>
+ addfunc example do_example int
+ newclass        exampleclass
+ addaction       NEWACTION       20
+ object example_object example_type ExampleObject exampleclass device \
+         -author         &quot;M.Wilson Caltech 2/89&quot; \
+         -actions        RESET PROCESS NEWACTION \
+         -messages       ADD 0           1 input \
+                         SUBTRACT 1      1 input \
+                         TWOARGS 2       2 arg1 arg2 \
+         -readwrite input &quot;Input variable, altered by ADD and SUBTRACT&quot; \
+         -readonly       output &quot;Running total of input at each step&quot; \
+         -description    &quot;exercise in creating new objects&quot; \
+                         &quot;keeps a running sum of its inputs&quot;
+ 
+</PRE>
+
+The first line associates the command name ``example'' with the function
+do_example, defined in <EM>command.c</EM>.  The optional argument for the
+data type (int) is needed here, because this routine returns an integer
+value.
+
+Next, a new class name (exampleclass) is defined, as well as a new action name
+and associated number.  The final object command is continued over several
+lines.  It is of the form:
+<PRE>
+     object name data_type function class [class] ... [options]
+ 
+</PRE>
+
+Here, the new object will be given the name ``example_object''.  In its
+defining function (ExampleObject) it was given a data structure of type
+``example_type'', defined in step 3.  The object may belong to more than
+one class.  In this case, it is assigned to the newly defined exampleclass
+and to the pre-existing device class.
+
+It is required that any actions which the object performs be listed
+following the ``<CODE>-actions</CODE>'' argument.  The code in
+<EM>example.c</EM> gives the statements to be executed for the actions RESET,
+PROCESS, and NEWACTION.
+
+If messages are used by the object then the ``<CODE>-message</CODE>'' option must
+be defined with the following arguments:
+<OL>
+<LI>the name of the message can be any string. This is used by the
+addmsg command.  In this case, <EM>example.c</EM> defines ADD, SUBTRACT,
+and TWOARGS.</LI>
+<LI>the case number of the message type must correspond to the
+value defined in the code definition (see the MSGLOOP of
+<EM>example.c</EM>).</LI>
+<LI>the number of arguments to the message.</LI>
+<LI>the names of the arguments are arbitrary and are used for
+documenting purposes (there MUST be as many names as there are
+arguments).</LI>
+</OL>
+
+The names of the object fields (plus an optional descriptive string) are
+given with one of the options ``<CODE>-readwrite</CODE>'',
+``<CODE>-readonly</CODE>'', or  ``<CODE>-hidden</CODE>''.  These option names also
+give the  protection that is assigned to the fields.  In this case, we
+want to be able to set and inspect the <EM>input</EM> field.  As the
+<EM>output</EM> field will be calculated by the object, it should be
+readable, but not writeable by the user.  In other cases we may wish to use
+fields for internal calculations, but keep them hidden from the user.
+These are specified with the ``<CODE>-hidden</CODE>'' option.
+
+The remaining fields are added for the purpose of documenting the
+object and are optional.
+</LI>
+<LI>Create and Edit the library Makefile.  The <EM>genesis</EM> directory
+in the GENESIS distribution (for example, <EM>/usr/genesis</EM>) contains a
+file <EM>Libmake</EM> that is used as a template for the Makefile.  Copy it
+into the library directory, giving it the name <EM>Makefile</EM>.
+There will be a list of seven variables which must be set. These variables
+are:
+<OL>
+<LI>GENESIS should contain the name of the genesis system files. For example
+<PRE>
+      GENESIS            = /usr/genesis
+ 
+</PRE>
+
+This is normally written into the Libmake file at the time GENESIS is
+installed.  If GENESIS has been moved, or you are modifying libraries
+provided by someone else, you should check to be sure that the path is
+correct.
+</LI>
+<LI>LIBRARY_NAME is the name that you will use to refer to this library. It
+can be any name which does not conflict with existing libraries. For
+example using the specification in step 1:
+<PRE>
+     LIBRARY_NAME        = example
+ 
+</PRE>
+
+The LIBRARY_NAME will also be entered in the 'liblist' file residing in the
+parent directory of the library directory, as decribed in 
+<A HREF="#NewGenesis">Compiling a New Version of GENESIS</A>.
+</LI>
+<LI>STARTUP is the name of the library startup script, described in step
+4:
+<PRE>
+     STARTUP             = examplelib.g
+ 
+</PRE>
+
+</LI>
+<LI>STRUCTURES is the name of the .h file containing the structure
+definitions created in step 2. Only one filename is allowed. For example:
+<PRE>
+     STRUCTURES          = example_struct.h
+ 
+</PRE>
+</LI>
+<LI>EXT_HEADER is the name of the external header file created in step 1.
+Only one filename is allowed.  For example:
+<PRE>
+     EXT_HEADER          = example_ext.h
+ 
+</PRE>
+</LI>
+<LI>TARGET_OBJ is the name of the of the object file which will be created
+for the libarary.  This should be called LIBRARY_NAMElib.o, where
+LIBRARY_NAME is the name of the library.  For example, with the
+library ``example'', this would be:
+<PRE>
+     TARGET_OBJ          = examplelib.o
+ 
+</PRE>
+
+This name (with the path to the library) is also used for the USERLIB
+variable in the Makefile (derived from Usermake) in the parent directory, as
+decribed in 
+<A HREF="#NewGenesis">Compiling a New Version of GENESIS</A>.
+</LI>
+<LI>OBJECTS is the list of object files (.o files) to be included in the new
+library. The names of these files should be the same as the source code
+(.c) files with the .c extension changed to .o.  For example, with source
+code files <EM>command.c</EM> and <EM>example.c</EM>.
+<PRE>
+     OBJECTS             = command.o example.o
+ 
+</PRE>
+</LI>
+</OL>
+</LI>
+</OL>
+</P>
+
+<H3>An Example Object Definition </H3>
+
+<P>The file <EM>Scripts/newlib/example.c</EM> illustrates features
+which are common to the source code for many GENESIS object functions:</P>
+<P>
+<PRE>
+ #include &quot;example_ext.h&quot;
+
+ #define ADD            0
+ #define SUBTRACT       1
+ #define TWOARGS        2
+ #define NEWACTION      20
+
+ /*
+ ** example of how to define a new object function
+ */
+ /* M.Wilson Caltech 1/89 */
+ /*
+ ** The user can give the object function any unique name.
+ ** Similarly, the arguments to the function can have arbitrary names.
+ */
+ ExampleObject(element,action)
+ struct example_type *element;
+ Action         *action;
+ {
+ /* If the element is to receive messages, this pointer (MsgIn *msg) must be
+ ** declared.
+ */
+ MsgIn  *msg;
+ double value;
+
+     /*
+     ** The debugging level can be assigned at runtime within the
+     ** interpreter using the 'debug' command.  The function ActionHeader
+     ** will cause GENESIS to print a standard message consisting
+     ** of the name of the function called, the name of the element,
+     ** and the name of the action being executed.
+     */
+     if(debug &gt; 1){
+         /* just prints out information which helps see what is happening */
+         ActionHeader(&quot;ExampleObjectt&quot;,element,action);
+     }
+
+     SELECT_ACTION(action){
+     /*
+     ** SELECT_ACTION is a macro for a switch-case statement switching on the
+     ** action requested. 
+     ** There are a number of predefined actions (see sim_defs.h)
+     ** which are typically used by elements. PROCESS is one of them
+     ** New actions can be added in any element. Use the 'addaction'
+     ** command in the object definition script to inform the simulator
+     ** of the new action. The case number asssigned to new actions
+     ** is relatively arbitrary as long as it does not conflict with
+     ** the case numbers of other actions defined in the element.
+     ** (you should get a compiler error if there is a conflict).
+     */
+     case NEWACTION:
+         printf(&quot;code for the new action\n&quot;);
+         break;
+     case PROCESS:
+         element-&gt;input = 0;
+         /*
+         ** This is the way in which messages are processed
+         ** MSGLOOP is a macro which scans all incoming messages and
+         ** executes the code in the appropriate case statement
+         ** depending on the message type
+         **
+         */
+         MSGLOOP(element,msg) {
+             /*
+             ** The case number assigned here must be defined in the
+             ** in the message section of the object definition 
+             ** (see examplelib.g)
+             */
+             case ADD:
+                 /* 
+                 ** The function MSGVALUE allows you to access the contents
+                 ** of the message arguments passed into the element.
+                 ** The first argument is just the msg pointer,
+                 ** the second argument is the argument number
+                 ** Thus to get the first argument of a message use
+                 ** MSGVALUE(msg,0). To get the second (assuming there are
+                 ** more than one argument in the message) use
+                 ** MSGVALUE(msg,1).
+                 ** Note that the return type from 
+                 ** MSGVALUE is always type double 
+                 **
+                 ** You are free to place whatever code you would like in here
+                 */
+                 value = MSGVALUE(msg,0);
+                 element-&gt;input += value;
+                 printf(&quot;adding a message value of %f\n&quot;,value);
+                 break;
+             case SUBTRACT:
+                 value = MSGVALUE(msg,0);
+                 element-&gt;input -= value;
+                 printf(&quot;subtracting a message value of %f\n&quot;,value);
+                 break;
+             case TWOARGS:
+                 printf(&quot;processing arguments %f and %f\n&quot;,
+                         MSGVALUE(msg,0),MSGVALUE(msg,1));
+                 break;
+             default:
+                 printf(&quot;Unknown message\n&quot;);
+                 break;
+         }
+         /* 
+         ** In this case we add the element field 'input' to 'output',
+         ** using output to maintain a running sum.
+         ** You are free to place whatever code you would like in here.
+         */ 
+         element-&gt;output += element-&gt;input;
+         printf(&quot;element has been processed\n&quot;);
+         break;
+     /*
+     ** The RESET action is used to return the element to a known
+     ** initial state
+     */
+     case RESET:
+         element-&gt;input = 0;
+         element-&gt;output = 0;
+         printf(&quot;element has been reset\n&quot;);
+         break;
+     }
+ }
+ 
+</PRE>
+</P>
+
+<H3><A NAME="NewSynapticObjects"></A> Creating New Synaptic Objects</H3>
+
+<P>We anticipate that many GENESIS users will want to write variants of
+the synchan and hebbsynchan objects to handle different kinds of
+synaptically-mediated behavior.  Currently, this means that one has to
+write a C function defining the object, usually in a user library.
+See 
+<A HREF="#Customizing">Customizing GENESIS</A> and 
+<A HREF="#NewObjects">Defining New Objects and Commands</A> for more
+information on this.</P>
+<P>In general, one should start by copying an existing object that is as close to
+the desired object as possible and then modifying it.  These modifications may
+involve adding new fields or deleting old ones.  In order to guarantee that
+the existing genesis commands for setting up synaptic connections work
+properly with the new objects (e.g. planarconnect, volumeconnect,
+planar/volumeweight, planar/volumedelay, etc.) we ask that aspiring synchan
+hackers obey the following guidelines:</P>
+<P>
+<OL>
+<LI>The structure definition for the new object should be of the following
+form:
+<PRE>
+    struct MyWeirdSynchan_type 
+    {
+        SYNCHAN_TYPE
+        /* use Synapse_type if using normal synapses */
+        struct MyWeirdSynapse_type *synapse;
+        /* ... put extra fields here if needed ... */
+    };
+</PRE>
+
+</LI>
+<LI>Some new kinds of synchans will have their own kinds of synapses with
+extra fields not found in the standard synapses.  The way to define
+these is as follows: 
+<PRE>
+    struct MyWeirdSynapse_type 
+    {
+      SYNAPSE_TYPE
+      /* ... put extra fields here if needed ... */
+    };
+
+    typedef struct MyWeirdSynapse_type MyWeirdSynapse;
+</PRE>
+
+
+An example of both (1) and (2) is in
+<EM>src/newconn/newconn_struct.h</EM>, with the definition of
+HebbSynchan_type and HebbSynapse_type.  If your synapses are the same
+as previously-defined ones, then this step isn't necessary.
+
+</LI>
+<LI>You must have code like this in the CREATE action of your synchan type:
+<PRE>
+    ...
+      SELECT_ACTION(action)
+        {
+        case CREATE:
+          channel-&gt;synapse_size = (unsigned short) (sizeof(MyWeirdSynapse));
+          channel-&gt;synapse = NULL;  /* no synapses to start with */
+
+          break;
+    ...
+</PRE>
+
+Note that all you have to do is change the word ``Synapse'' in synchan.c to
+``MyWeirdSynapse''.  
+
+</LI>
+<LI>In your <EM>&lt;library_name>_ext.h</EM> file (see 
+<A HREF="#Customizing">Customizing GENESIS</A> ) you must include (at
+least) the following:
+
+<PRE>
+    #include &quot;newconn_struct.h&quot;
+    #include &quot;synaptic_event.h&quot;
+
+    extern void RemovePendingSynapticEvents();
+
+    /* and for hebbsynchan derivatives: */
+
+    #include &quot;seg_struct.h&quot;  /* for compartment definition */
+</PRE>
+</LI>
+</OL>
+</P>
+<P>If all this is done, and your code is correct, the new objects should work
+with the existing connection and weight/delay-setting functions in the same
+way as synchan and hebbsynchan do.</P>
+
+
+<H2><A NAME="NewGenesis"></A> <A NAME="ss21.2">21.2 Compiling a New Version of GENESIS</A> </H2>
+
+<P>To compile a new version of GENESIS containing new user libraries:
+<OL>
+<LI>Create a directory from which to compile the new GENESIS.
+You may do this by using the UNIX <CODE>mkdir</CODE> command
+to create your own directory for containing the customized GENESIS.
+</LI>
+<LI>You need new libraries to add.  These will either be ones that you
+have created yourself, following the directions in 
+<A HREF="#NewObjects">Defining New Objects and Commands</A>, or existing libraries which have
+been contributed by other GENESIS users.  The
+<EM>Scripts/examples/newlib</EM> directory contains an example of a
+user-defined GENESIS library which you may use for testing these
+instructions.  For now, we will assume that you have one or more library
+directories.
+</LI>
+<LI>Create subdirectories for the libraries.  The libraries should be
+contained in one or more subdirectories of the directory for the new GENESIS.
+If you have existing libraries, use either the UNIX <CODE>cp -r</CODE>
+(recursive copy) or <CODE>mv</CODE> command to put the library subdirectories
+under the directory which you created in the first step.
+</LI>
+<LI>Create a ``Makefile'' for compiling GENESIS.  The <EM>genesis</EM>
+directory in the GENESIS distribution contains a file ``Usermake'' that
+serves as a template for this Makefile.  Copy it to the directory above
+those containing your libraries, giving it the name ``Makefile''. Please note
+that the Usermake file is subject to change with each GENESIS release.
+If there is potential that users with different versions of GENESIS will
+compile your library, provide a Makefile specific to each GENESIS release
+(e.g. Makefile2.2.1, Makefile2.3).
+
+At this point, your directory structure should look something like
+
+<PRE>
+                new genesis  --&gt; contains Makefile (from Usermake)
+                      /\
+                     /  \
+                    /    \
+                   /      \
+          new library     additional new 
+          subdirectory    library subdirectories
+ 
+</PRE>
+
+
+Each library subdirectory will contain its own Makefile constructed by
+editing <EM>genesis/Libmake</EM>, as described in the Libmake file and in 
+<A HREF="#NewObjects">Defining New Objects and Commands</A>.
+</LI>
+<LI>Edit the Makefile (copied from Usermake) as instructed by the comments
+in Makefile.  
+
+
+First, there is a definition for the variable GENINST.  The GENESIS
+installation process should create the Usermake file with this set to
+the full path of the genesis installation directory, for example:
+<PRE>
+     GENINST =       /usr/genesis
+ 
+</PRE>
+
+If, for some reason, the GENESIS files have been moved from the original
+GENESIS installation directory, this line may need to be edited to reflect the
+change.
+
+Next, there are some instructions regarding assignment of the
+system-specific variables, MACHINE, OS, XLIB, CC, CFLAGS, CPP, LD,
+LINKFLAGS, and LEXLIB.  These should be set to the same values as
+those used in the original <EM>genesis/src/Makefile</EM> when GENESIS
+was compiled.
+
+The following line,
+<PRE>
+     SIMNAME =       genesis
+ 
+</PRE>
+
+gives the name of the GENESIS executable that will be produced.  If
+you would like to give it another name like <EM>mygenesis</EM> to
+distinguish it from the standard version, you may change it here.
+Next, we come to the USERDIR variable.  The instructions in the
+Makefile say that this should give the names of any library
+directories.  If we were compiling the single library in the
+subdirectory <EM>newlib</EM>, we would say:
+<PRE>
+     USERDIR = newlib
+ 
+</PRE>
+
+
+The variable USEROBJ should give the pathnames
+of any new library object modules.  After compilation, each
+library will have a ``.o'' file which will be linked into GENESIS.
+The instructions in Usermake tell us that this name is specified by
+the TARGET_OBJ variable in the library Makefile.  For the example
+given in <EM>Scripts/newlib</EM>, we would look in
+<EM>newlib/Makefile</EM> (the library Makefile) and see that it is set to
+<EM>examplelib.o</EM>.  We need to give the path relative to the place where
+we are compiling the new GENESIS, so we would say:
+<PRE>
+    USEROBJ = newlib/examplelib.o
+ 
+</PRE>
+
+
+The remaining variable to set is USERLIB, which should give the
+names of any new libraries.  The library name is specified by the
+LIBRARY_NAME variable in the library Makefile.  Following through
+with the newlib example, USERLIB would be set to
+<PRE>
+    USERLIB =example
+ 
+</PRE>
+
+This completes the edits to the Makefile.
+</LI>
+<LI>Check the contents of the libraries.  If you have constructed
+the new libraries yourself, following the steps outlined in 
+<A HREF="#NewObjects">Defining New Objects and Commands</A>, there
+should be little else to do.  If you have received them from someone
+else, you should check the line in each library Makefile that begins
+with ``<CODE>GENESIS = </CODE>''.  This should give the full path to the
+GENESIS distribution.  If it is not where you keep your GENESIS
+distribution, change it accordingly.
+</LI>
+<LI>Type ``make'' from within the directory containing the Usermake-derived
+Makefile.  If you have compilation errors, it is time to carefully review
+the instructions!  To delete the temporary files which were created during
+the compilation, type ``make clean''.
+</LI>
+<LI>Test the new commands and objects.  From within the directory in which
+you compiled the new genesis executable, type ``genesis''' (or ``./genesis''
+if your path has been set by a particularly paranoid system manager).
+Now type ``listcommands'' and ``listobjects'' to see if the new commands
+and objects have really been incorporated.
+
+For the newlib example, you should find a new command called
+``example'' and a new object called ``example_object''.  Give GENESIS
+the command ``<CODE>echo {example 1 2 3 4}</CODE>'' and see if the results
+are consistent with the comments in newlib/command.c.  The command
+``<CODE>showobject example_object</CODE>'' should produce some information
+about the new object.  You may execute the test script,
+<EM>newlib/testexample.g</EM> to see if elements created from this
+object behave as expected.</LI>
+</OL>
+</P>
+<P>If you have problems running or compiling the new version of GENESIS, you
+should make sure that the files in <EM>genesis/lib</EM> were compiled under
+the same environment (operating system and compiler) as your new library.  If
+you suspect that this is not the case, you should recompile GENESIS,
+following the instructions in <EM>genesis/src/README</EM>.</P>
+
+
+<HR>
+<A HREF="Manual-20.html">Previous</A>
+<A HREF="Manual-22.html">Next</A>
+<A HREF="Manual.html#toc21">Table of Contents</A>
+</BODY>
+</HTML>

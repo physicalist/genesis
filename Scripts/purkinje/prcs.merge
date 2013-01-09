@@ -1,0 +1,10 @@
+[17:01] (1,2) Release2-2 $ prcs merge -r 0
+prcs: Working version:  Release2-2.10(w)
+prcs: Common version:   0.99
+prcs: Selected version: 0.100
+prcs: *** Action on file `help.txt'
+prcs: Choose an action on file `help.txt' for rule 3: All three files exist and are alike in the working and common versions.
+Please select(dnmrhvq!?)[r] 
+prcs: Replace file `help.txt' by rule 3
+prcs: Merge against version 0.100 complete.
+[17:01] (1,2) Release2-2 $ 
