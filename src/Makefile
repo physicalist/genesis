@@ -930,36 +930,36 @@ SPRNGLIB   = $(SPRNGDIR)/lib/lib$(SPRNG_LIB).a
 ## This configuration was originally provided by a GENESIS user, Alfonso
 ## Delgado-Reyes.
 
-# MACHINE=MacOSXDarwin
-# OS=BSD
+MACHINE=MacOSXDarwin
+OS=BSD
 
-# XINCLUDE=-I/usr/X11R6/include
-# XLIB=/usr/X11R6/lib
+XINCLUDE=-I/usr/X11R6/include
+XLIB=/usr/X11R6/lib
 
-# CC=cc
-# CPP=cpp -P 
-# CFLAGS=-O2 -D__NO_MATH_INLINES -DBIGENDIAN
+CC=cc
+CPP=cpp -P 
+CFLAGS=-O2 -D__NO_MATH_INLINES
 
-# LD=ld
-# LDFLAGS=
+LD=ld
+LDFLAGS=
 
-# RANLIB=ranlib
-# AR=ar
+RANLIB=ranlib
+AR=ar
 
-## Use 'yacc' or 'bison -y' here.
-# YACC=yacc
+# Use 'yacc' or 'bison -y' here.
+YACC=yacc
 
 ## Use lex or 'flex -l' here.
-# LEX=lex
+LEX=lex
 
 ## If using flex, LEXLIB will be '-lfl'.
-# LEXLIB=-ll
+LEXLIB=-lfl
 
 ## OSX 10.3.9 may require that '-lSM -lICE' be added to LIBS
-# LIBS= $(LEXLIB)
+LIBS= $(LEXLIB)
  
-# TERMCAP=-lcurses
-# TERMOPT=-DTERMIO -DDONT_USE_SIGIO
+TERMCAP=-lcurses
+TERMOPT=-DTERMIO -DDONT_USE_SIGIO
 
 ## end  MacOS X and Darwin (PPC-based systems)
 

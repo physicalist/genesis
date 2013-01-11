@@ -72,7 +72,7 @@ static char rcsid[] = "$Id: jump.c,v 1.4 2005/10/04 22:05:13 svitak Exp $";
 
 #include "system_deps.h"
 
-#if (defined(i860) && !defined(paragon)) || (defined(Linux) && !defined(__GLIBC__)) || defined(CRAY) || defined(Cygwin)
+#if (defined(i860) && !defined(paragon)) || (defined(Linux) && !defined(__GLIBC__)) || defined(CRAY) || defined(Cygwin) || defined(MacOSXDarwin)
 struct sigcontext
 {
   int xyzzy;
