@@ -1,0 +1,23 @@
+.svn
+.DS_Store
+._*
+*~
+
+# build-related files
+*.o
+build
+Makefile
+autom4te.cache
+
+# temporary files from yacc/lex interpreter
+src/ss/lex.yy.c
+src/ss/y.output
+src/ss/y.tab.c
+src/ss/y.tab.h
+
+# specific binaries
+src/sys/code_g
+src/sys/code_func
+src/sys/code_lib
+src/sys/code_sym
+
