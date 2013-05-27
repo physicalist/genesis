@@ -8,6 +8,20 @@
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
 # All configuration is in the file Makefile.
 #
+
+
+LLIBS		=	$(LIBS) $(EXTRALIBS)
+CFLAGS		=	$(CFLAGS_IN)
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+##
+RNG_CFLAGS = -O3 -DBIGENDIAN -D$(MACHINE)
+
+include Makefile.BASE
+
+
 # $Log: Makefile.LinuxPPC,v $
 # Revision 1.2  2005/07/29 15:47:11  svitak
 # Relocated common targets to Makefile.BASE. Some architectures were making
@@ -35,14 +49,3 @@
 # First version of PPC support, based on work by Alfonso Delgado-Reyes.
 #
 #
-
-LLIBS		=	$(LIBS) $(EXTRALIBS)
-CFLAGS		=	$(CFLAGS_IN)
-
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-##
-RNG_CFLAGS = -O3 -DBIGENDIAN -D$(MACHINE)
-
-include Makefile.BASE

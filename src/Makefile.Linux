@@ -6,10 +6,149 @@
 #	Last altered Fri Oct  4 13:50:27 PDT 1991
 #	by David Bilitch
 #
+# 	See below for revision log
+#
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
 # All configuration is in the file Makefile.
 #
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	Linux 1.2.x and up on Intel x86-based, Xeon,
+#           and AMD 64-bit systems.
+# Compiler:	GCC
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## 2000-05-23
+## Termcap/ncurses issues: The shell library makes reference to the
+## termcap library.  Some Linux distributions have an ncurses library
+## which includes termcap emulation.  GENESIS appears to work
+## properly with the ncurses supplied with Red Hat Linux 5.1 and higher
+## and Debian Linux (glibc2.1, egcs-2.91.66).  However, linking with
+## ncurses is known to have resulted in core dumps in GENESIS in older
+## Linux versions.
+##
+## If you encounter problems linking with the TERMCAP flags listed below
+## or the GENESIS command line interface does not work, try the
+## following alternatives:
+##
+## 1) TERMCAP = -ltermcap
+##
+## 2) (If you are using SuSE Linux)
+##    TERMCAP = /usr/lib/termcap/libtermcap.a
+##
+## 3) (If you are using Red Hat Linux prior to version 6.0)
+##    TERMCAP = /usr/lib/libtermcap.a
+##
+
+# MACHINE=Linux
+# OS=BSD
+
+# XINCLUDE=-I/usr/X11R6/include
+
+## Choose ONE XLIB line to uncomment:
+## For 32-bit architectures
+# XLIB=/usr/X11R6/lib
+## For 64-bit machines, probably need /usr/X11R6/lib64 here.
+# XLIB=/usr/X11R6/lib64
+
+# CC=cc
+
+## Old (and probably broken) gcc installations may need the full
+## path to cpp (preferably NOT one in /lib). If there isn't a 
+## [link to] cpp in the same directory as 'cc', you should consider
+## [re]installing a newer gcc.
+
+# CPP=cpp -P
+
+## Choose ONE CFLAGS line to uncomment:
+## For 32-bit architectures
+# CFLAGS=-O2 -D__NO_MATH_INLINES
+## For 64-bit architectures
+# CFLAGS=-O2 -D__NO_MATH_INLINES -DLONGWORDS
+
+# LD=ld
+
+## !!!
+## Don't uncomment the next line unless you get errors about
+## libraries not being found. Setting this path may interfere with
+## the default (probably correct) operation of the loader, but some
+## 64-bit architectures may need /usr/lib64 here.
+## LDFLAGS=-L/usr/lib
+
+# RANLIB=ranlib
+# AR=ar
+
+# YACC=bison -y
+# LEX=flex -l
+# LEXLIB=-lfl
+## Some linuxes (Gentoo?) may require -lSM and -lICE as well.
+# LIBS= $(LEXLIB) -lm
+
+# TERMCAP=-lncurses
+# TERMOPT=-DTERMIO -DDONT_USE_SIGIO
+
+## end	Linux 1.2.x and up on Intel x86-based systems
+
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	Linux 2.x and up on PPC-based systems (LinuxPPC)
+# Compiler:	GCC
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## This configuration was provided by a GENESIS user, Alfonso
+## Delgado-Reyes.  Please make sure that you have up-to-date and
+## complete installations of flex and bison if you are using this
+## configuration.
+
+## If you encounter problems linking with the TERMCAP flags listed below
+## or the GENESIS command line interface does not work, try the
+## following alternatives:
+##
+## 1) TERMCAP = -ltermcap
+##
+## 2) TERMCAP = /usr/lib/termcap/libtermcap.a
+##
+## 3) TERMCAP = /usr/lib/libtermcap.a
+
+# MACHINE=LinuxPPC
+# OS=BSD
+
+# XINCLUDE=-I/usr/X11R6/include
+# XLIB=/usr/X11R6/lib
+
+# CC=cc
+# CPP=/lib/cpp -P
+# CFLAGS=-O2 -D__NO_MATH_INLINES
+
+# LD=ld
+# LDFLAGS=-L/usr/lib
+
+# RANLIB=ranlib
+# AR=ar
+
+# YACC=bison -y
+# LEX=flex -l
+# LEXLIB=-lfl
+# LIBS= $(LEXLIB) -lm
+
+# TERMCAP=-lncurses
+# TERMOPT=-DTERMIO -DDONT_USE_SIGIO
+
+## end	Linux 2.x and up on PPC-based systems (LinuxPPC)
+
+LLIBS		=	$(LIBS) $(EXTRALIBS)
+CFLAGS		=	$(CFLAGS_IN)
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+##
+RNG_CFLAGS = -O3 -DLittleEndian -D$(MACHINE)
+
+include Makefile.BASE
+
 # $Log: Makefile.Linux,v $
+#
+#
 # Revision 1.2  2005/07/29 15:47:11  svitak
 # Relocated common targets to Makefile.BASE. Some architectures were making
 # in sys and shell, then all the subdirs. If you find this needs to be done
@@ -98,14 +237,3 @@
 # Initial revision
 #
 #
-
-LLIBS		=	$(LIBS) $(EXTRALIBS)
-CFLAGS		=	$(CFLAGS_IN)
-
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-##
-RNG_CFLAGS = -O3 -DLittleEndian -D$(MACHINE)
-
-include Makefile.BASE

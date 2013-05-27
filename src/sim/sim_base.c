@@ -2,6 +2,10 @@ static char rcsid[] = "$Id: sim_base.c,v 1.4 2005/07/01 10:03:08 svitak Exp $";
 
 /*
 ** $Log: sim_base.c,v $
+**
+** Revision 1.5 2013/05/25 15:01:00  janpi
+** Rewrote Build system, changed OSX target to 'Darwin' (from MaxOSXDarwin)
+**
 ** Revision 1.4  2005/07/01 10:03:08  svitak
 ** Misc fixes to address compiler warnings, esp. providing explicit types
 ** for all functions and cleaning up unused variables.
@@ -61,9 +65,12 @@ static char rcsid[] = "$Id: sim_base.c,v 1.4 2005/07/01 10:03:08 svitak Exp $";
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
-#if !defined(Solaris) && !defined(hpux) && !defined(MacOSXDarwin)
+
+// Some Unices don't provide nor need a.out.h
+#if !defined(Solaris) && !defined(hpux) && !defined(Darwin)
 #include <a.out.h>
 #endif
+
 #include "sim_ext.h"
 #include "profile.h"
 #include "shell_func_ext.h"

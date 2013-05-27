@@ -2,14 +2,142 @@
 #
 # GENESIS/XODUS : network simulator
 #
+#
 #	Make tree altered June 1991
 #	Last altered Fri Oct  4 13:50:27 PDT 1991
 #	by David Bilitch
 #
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
-# All configuration is in the file Makefile.
+# ONLY ATTEMPT IF BUILDING FAILS, AND YOU KNOW WHAT YOU'RE DOING!
+# All configuration of Genesis is in the file Makefile.
 #
+#
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	Solaris 2.x (A.K.A. SunOS 5.x)
+# Compiler:	Sun's CCS or GNU GCC (default)
+#		(compiler-specific settings see below)
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+#
+# ATTN: the default is to use the GNU compiler suite. If you prefer CCS,
+# you have to comment the appropriate lines in the CCS section below
+
+
+# MACHINE=Solaris
+OS=SYSV
+
+## Path to include files for X11 (or compatible) distribution
+XINCLUDE=-I/usr/openwin/include
+XLIB=/usr/openwin/lib
+
+## for CCS: ld is probably in /usr/ccs/bin.
+LD=ld
+LDFLAGS=
+
+## Libraries for UNIX archive format
+RANLIB=ranlib
+AR=ar
+
+## Terminal output
+TERMCAP=-ltermcap
+TERMOPT=-DTERMIO -DDONT_USE_SIGIO
+
+## Compiler-compiler to generate GENESIS scripting language
+## NOTE: If you're on Solaris 2.4.x to 2.6.x, there are reported issues
+## with CCS using the provided yacc & lex tools; see below
+YACC=yacc
+LEX=lex
+LEXLIB=-ll
+LIBS= $(LEXLIB) -lm
+
+## Additional libraries
+LLIBS		=	$(EXTRALIBS) -lelf -lsocket -lnsl $(LIBS) -ldl -lw
+CFLAGS		=	$(CFLAGS_IN)
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+## Be sure BIGENDIAN is defined for this arch.
+##
+RNG_CFLAGS = $(CFLAGS_IN)
+
+
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# Compiler:	GCC 2.8.1, 3.3.2
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## NOTE:  There have been reports that GCC versions 3.x produce
+## errors when the code_g program is compiled using optimization
+## level O2.  If you encounter this problem, change the CFLAGS line
+## below to read 'CFLAGS=-O -DBIGENDIAN'.
+
+CC=gcc
+CFLAGS=-O2 -DBIGENDIAN
+
+## Avoid using a full path to cpp if possible. If you can't find it
+## in a bin directory, as a last resort try /usr/ccs/lib/cpp
+CPP=cpp -P
+
+## end	Solaris 2.x (aka SunOS 5.x) using GCC 2.8.1 compiler
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	Solaris 2.x (A.K.A. SunOS 5.x)
+# Compiler:	Sun Workshop's "cc" (CCS)
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## NOTE: Do not increase the optimization level higher than -xO1, at least
+## for version "WorkShop Compilers 5.0 98/12/15 C 5.0".  Higher levels cause
+## at least one of the XODUS widgets to fail to work properly, even though no
+## compilation errors are reported.  GCC at higher optimization levels does
+## not exhibit this problem.
+##
+## NOTE: In Solaris 2.4 through Solaris 2.6, the Sun-issued "yacc"
+## appears to produce code that interacts badly with the Sun Workshop
+## "cc" compiler when compiling the GENESIS yacc files.  If you are
+## running a version of Solaris prior to Solaris 2.7, you will need to
+## obtain the GNU bison distribution (see ftp://ftp.gnu.org), compile
+## it, install it on your system, then uncomment the following lines
+## (the ones with "bison" in them) and also comment out the use of
+## "yacc" further below.  (We have successfully compiled GENESIS on
+## Solaris 2.7 using the Sun-supplied yacc, so we don't believe you need
+## to use bison for Solaris 2.7.)
+##
+## For this to work on Solaris before version 2.7, you will also need to
+## obtain the GNU "flex" distribution (see ftp://ftp.gnu.org), compile
+## it, install it, then uncomment the following lines which will 
+## the use of "lex" below.  Substitute the location of the flex library
+## on your system for <flex-lib-path> (or remove -L<flex-lib-path> if
+## the library is installed in a standard library path).
+##
+## YACC = bison -y
+##
+## LEX = flex -l
+## LEXLIB = -L<flex-lib-path> -lfl
+## LIBS= $(LEXLIB) -lm
+##
+## If you are using Solaris 2.7 or later, you may use the original, pre-
+## installed yacc & lex libraries. Simply leave the YACC and LEX lines 
+## above this paragraph commented out
+
+
+## probably in /opt/SUNWspro/bin, but there may be a symbolic link from
+## /usr/ccs/bin.
+#CC=cc
+#CFLAGS=-Xt -xO1 -xlibmil -xprefetch -DBIGENDIAN
+#CPP = cpp -P
+
+## end	Solaris 2.x (aka SunOS 5.x) using Sun Workshop C compiler
+
+
+## run common Makefile
+include Makefile.BASE
+
+
 # $Log: Makefile.Solaris,v $
+#
+# Revision 1.5 2013/05/25 15:01:00  janpi
+# Rewrote Build system, changed OSX target to 'Darwin' (from MaxOSXDarwin)
+#
 # Revision 1.2  2005/07/29 15:47:11  svitak
 # Relocated common targets to Makefile.BASE. Some architectures were making
 # in sys and shell, then all the subdirs. If you find this needs to be done
@@ -113,14 +241,4 @@
 #
 #
 
-LLIBS		=	$(EXTRALIBS) -lelf -lsocket -lnsl $(LIBS) -ldl -lw
-CFLAGS		=	$(CFLAGS_IN)
 
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-## Be sure BIGENDIAN is defined for this arch.
-##
-RNG_CFLAGS = $(CFLAGS_IN)
-
-include Makefile.BASE

@@ -2,9 +2,14 @@ static char rcsid[] = "$Id: jump.c,v 1.4 2005/10/04 22:05:13 svitak Exp $";
 
 /*
 ** $Log: jump.c,v $
+**
+** Revision 1.5 2013/05/25 15:01:00  janpi
+** Rewrote Build system, changed OSX target to 'Darwin' (from MaxOSXDarwin)
+**
 ** Revision 1.4  2005/10/04 22:05:13  svitak
 ** Merged branch tagged rel-2-3beta-fixes back to main trunk. All comments from
 ** the branch modifications should be included.
+**
 **
 ** Revision 1.3.2.1  2005/08/13 05:23:27  svitak
 ** Fixed extern decl of sig_msg to match definition.
@@ -72,7 +77,7 @@ static char rcsid[] = "$Id: jump.c,v 1.4 2005/10/04 22:05:13 svitak Exp $";
 
 #include "system_deps.h"
 
-#if (defined(i860) && !defined(paragon)) || (defined(Linux) && !defined(__GLIBC__)) || defined(CRAY) || defined(Cygwin) || defined(MacOSXDarwin)
+#if (defined(i860) && !defined(paragon)) || (defined(Linux) && !defined(__GLIBC__)) || defined(CRAY) || defined(Cygwin) || defined(Darwin)
 struct sigcontext
 {
   int xyzzy;

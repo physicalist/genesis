@@ -9,6 +9,62 @@
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
 # All configuration is in the file Makefile.
 #
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:      SunOS 4.1.x
+# Compiler:    SunOS 4.1.x "cc"
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+# MACHINE=sun4
+OS=BSD
+
+XINCLUDE=-I/usr/include
+XLIB=/usr/lib
+
+CC=cc
+CPP=/lib/cpp -P
+CFLAGS=-O -temp=$(TMPDIR)
+LD=ld
+
+## NOTE: If you get unresolved references for X11 library symbols in the
+## final link step during compilation, add
+##
+##    -Bstatic
+##
+## to the LDFLAGS definition here.  This is a documented problem with
+## X11 and SunOS shared libraries.  If you want information on fixes for
+## this problem look for faq #112 in:
+##
+##    http://www.x.org/ftp/contrib/faqs/x-faq-multipart/x-faq-5
+##
+# LDFLAGS=-Bstatic
+LDFLAGS=
+
+RANLIB=ranlib
+AR=ar
+
+YACC=yacc
+LEX=lex
+LEXLIB=-ll
+LIBS= $(LEXLIB) -lm
+
+TERMCAP=-ltermcap
+TERMOPT=-DTERMIO
+
+
+LLIBS		=	$(LIBS) $(EXTRALIBS)
+CFLAGS		=	$(CFLAGS_IN)
+
+## end SunOS 4.1.x
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+##
+RNG_CFLAGS = $(CFLAGS_IN)
+
+include Makefile.BASE
+
+#
 # $Log: Makefile.sun4,v $
 # Revision 1.2  2005/07/29 15:47:11  svitak
 # Relocated common targets to Makefile.BASE. Some architectures were making
@@ -107,13 +163,4 @@
 #
 #
 
-LLIBS		=	$(LIBS) $(EXTRALIBS)
-CFLAGS		=	$(CFLAGS_IN)
 
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-##
-RNG_CFLAGS = $(CFLAGS_IN)
-
-include Makefile.BASE

@@ -8,6 +8,62 @@
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
 # All configuration is in the file Makefile.
 #
+#
+#
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:       MacOS X and Darwin (PPC-based systems)
+# Compiler:     Apple Computer, Inc. v.gcc-932.1, based on gcc v.2.95.2
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## This configuration was originally provided by a GENESIS user, Alfonso
+## Delgado-Reyes.
+
+MACHINE=MacOSXDarwin
+OS=BSD
+
+XINCLUDE=-I/usr/X11R6/include
+XLIB=/usr/X11R6/lib
+
+CC=cc
+CPP=cpp -P 
+CFLAGS=-O2 -D__NO_MATH_INLINES
+
+LD=ld
+LDFLAGS=
+
+RANLIB=ranlib
+AR=ar
+
+# Use 'yacc' or 'bison -y' here.
+YACC=yacc
+
+## Use lex or 'flex -l' here.
+LEX=lex
+
+## If using flex, LEXLIB will be '-lfl'.
+LEXLIB=-lfl
+
+## OSX 10.3.9 may require that '-lSM -lICE' be added to LIBS
+LIBS= $(LEXLIB)
+ 
+TERMCAP=-lcurses
+TERMOPT=-DTERMIO -DDONT_USE_SIGIO
+
+## end  MacOS X and Darwin (PPC-based systems)
+
+LLIBS           =       $(LIBS) $(EXTRALIBS)
+CFLAGS		=	$(CFLAGS_IN)
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+##
+#RNG_CFLAGS = -O3 -DBIGENDIAN -D$(MACHINE)
+RNG_CFLAGS = -O3 -D$(MACHINE)
+
+include Makefile.BASE
+
+
 # $Log: Makefile.MacOSXDarwin,v $
 # Revision 1.2  2005/07/29 15:47:11  svitak
 # Relocated common targets to Makefile.BASE. Some architectures were making
@@ -34,16 +90,4 @@
 # Revision 1.1  2001/05/10 16:09:13  mhucka
 # First version of PPC support, based on work by Alfonso Delgado-Reyes.
 #
-#
 
-LLIBS           =       $(LIBS) $(EXTRALIBS)
-CFLAGS		=	$(CFLAGS_IN)
-
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-##
-#RNG_CFLAGS = -O3 -DBIGENDIAN -D$(MACHINE)
-RNG_CFLAGS = -O3 -D$(MACHINE)
-
-include Makefile.BASE

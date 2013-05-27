@@ -6,10 +6,219 @@
 #	Last altered Fri Oct  4 13:50:27 PDT 1991
 #	by David Bilitch
 #
-# YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
-# All configuration is in the file Makefile.
+# Please select the correct configuration below
+#
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	SGI Irix 6.x
+# Compiler:	SGI C compiler - different configurations, see below
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+# MACHINE = irix
+OS = SYSV
+
+## Path to include files for X11 (or compatible) distribution
+XINCLUDE = -I/usr/include
+XLIB = .
+
+## Standard compiler
+CC = cc
+CPP = /lib/cpp -P
+LD = ld
+
+## Libraries for UNIX archive format
+## NOTE: There is typically no ranlib on Irix systems. 'ar -s' creates the
+## symbol table used by ld.
+#RANLIB = ranlib
+#AR = ar
+
+## Compiler-compiler to generate GENESIS scripting language
+YACC = yacc
+LEX = lex
+LEXLIB = -ll
+LIBS = $(LEXLIB) -lm
+
+## Terminal output
+TERMCAP = -lcurses
+TERMOPT = -DTERMIO -DDONT_USE_SIGIO
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	SGI Irix 6.5
+# Compiler:	SGI C compiler (producing new-style 32 bit executables)
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## The settings in this section are for N32 mode, the SGI "new" style
+## 32-bit executables with N64 calling conventions and optimizations.
+## They are current as of IRIX 6.5.3 and 6.5.8, tested on R10000-based
+## Octane and O2 systems using the MIPSPro compiler version 7.30.
+## There is a separate section below for 64-bit executables.
+
+CFLAGS = -n32 -xansi -signed -O2 -DBIGENDIAN -OPT:Olimit=6000 $(IRIX_WARN)
+
+IRIX_HACK = -w
+LDFLAGS = -n32 -L/usr/lib32 -LD_MSG:off=85,134
+
+## UNCOMMENT ONLY ONE OF THE FOLLOWING.
+##
+## If you are using IRIX >= 6.5.8, uncomment the next IRIX_WARN line:
+##
+# IRIX_WARN = -woff 1116,1552,1174,3434
+##
+## If you are using IRIX above 6.5.3 but less than 6.5.8, use the following:
+##
+# IRIX_WARN = -woff 1048,1116,1155,3170
+##
+## Explanation of the above: the CFLAGS and LDFLAGS settings
+## purposefully disable reporting of certain kinds of warnings via the
+## -woff option, because they are either silly warnings, or else things
+## we cannot fix because they are in code imported from elsewhere (e.g.,
+## netCDF), or else things that could be fixed but are not worth it at
+## this time.  Yes, we know this is poor practice, but given limited
+## resources, it's the best we can do.
+
+## end SGI IRIX 6.5.x new-style 32-bit
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	SGI Irix 6.5
+# Compiler:	SGI C compiler (producing old-style 32-bit executables)
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## The settings in this section are for O32 mode, the SGI "old" style
+## 32-bit executables.  They are current as of IRIX 6.5.3 and 6.5.8,
+## tested on R10000-based Octane and O2 systems.
+
+# CFLAGS = -o32 -xansi -signed -O2 -DBIGENDIAN -Olimit 6000 -Wl,-woff,85 -Wl,-woff,134
+# IRIX_HACK = -w
+# LDFLAGS = -o32 -cckr
+
+## end SGI IRIX 6.5.x old-style 32-bit
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	SGI Irix 6.5
+# Compiler:	SGI C compiler (producing 64-bit executables)
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## This configuration is known to work for (and has only been tested on)
+## SGI Origin 2000 running IRIX 6.5.10 with MIPSPro compiler 7.3.1.1m (or .3m), 
+## gcc 2.95, or gcc 3.0.4. It may work for other architectures and OS versions, but the
+## GENESIS maintainers do not have experience with other combinations.
+## If using the MIPSPro compiler, you might need to change "-xansi" to "-cckr"
+## in the CFLAGS line below.  Please mail genesis@genesis-sim.org if you use
+## these settings and tell us about it. If these settings do not work for you,
+## the "new-style 32-bit binary" settings above should still work (but more
+## slowly).
+##
+
+# XLIB=/usr/lib64
+
+# CFLAGS=-xansi -mips4 -64 -LNO -G 0 -r10000 -O2 -Ddecalpha -DBIGENDIAN -DLONGWORDS -OPT:Olimit=6000 $(IRIX_WARN)
+# IRIX_HACK =-w
+# LDFLAGS=-mips4 -64 -G 0
+
+
+## It appears safest to use bison and flex instead of yacc and lex.
+## See the README file for information on obtaining bison and flex.
+## However, many IRIX 6.5 systems have flex, but do not have the library file
+## libfl.a.  The line 'LEXLIB=-ll' below tells the the compiler to look for
+## the file libl.a, instead.  If it should turn out that you have libfl.a, but
+## not libl.a, change the line to read  'LEXLIB=-lfl'.
+## If you want to try yacc and lex, change these defines to be like
+## those in the 32 bit section.
+
+# YACC=bison -y
+# LEX=flex -l
+# LEXLIB=-ll
+# LIBS= $(LEXLIB) -lm
+
+# TERMCAP=
+# TERMOPT=-DPLAINTERM
+
+# IRIX_WARN = -woff 1116,1168,1174,1177,1552
+##
+## Explanation of the above: the CFLAGS and LDFLAGS settings
+## purposefully disable reporting of certain kinds of warnings via the
+## -woff option, because they are either silly warnings, or else things
+## we cannot fix because they are in code imported from elsewhere (e.g.,
+## netCDF), or else things that could be fixed but are not worth it at
+## this time.  Yes, we know this is poor practice, but given limited
+## resources, it's the best we can do.
+
+## end SGI IRIX 6.x 64-bit
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	SGI Irix 6.4
+# Compiler:	SGI C compiler (producing old-style 32-bit executables)
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## This configuration has not been tested by the Caltech GENESIS group since
+## the introduction of IRIX 6.5.  If you have a 6.4 system and encounter
+## trouble here, please mail genesis@genesis-sim.org.
+##
+## Please uncomment all lines up to "## end ..." to re-define the values
+## appropriately, as 6.4 needs slightly different parameters
+
+#CC=cc -32
+#CFLAGS=-cckr -O -G 0 -DBIGENDIAN
+#IRIX_HACK = -w
+
+#LD=ld -32
+#LDFLAGS= -O
+
+#TERMCAP=
+#TERMOPT=-DPLAINTERM
+
+## end SGI IRIX 6.4 32-bit
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	SGI IRIX 4.x
+# Compiler:	SGI C compiler
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+# MACHINE=irix
+# OS=SYSV
+
+# XINCLUDE=-I/usr/include
+# XLIB=/usr/lib
+
+# CC=cc -cckr -G 5
+# CPP=/lib/cpp -P
+# CFLAGS=-O -DBIGENDIAN
+# IRIX_HACK = -w
+# LD=ld
+# LDFLAGS=-G 5
+
+# RANLIB=ranlib
+# AR=ar
+
+# YACC=yacc
+# LEX=lex
+# LEXLIB=-ll
+# LIBS= $(LEXLIB) -lm
+
+# TERMCAP=
+# TERMOPT=-DPLAINTERM
+
+## end SGI IRIX 4.x
+
+LLIBS		=	$(LIBS) $(EXTRALIBS)
+CFLAGS		=	$(CFLAGS_IN)
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+## Be sure BIGENDIAN is defined for this arch.
+##
+RNG_CFLAGS = $(CFLAGS_IN)
+
+## run common Makefile
+include Makefile.BASE
+
+
 #
 # $Log: Makefile.irix,v $
+#
+# Revision 1.5 2013/05/25 15:01:00  janpi
+# Rewrote Build system, changed OSX target to 'Darwin' (from MaxOSXDarwin)
+#
 # Revision 1.2  2005/07/29 15:47:11  svitak
 # Relocated common targets to Makefile.BASE. Some architectures were making
 # in sys and shell, then all the subdirs. If you find this needs to be done
@@ -129,14 +338,4 @@
 #
 #
 
-LLIBS		=	$(LIBS) $(EXTRALIBS)
-CFLAGS		=	$(CFLAGS_IN)
 
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-## Be sure BIGENDIAN is defined for this arch.
-##
-RNG_CFLAGS = $(CFLAGS_IN)
-
-include Makefile.BASE
