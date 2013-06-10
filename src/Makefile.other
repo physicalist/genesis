@@ -9,6 +9,68 @@
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
 # All configuration is in the file Makefile.
 #
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	Other UNIX system
+# Compiler:	Other compiler
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+# Other UNIX systems
+#
+# Settings are general and the underlying makefile tries to set certain
+# system dependent macros to something which will work everywhere.
+#
+# Note: you'll have to at least set the OS macro to either SYSV or
+#       BSD to indicate either a System V or a Berkeley variant OS
+#       respectively.  Also probably need to set RANLIB to echo if
+#       there is no ranlib command on your system.
+#
+
+# MACHINE=other
+
+# !!! OS must be set properly !!!  Uncomment *one* of the following.
+
+# OS=SYSV
+# OS=BSD
+
+# XINCLUDE=-I/usr/include
+# XLIB=/usr/lib
+
+# CC=cc
+# CPP=/lib/cpp -P
+# CFLAGS=-O
+# LD=ld
+# LDFLAGS=
+
+# RANLIB=ranlib
+# AR=ar
+
+# YACC=yacc
+# LEX=lex
+# LEXLIB=-ll
+# LIBS= $(LEXLIB) -lm
+
+# TERMCAP =
+# TERMOPT =	-DDONT_USE_SIGIO
+
+# end	System specific suggested settings
+
+#
+# this is an unknown unix machine.  We use sun4 currently as MACHINE
+# and set the OS from the top level Makefile.  Eventually we should have
+# a machine name `generic' or some such and make sure that any machine
+# dependent code does the safest thing for a `generic' machine.
+#
+
+CFLAGS		=	$(CFLAGS_IN)
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+##
+RNG_CFLAGS = $(CFLAGS_IN)
+
+include Makefile.BASE
+
 # $Log: Makefile.other,v $
 # Revision 1.2  2005/07/29 15:47:11  svitak
 # Relocated common targets to Makefile.BASE. Some architectures were making
@@ -98,19 +160,3 @@
 #
 #
 
-#
-# this is an unknown unix machine.  We use sun4 currently as MACHINE
-# and set the OS from the top level Makefile.  Eventually we should have
-# a machine name `generic' or some such and make sure that any machine
-# dependent code does the safest thing for a `generic' machine.
-#
-
-CFLAGS		=	$(CFLAGS_IN)
-
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-##
-RNG_CFLAGS = $(CFLAGS_IN)
-
-include Makefile.BASE

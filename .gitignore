@@ -6,7 +6,7 @@
 # build-related files
 *.o
 build
-Makefile
+#Makefile
 autom4te.cache
 
 # temporary files from yacc/lex interpreter

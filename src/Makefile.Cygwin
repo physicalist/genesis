@@ -31,6 +31,47 @@
 #
 #
 
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	Cygwin
+# Compiler:	gcc
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+##
+## Please note that all files should have Unix-like line terminators.
+## If you get "syntax error"s from code_g or code_sys during compilation,
+## it may be the result of incorrect line terminators. Offending files can
+## be fixed using the dos2unix command.
+##
+
+#MACHINE=Cygwin
+OS=SYSV
+
+XINCLUDE=-I/usr/include
+XLIB=/usr/X11R6/lib
+
+CC=gcc
+CPP=cpp -P
+CFLAGS=-O2
+LD=ld
+LDFLAGS=
+
+RANLIB=ranlib
+AR=ar
+
+YACC=bison -y
+LEX=flex -l
+LEXLIB=-lfl
+LIBS= $(LEXLIB) -lm
+
+TERMCAP=-lncurses
+TERMOPT=-DTERMIO -DDONT_USE_SIGIO
+
+export CODE_G_LFLAGS=-Wl,--stack,0x400000
+export EXE_EXT=.exe
+
+# end	CygWin
+
 # Adapted from Makefile.other rev 1.20
 
 LLIBS		=	$(LIBS) $(EXTRALIBS)

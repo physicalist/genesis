@@ -2,6 +2,10 @@
 # This file is included from within each architecture-specific Makefile.
 #
 
+# ----------------------------------------------------------------------
+# Proper libs
+# ----------------------------------------------------------------------
+
 SIMLIB		=	../lib
 XODUSLIB	= 	xodus
 
@@ -19,6 +23,135 @@ MINGENESIS =	$(BASECODE) \
 FULLDIR =	startup $(SUBDIR)
 NXDIR =		startup $(NXSUBDIR)
 MINDIR =	startup $(MINSUBDIR)
+
+# ----------------------------------------------------------------------
+# E. CUSTOM SETTINGS
+#
+# Here is the place to overide macro settings from above selectively.
+# You should uncomment one of the above sections and uncomment items in
+# this section to override the standard settings.
+# ----------------------------------------------------------------------
+
+## This is one of SYSV for System V UNIX varients and BSD for Berkeley
+## vartients.
+
+# OS =		BSD
+
+
+##
+## X11 settings
+##
+
+## Typical settings:
+
+# XLIB	=	/usr/lib
+# XINCLUDE =	-I.
+
+## For some versions of XFree86 (PC's with Linux) XLIB will need to be
+## set as follows
+
+# XLIB	=	/usr/X11/lib
+
+
+## For SUN OpenWindows:
+#
+# XLIB	=	/usr/openwin/lib
+# XINCLUDE =	-I/usr/openwin/include
+#
+
+## Typically /tmp but can be changed if there's not enough space there.
+# TMPDIR = /tmp
+
+##
+## C compiler
+##
+
+## Typical settings:
+#
+# CC=cc
+# CPP=/lib/cpp -P
+# CFLAGS=-O
+# LD=ld
+
+## GCC C compiler:
+##
+## For gcc, usually there will be a link from /lib/cpp to wherever cpp
+## is installed.  If not, try to find the gcc-lib installation, perhaps
+## under /usr/lib/gcc-lib and either create a symlink from /lib/cpp or
+## change the CPP define below to use the full path to where cpp lives.
+##
+## Later versions of gcc compile GENESIS (with many warnings) without
+## using the -traditional option.  If the compile fails you might try
+## adding -traditional to CFLAGS or updating your compiler.
+
+# CC=gcc
+# CPP=/lib/cpp -P
+# CFLAGS=-O
+# LD=ld
+
+
+##
+## LDFLAGS are the final link options
+##
+
+# LDFLAGS=
+
+
+##
+## RANLIB
+##
+
+## Set the RANLIB macro to "RANLIB = echo" on systems without ranlib.
+## (Only important to set for MACHINE=other and perhaps Linux; all other
+##  MACHINEs will ignore the value set here.)
+##
+## AR is the library archive program used to build the Xodus widget
+## libraries
+
+# RANLIB=ranlib
+# AR=ar
+
+
+##
+## YACC and LEX options.
+##
+
+# YACC=yacc
+# LEX=lex
+# LEXLIB=-ll
+
+## If you have GNU bison and flex uncomment the following lines.
+##
+## YACC=bison -y
+## LEX=flex -l
+## LEXLIB=-lfl
+##
+## Solaris 2.4 users note: the yacc for Solaris 2.4 produces an
+## bad parse table which causes the parser to fail.  Please use
+## bison/flex.
+##
+## Linux users note: use flex and bison rather than yacc and lex.
+## lex and yacc are scripts which use bison and flex on some systems
+## while others have an independent yacc in addition to bison.
+## The independent yacc output will fail to compile.
+##
+## SGI user note: the SGI lex defines a relatively small token text
+## buffer of 200 characters.  Lex will exit if a token's text exceeds
+## this limit (e.g. a very long command argument like shape coords
+## lists).  Changes have been made to avoid this problem.  If you
+## encounter it anyway then using flex will fix it.
+##
+## Other users: if you don't have bison, flex, yacc or lex, see the
+## section in src/README about getting bison and flex or using the
+## preprocessed yacc and lex output.
+
+
+##
+## LIBS the link libraries (not including X11)
+##
+
+# LIBS 	= 	$(LEXLIB) -lm
+
 
 # =========================================================================
 

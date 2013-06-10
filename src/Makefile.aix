@@ -4,6 +4,59 @@
 #
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
 # All configuration is in the file Makefile.
+
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	IBM AIX 4.x
+# Compiler:	IBM 'xlc' C compiler version 5
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+#
+# This combination of flags has been tested on IBM RS/6000 computers
+# running AIX 4.2 and 4.3, as well as the teraflop-scale Blue Horizon
+# Power3 system at SDSC.  We thank Chuck Charman and Giri Chukkpalli
+# for their help.
+
+# MACHINE = aix
+OS = SYSV
+
+XINCLUDE = -I/usr/include
+XLIB = /usr/lib
+
+CC = xlc
+CPP = /lib/cpp -P
+##
+## If you are using an IBM Power3 system, such as the Teraflops, add the
+## following to CFLAGS for better optimization:   -qarch=pwr3 -qtune=pwr3
+##
+CFLAGS = -DBIGENDIAN -U__STR__ -ma -O2 -qchars=signed -qmaxmem=8192
+LD = ld
+LDFLAGS =
+
+RANLIB = ranlib
+AR = ar
+
+YACC = yacc
+LEX = lex
+LEXLIB = -ll -lcurses -lcur
+LIBS = $(LEXLIB)  -lm -lrs2 -lbsd -lc
+
+TERMCAP = -lcurses -lcur
+TERMOPT = -DDONT_USE_SIGIO
+
+# end	IBM RS6000 running AIX
+
+
+LLIBS		=	$(LIBS) $(EXTRALIBS)
+CFLAGS		=	$(CFLAGS_IN)
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+##
+RNG_CFLAGS = -DBIGENDIAN -D$(MACHINE) -O3 -qstrict -qarch=pwr2 -qlanglvl=ansi -qtune=pwr2 -D_LONG_LONG
+
+include Makefile.BASE
+
 #
 # $Log: Makefile.aix,v $
 # Revision 1.2  2005/07/29 15:47:10  svitak
@@ -82,13 +135,3 @@
 #
 #
 
-LLIBS		=	$(LIBS) $(EXTRALIBS)
-CFLAGS		=	$(CFLAGS_IN)
-
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-##
-RNG_CFLAGS = -DBIGENDIAN -D$(MACHINE) -O3 -qstrict -qarch=pwr2 -qlanglvl=ansi -qtune=pwr2 -D_LONG_LONG
-
-include Makefile.BASE

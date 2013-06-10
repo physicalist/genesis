@@ -8,6 +8,53 @@
 #
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
 # All configuration is in the file Makefile.
+
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	HP running HPUX (versions unknown)
+# Compiler:	HP C compiler
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## The GENESIS maintainers have very little experience with HPUX and the
+## status of this configuration is unknown.  There have been reports of
+## display problems under HPUX. 
+
+# MACHINE=hpux
+OS=SYSV
+
+XINCLUDE=-I/usr/include/X11R5
+XLIB=/usr/lib/X11R5
+
+CC=cc
+CPP=/lib/cpp -P
+CFLAGS=-O
+LD=ld
+LDFLAGS=
+
+RANLIB=ranlib
+AR=ar
+
+YACC=yacc
+LEX=lex
+LEXLIB=-ll
+LIBS= $(LEXLIB) -lm
+
+TERMCAP =
+TERMOPT = -DPLAINTERM
+
+# end	HP running HPUX (versions unknown)
+
+LLIBS		=	$(LIBS) $(EXTRALIBS)
+CFLAGS		=	$(CFLAGS_IN)
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+##
+RNG_CFLAGS = $(CFLAGS_IN)
+
+include Makefile.BASE
+
 #
 # $Log: Makefile.hpux,v $
 # Revision 1.2  2005/07/29 15:47:11  svitak
@@ -103,13 +150,3 @@
 #
 #
 
-LLIBS		=	$(LIBS) $(EXTRALIBS)
-CFLAGS		=	$(CFLAGS_IN)
-
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-##
-RNG_CFLAGS = $(CFLAGS_IN)
-
-include Makefile.BASE

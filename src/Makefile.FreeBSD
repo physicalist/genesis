@@ -10,6 +10,44 @@
 # check the MACHINE specific settings in src/Makefile.
 
 #----------------------------------------------------------------
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	FreeBSD 4.1
+# Compiler:	GCC C compiler
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+## FreeBSD comes with Berkeley yacc and is used here.  A fix in the yacc
+## specs allows this version of yacc to work where it failed under Linux
+## systems with Berkeley yacc.  The default settings for yacc and lex
+## should work.
+##
+## The m4 distributed with FreeBSD does not accept the -B flag. See README
+## for details.
+
+# MACHINE=FreeBSD
+OS=BSD
+
+XINCLUDE=-I/usr/X11R6/include
+XLIB=/usr/X11R6/lib
+
+CC=cc
+CPP=/usr/libexec/cpp -P
+CFLAGS=-O2 -D__NO_MATH_INLINES
+
+LD=ld
+LDFLAGS=
+
+RANLIB=ranlib
+AR=ar
+
+YACC=yacc
+LEX=lex
+LEXLIB=-ll
+LIBS= $(LEXLIB) -lm
+
+TERMCAP=-ltermcap
+TERMOPT=-DTERMIO
+
+## end	FreeBSD
 
 LLIBS		=	$(LIBS) $(EXTRALIBS)
 CFLAGS		=	$(CFLAGS_IN)

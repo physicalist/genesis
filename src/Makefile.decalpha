@@ -9,6 +9,158 @@
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
 # All configuration is in the file Makefile.
 #
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	DEC Alpha running Digital UNIX version 4
+# Compiler:	DEC cc compiler
+#
+# This combination is known to FAIL.  Support is presently unavailable.
+# If you succeed in getting this to work yourself, please send your
+# changes back to the GENESIS developers.
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+# MACHINE=decalpha
+OS=BSD
+
+XINCLUDE=-I/usr/include
+XLIB=/usr/lib
+
+CC=cc -std
+CPP=/lib/cpp -P
+CFLAGS=-O2 -DLONGWORDS
+LD=ld
+LDFLAGS=
+
+RANLIB=ranlib
+AR=ar
+
+YACC=yacc
+LEX=lex
+LEXLIB=-ll
+LIBS= -ldnet_stub $(LEXLIB) -lm
+
+TERMCAP=-ltermcap
+TERMOPT=-DTERMIO -DDONT_USE_SIGIO
+
+## end	DEC Alpha running OSF/1 release 2 or higher
+
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	DEC Alpha running Digital UNIX version 3.2
+# Compiler:	DEC cc compiler
+#
+# This combination is known to FAIL.  Support is presently unavailable.
+# If you succeed in getting this to work yourself, please send your
+# changes back to the GENESIS developers.
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+# MACHINE=decalpha
+# OS=BSD
+
+# XINCLUDE=-I/usr/include
+# XLIB=/usr/lib
+
+# CC=cc
+# CPP=/lib/cpp -P
+# CFLAGS=-g -std0 -taso -DLONGWORDS # -Olimit 5000
+# LD=ld
+# LDFLAGS=
+
+# RANLIB=ranlib
+# AR=ar
+
+# YACC=yacc
+# LEX=lex
+# LEXLIB=-ll
+# LIBS= -ldnet_stub $(LEXLIB) -lm
+
+# TERMCAP=-ltermcap
+# TERMOPT=-DTERMIO -DDONT_USE_SIGIO
+
+## end	DEC Alpha running OSF/1 release 4 or higher
+
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	DEC Alpha OSF1/Digital UNIX version 3.2
+# Compiler:	GNU GCC (egcs-2.91.66, egcs-1.1.2 release)
+#
+# This combination is known to FAIL.  Support is presently unavailable.
+# If you succeed in getting this to work yourself, please send your
+# changes back to the GENESIS developers.
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+# MACHINE=decalpha
+# OS=BSD
+
+# XINCLUDE=-I/usr/X11R6/include
+# XLIB=/usr/lib
+
+# CC=gcc
+# CPP=/lib/cpp -P
+# CFLAGS=-g -DLONGWORDS
+# LD=ld
+# LDFLAGS=
+
+# RANLIB=ranlib
+# AR=ar
+
+# YACC=yacc
+# LEX=lex
+# LEXLIB=-ll
+# LIBS= -ldnet_stub $(LEXLIB) -lm
+
+# TERMCAP=-ltermcap
+# TERMOPT=-DTERMIO -DDONT_USE_SIGIO
+
+## end	DEC Alpha running OSF/1 release 3.2 or higher
+
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	DEC Alpha running OSF/1 release 2 or higher
+# Compiler:	DEC cc compiler
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+# MACHINE=decalpha
+# OS=BSD
+
+# XINCLUDE=-I/usr/include
+# XLIB=/usr/lib
+
+## The c89 compiler doesn't compile cleanly across alpha OS releases.
+## Under OSF/1 v2  the -O option results in runtime problems in Xodus.
+## The -O problem may also exist for OSF/1 v3 systems.
+
+# CC=cc -std0
+# CPP=/lib/cpp -P
+# CFLAGS=-O -DLONGWORDS
+# LD=ld
+# LDFLAGS=
+
+# RANLIB=ranlib
+# AR=ar
+
+# YACC=yacc
+# LEX=lex
+# LEXLIB=-ll
+# LIBS= -ldnet_stub $(LEXLIB) -lm
+
+# TERMCAP=-ltermcap
+# TERMOPT=-DTERMIO -DDONT_USE_SIGIO
+
+## end	DEC Alpha running OSF/1 release 2 or higher
+
+
+LLIBS		=	$(LIBS) $(EXTRALIBS)
+CFLAGS = $(CFLAGS_IN)
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+##
+RNG_CFLAGS = -O3 -std1 -DLittleEndian -D$(MACHINE)
+
+include Makefile.BASE
+
 # $Log: Makefile.decalpha,v $
 # Revision 1.1  2005/08/24 03:18:13  ghood
 # Renamed from Makefile.alpha
@@ -118,13 +270,3 @@
 #
 #
 
-LLIBS		=	$(LIBS) $(EXTRALIBS)
-CFLAGS = $(CFLAGS_IN)
-
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-##
-RNG_CFLAGS = -O3 -std1 -DLittleEndian -D$(MACHINE)
-
-include Makefile.BASE

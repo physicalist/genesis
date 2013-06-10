@@ -9,6 +9,51 @@
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
 # All configuration is in the file Makefile.
 #
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	DECStation running Ultrix 4.x or 3.x
+# Compiler:	DEC C compiler
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+# MACHINE=mips
+OS=BSD
+
+XINCLUDE=-I/usr/include
+XLIB=/usr/lib
+
+## You might have to play with the value of the -G option to get
+## GENESIS to compile/link properly.
+
+CC=cc -G 5
+CPP=/lib/cpp -P
+CFLAGS=-O
+LD=ld
+LDFLAGS=-G 5
+
+RANLIB=ranlib
+AR=ar
+
+YACC=yacc
+LEX=lex
+LEXLIB=-ll
+LIBS= $(LEXLIB) -lm
+
+TERMCAP=-ltermcap
+TERMOPT=-DTERMIO
+
+## end DECStation running Ultrix 4.x or 3.x
+
+
+LLIBS		=	$(LIBS) $(EXTRALIBS)
+CFLAGS		=	$(CFLAGS_IN)
+
+##
+## sprng may need different flags in order to compile.
+## In general, it can be optimized at a higher level than genesis code.
+##
+RNG_CFLAGS = $(CFLAGS_IN)
+
+include Makefile.BASE
+
 # $Log: Makefile.mips,v $
 # Revision 1.2  2005/07/29 15:47:11  svitak
 # Relocated common targets to Makefile.BASE. Some architectures were making
@@ -106,13 +151,3 @@
 #
 #
 
-LLIBS		=	$(LIBS) $(EXTRALIBS)
-CFLAGS		=	$(CFLAGS_IN)
-
-##
-## sprng may need different flags in order to compile.
-## In general, it can be optimized at a higher level than genesis code.
-##
-RNG_CFLAGS = $(CFLAGS_IN)
-
-include Makefile.BASE

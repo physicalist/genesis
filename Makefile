@@ -61,7 +61,7 @@
 #
 
 # ----------------------------------------------------------------------
-# B. INSTALLATION AND MISC CONFIGURATION SETTINGS
+# . INSTALLATION AND MISC CONFIGURATION SETTINGS
 # ----------------------------------------------------------------------
 
 # The following variable determines where GENESIS is placed by the
@@ -75,6 +75,11 @@ SRCDIR = src
 # If /tmp is not big enough to contain compile-produced object files,
 # choose a different location here.
 TMPDIR = /tmp
+
+# extract machine (OS) and architecture names
+# depends on POSIX-standard uname utility
+MACHINE = $(shell uname -s)
+ARCH = $(shell uname -m)
 
 
 # ----------------------------------------------------------------------
@@ -193,548 +198,10 @@ SPRNGLIB   = $(SPRNGDIR)/lib/lib$(SPRNG_LIB).a
 #
 
 
-
-
-
-
-
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	DECStation running Ultrix 4.x or 3.x
-# Compiler:	DEC C compiler
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-
-# MACHINE=mips
-# OS=BSD
-
-# XINCLUDE=-I/usr/include
-# XLIB=/usr/lib
-
-## You might have to play with the value of the -G option to get
-## GENESIS to compile/link properly.
-
-# CC=cc -G 5
-# CPP=/lib/cpp -P
-# CFLAGS=-O
-# LD=ld
-# LDFLAGS=-G 5
-
-# RANLIB=ranlib
-# AR=ar
-
-# YACC=yacc
-# LEX=lex
-# LEXLIB=-ll
-# LIBS= $(LEXLIB) -lm
-
-# TERMCAP=-ltermcap
-# TERMOPT=-DTERMIO
-
-## end DECStation running Ultrix 4.x or 3.x
-
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	DEC Alpha running Digital UNIX version 4
-# Compiler:	DEC cc compiler
-#
-# This combination is known to FAIL.  Support is presently unavailable.
-# If you succeed in getting this to work yourself, please send your
-# changes back to the GENESIS developers.
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-
-# MACHINE=decalpha
-# OS=BSD
-
-# XINCLUDE=-I/usr/include
-# XLIB=/usr/lib
-
-# CC=cc -std
-# CPP=/lib/cpp -P
-# CFLAGS=-O2 -DLONGWORDS
-# LD=ld
-# LDFLAGS=
-
-# RANLIB=ranlib
-# AR=ar
-
-# YACC=yacc
-# LEX=lex
-# LEXLIB=-ll
-# LIBS= -ldnet_stub $(LEXLIB) -lm
-
-# TERMCAP=-ltermcap
-# TERMOPT=-DTERMIO -DDONT_USE_SIGIO
-
-## end	DEC Alpha running OSF/1 release 2 or higher
-
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	DEC Alpha running Digital UNIX version 3.2
-# Compiler:	DEC cc compiler
-#
-# This combination is known to FAIL.  Support is presently unavailable.
-# If you succeed in getting this to work yourself, please send your
-# changes back to the GENESIS developers.
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-
-# MACHINE=decalpha
-# OS=BSD
-
-# XINCLUDE=-I/usr/include
-# XLIB=/usr/lib
-
-# CC=cc
-# CPP=/lib/cpp -P
-# CFLAGS=-g -std0 -taso -DLONGWORDS # -Olimit 5000
-# LD=ld
-# LDFLAGS=
-
-# RANLIB=ranlib
-# AR=ar
-
-# YACC=yacc
-# LEX=lex
-# LEXLIB=-ll
-# LIBS= -ldnet_stub $(LEXLIB) -lm
-
-# TERMCAP=-ltermcap
-# TERMOPT=-DTERMIO -DDONT_USE_SIGIO
-
-## end	DEC Alpha running OSF/1 release 2 or higher
-
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	DEC Alpha OSF1/Digital UNIX version 3.2
-# Compiler:	GNU GCC (egcs-2.91.66, egcs-1.1.2 release)
-#
-# This combination is known to FAIL.  Support is presently unavailable.
-# If you succeed in getting this to work yourself, please send your
-# changes back to the GENESIS developers.
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-
-# MACHINE=decalpha
-# OS=BSD
-
-# XINCLUDE=-I/usr/X11R6/include
-# XLIB=/usr/lib
-
-# CC=gcc
-# CPP=/lib/cpp -P
-# CFLAGS=-g -DLONGWORDS
-# LD=ld
-# LDFLAGS=
-
-# RANLIB=ranlib
-# AR=ar
-
-# YACC=yacc
-# LEX=lex
-# LEXLIB=-ll
-# LIBS= -ldnet_stub $(LEXLIB) -lm
-
-# TERMCAP=-ltermcap
-# TERMOPT=-DTERMIO -DDONT_USE_SIGIO
-
-## end	DEC Alpha running OSF/1 release 2 or higher
-
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	DEC Alpha running OSF/1 release 2 or higher
-# Compiler:	DEC cc compiler
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-
-# MACHINE=decalpha
-# OS=BSD
-
-# XINCLUDE=-I/usr/include
-# XLIB=/usr/lib
-
-## The c89 compiler doesn't compile cleanly across alpha OS releases.
-## Under OSF/1 v2  the -O option results in runtime problems in Xodus.
-## The -O problem may also exist for OSF/1 v3 systems.
-
-# CC=cc -std0
-# CPP=/lib/cpp -P
-# CFLAGS=-O -DLONGWORDS
-# LD=ld
-# LDFLAGS=
-
-# RANLIB=ranlib
-# AR=ar
-
-# YACC=yacc
-# LEX=lex
-# LEXLIB=-ll
-# LIBS= -ldnet_stub $(LEXLIB) -lm
-
-# TERMCAP=-ltermcap
-# TERMOPT=-DTERMIO -DDONT_USE_SIGIO
-
-## end	DEC Alpha running OSF/1 release 2 or higher
-
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	Cray XT3 (as installed at Pittsburgh Supercomputing Center)
-# Compiler:	Portland Group cc
-#
-#	see Makefile.xt3 for other important settings
-#
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-
-# MACHINE=xt3
-# OS=BSD
-
-# XINCLUDE=-I/usr/include
-# XLIB=/usr/lib
-
-# CC=cc -target=catamount
-# CPP=cpp -P  # NOTE: we really should be using "cc -E" here, but the PGI cc
-              #   compiler does not recognize files with extension .h as being
-              #   source files, so we use the gcc preprocessor.  We can get
-              #   away with this because the files to which CPP is applied
-              #   do not include any OS-specific .h files
-# CFLAGS=-O3 -Mnontemporal -Mprefetch=distance:8,nta -Minfo=loop -D__NO_MATH_INLINES -DXT3
-# LD=ld
-# RANLIB=echo
-# AR=ar
-# YACC=bison -y
-# LEX=flex -l
-# LEXLIB=-lfl
-# LIBS= $(LEXLIB) -lm
-# TERMCAP=
-# TERMOPT=-DPLAINTERM -DDONT_USE_SIGIO
-
-# end	Cray XT3 (as installed at Pittsburgh Supercomputing Center)
-
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	FreeBSD 4.1
-# Compiler:	GCC C compiler
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-
-## FreeBSD comes with Berkeley yacc and is used here.  A fix in the yacc
-## specs allows this version of yacc to work where it failed under Linux
-## systems with Berkeley yacc.  The default settings for yacc and lex
-## should work.
-##
-## The m4 distributed with FreeBSD does not accept the -B flag. See README
-## for details.
-
-# MACHINE=FreeBSD
-# OS=BSD
-
-# XINCLUDE=-I/usr/X11R6/include
-# XLIB=/usr/X11R6/lib
-
-# CC=cc
-# CPP=/usr/libexec/cpp -P
-# CFLAGS=-O2 -D__NO_MATH_INLINES
-
-# LD=ld
-# LDFLAGS=
-
-# RANLIB=ranlib
-# AR=ar
-
-# YACC=yacc
-# LEX=lex
-# LEXLIB=-ll
-# LIBS= $(LEXLIB) -lm
-
-# TERMCAP=-ltermcap
-# TERMOPT=-DTERMIO
-
-## end	FreeBSD
-
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	HP running HPUX (versions unknown)
-# Compiler:	HP C compiler
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-
-## The GENESIS maintainers have very little experience with HPUX and the
-## status of this configuration is unknown.  There have been reports of
-## display problems under HPUX. 
-
-# MACHINE=hpux
-# OS=SYSV
-
-# XINCLUDE=-I/usr/include/X11R5
-# XLIB=/usr/lib/X11R5
-
-# CC=cc
-# CPP=/lib/cpp -P
-# CFLAGS=-O
-# LD=ld
-# LDFLAGS=
-
-# RANLIB=ranlib
-# AR=ar
-
-# YACC=yacc
-# LEX=lex
-# LEXLIB=-ll
-# LIBS= $(LEXLIB) -lm
-
-# TERMCAP =
-# TERMOPT =	-DPLAINTERM
-
-# end	HP running HPUX (versions unknown)
-
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	IBM AIX 4.x
-# Compiler:	IBM 'xlc' C compiler version 5
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-#
-# This combination of flags has been tested on IBM RS/6000 computers
-# running AIX 4.2 and 4.3, as well as the teraflop-scale Blue Horizon
-# Power3 system at SDSC.  We thank Chuck Charman and Giri Chukkpalli
-# for their help.
-
-# MACHINE = aix
-# OS = SYSV
-
-# XINCLUDE = -I/usr/include
-# XLIB = /usr/lib
-
-# CC = xlc
-# CPP = /lib/cpp -P
-##
-## If you are using an IBM Power3 system, such as the Teraflops, add the
-## following to CFLAGS for better optimization:   -qarch=pwr3 -qtune=pwr3
-##
-# CFLAGS = -DBIGENDIAN -U__STR__ -ma -O2 -qchars=signed -qmaxmem=8192
-# LD = ld
-# LDFLAGS =
-
-# RANLIB = ranlib
-# AR = ar
-
-# YACC = yacc
-# LEX = lex
-# LEXLIB = -ll -lcurses -lcur
-# LIBS = $(LEXLIB)  -lm -lrs2 -lbsd -lc
-
-# TERMCAP = -lcurses -lcur
-# TERMOPT = -DDONT_USE_SIGIO
-
-# end	IBM RS6000 running AIX
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	Cygwin
-# Compiler:	gcc
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-
-##
-## Please note that all files should have Unix-like line terminators.
-## If you get "syntax error"s from code_g or code_sys during compilation,
-## it may be the result of incorrect line terminators. Offending files can
-## be fixed using the dos2unix command.
-##
-
-#MACHINE=Cygwin
-
-#OS=SYSV
-
-#XINCLUDE=-I/usr/include
-#XLIB=/usr/X11R6/lib
-
-#CC=gcc
-#CPP=cpp -P
-#CFLAGS=-O2
-#LD=ld
-#LDFLAGS=
-
-#RANLIB=ranlib
-#AR=ar
-
-#YACC=bison -y
-#LEX=flex -l
-#LEXLIB=-lfl
-#LIBS= $(LEXLIB) -lm
-
-#TERMCAP=-lncurses
-#TERMOPT=-DTERMIO -DDONT_USE_SIGIO
-
-#export CODE_G_LFLAGS=-Wl,--stack,0x400000
-#export EXE_EXT=.exe
-
-# end	CygWin
-
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:	Other UNIX system
-# Compiler:	Other compiler
-# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-
-# Other UNIX systems
-#
-# Settings are general and the underlying makefile tries to set certain
-# system dependent macros to something which will work everywhere.
-#
-# Note: you'll have to at least set the OS macro to either SYSV or
-#       BSD to indicate either a System V or a Berkeley variant OS
-#       respectively.  Also probably need to set RANLIB to echo if
-#       there is no ranlib command on your system.
-#
-
-# MACHINE=other
-
-# !!! OS must be set properly !!!  Uncomment *one* of the following.
-
-# OS=SYSV
-# OS=BSD
-
-# XINCLUDE=-I/usr/include
-# XLIB=/usr/lib
-
-# CC=cc
-# CPP=/lib/cpp -P
-# CFLAGS=-O
-# LD=ld
-# LDFLAGS=
-
-# RANLIB=ranlib
-# AR=ar
-
-# YACC=yacc
-# LEX=lex
-# LEXLIB=-ll
-# LIBS= $(LEXLIB) -lm
-
-# TERMCAP =
-# TERMOPT =	-DDONT_USE_SIGIO
-
-# end	System specific suggested settings
-
-
 # ----------------------------------------------------------------------
 # E. CUSTOM SETTINGS
-#
-# Here is the place to overide macro settings from above selectively.
-# You should uncomment one of the above sections and uncomment items in
-# this section to override the standard settings.
+#  --> moved to Makefile.BASE
 # ----------------------------------------------------------------------
-
-## This is one of SYSV for System V UNIX varients and BSD for Berkeley
-## vartients.
-
-# OS =		BSD
-
-
-##
-## X11 settings
-##
-
-## Typical settings:
-
-# XLIB	=	/usr/lib
-# XINCLUDE =	-I.
-
-## For some versions of XFree86 (PC's with Linux) XLIB will need to be
-## set as follows
-
-# XLIB	=	/usr/X11/lib
-
-
-## For SUN OpenWindows:
-#
-# XLIB	=	/usr/openwin/lib
-# XINCLUDE =	-I/usr/openwin/include
-#
-
-## Typically /tmp but can be changed if there's not enough space there.
-# TMPDIR = /tmp
-
-##
-## C compiler
-##
-
-## Typical settings:
-#
-# CC=cc
-# CPP=/lib/cpp -P
-# CFLAGS=-O
-# LD=ld
-
-## GCC C compiler:
-##
-## For gcc, usually there will be a link from /lib/cpp to wherever cpp
-## is installed.  If not, try to find the gcc-lib installation, perhaps
-## under /usr/lib/gcc-lib and either create a symlink from /lib/cpp or
-## change the CPP define below to use the full path to where cpp lives.
-##
-## Later versions of gcc compile GENESIS (with many warnings) without
-## using the -traditional option.  If the compile fails you might try
-## adding -traditional to CFLAGS or updating your compiler.
-
-# CC=gcc
-# CPP=/lib/cpp -P
-# CFLAGS=-O
-# LD=ld
-
-
-##
-## LDFLAGS are the final link options
-##
-
-# LDFLAGS=
-
-
-##
-## RANLIB
-##
-
-## Set the RANLIB macro to "RANLIB = echo" on systems without ranlib.
-## (Only important to set for MACHINE=other and perhaps Linux; all other
-##  MACHINEs will ignore the value set here.)
-##
-## AR is the library archive program used to build the Xodus widget
-## libraries
-
-# RANLIB=ranlib
-# AR=ar
-
-
-##
-## YACC and LEX options.
-##
-
-# YACC=yacc
-# LEX=lex
-# LEXLIB=-ll
-
-## If you have GNU bison and flex uncomment the following lines.
-##
-## YACC=bison -y
-## LEX=flex -l
-## LEXLIB=-lfl
-##
-## Solaris 2.4 users note: the yacc for Solaris 2.4 produces an
-## bad parse table which causes the parser to fail.  Please use
-## bison/flex.
-##
-## Linux users note: use flex and bison rather than yacc and lex.
-## lex and yacc are scripts which use bison and flex on some systems
-## while others have an independent yacc in addition to bison.
-## The independent yacc output will fail to compile.
-##
-## SGI user note: the SGI lex defines a relatively small token text
-## buffer of 200 characters.  Lex will exit if a token's text exceeds
-## this limit (e.g. a very long command argument like shape coords
-## lists).  Changes have been made to avoid this problem.  If you
-## encounter it anyway then using flex will fix it.
-##
-## Other users: if you don't have bison, flex, yacc or lex, see the
-## section in src/README about getting bison and flex or using the
-## preprocessed yacc and lex output.
-
-
-##
-## LIBS the link libraries (not including X11)
-##
-
-# LIBS 	= 	$(LEXLIB) -lm
 
 
 # ----------------------------------------------------------------------
@@ -755,7 +222,16 @@ XLIBS =		-L$(XLIB) \
 		-lX11
 
 RCSRELEASE =	DR2-2-P1
+
+# Makefile depending on machine architecture -> finegrain later
 MF = 		Makefile.$(MACHINE)
+
+# ensure that a proper Makefile for the current architecture exists
+# Terminate if not
+ifeq ($(wildcard $(MF)),)
+    $(error fatal error - Makefile not found for architecture $(MACHINE))
+endif
+
 SHELL = 	/bin/sh
 
 SIMLIB	=	../lib
@@ -854,20 +330,20 @@ genesis: all
 #
 default: liblist
 	@rm -f kinetics/text.o kinetics/kinlib.o
-	@make -f $(MF) CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" CFLAGS_IN="$(CFLAGS) $(DISKIOFLAGS) $(SPRNG_FLAG)" IRIX_HACK="$(IRIX_HACK)" LDFLAGS="$(LDFLAGS)" SPRNG_LIB="$(SPRNG_LIB)" XLIBS="$(XLIBS)" XINCLUDE="$(XINCLUDE)" LIBS="$(LIBS)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)" MF="$(MF)" SUBDIR="$(SUBDIR)" DISKIOSUBDIR="$(DISKIOSUBDIR)" BASECODE="$(BASECODE)" OBJLIBS="$(OBJLIBS)" EXTRALIBS="$(EXTRALIBS)" XODUS="$(XODUS)"  libs genesis
+	@$(MAKE) -C $(SRCDIR) -f $(MF) CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" CFLAGS_IN="$(CFLAGS) $(DISKIOFLAGS) $(SPRNG_FLAG)" IRIX_HACK="$(IRIX_HACK)" LDFLAGS="$(LDFLAGS)" SPRNG_LIB="$(SPRNG_LIB)" XLIBS="$(XLIBS)" XINCLUDE="$(XINCLUDE)" LIBS="$(LIBS)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)" MF="$(MF)" SUBDIR="$(SUBDIR)" DISKIOSUBDIR="$(DISKIOSUBDIR)" BASECODE="$(BASECODE)" OBJLIBS="$(OBJLIBS)" EXTRALIBS="$(EXTRALIBS)" XODUS="$(XODUS)"  libs genesis
 
 #
 # Remove kinlib.o and text.o in case the last thing made had X11 stuff.
 #
 nxdefault: nxliblist
 	@rm -f kinetics/text.o kinetics/kinlib.o
-	@make -f $(MF) CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" CFLAGS_IN="$(CFLAGS) $(DISKIOFLAGS) $(SPRNG_FLAG) -DNO_X" IRIX_HACK="$(IRIX_HACK)" LDFLAGS="$(LDFLAGS)" SPRNG_LIB="$(SPRNG_LIB)" LIBS="$(LIBS)" MF="$(MF)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)" SUBDIR="$(SUBDIR)" NXSUBDIR="$(NXSUBDIR)" MINSUBDIR="$(MINSUBDIR)" DISKIOSUBDIR="$(DISKIOSUBDIR)" BASECODE="$(BASECODE)" OBJLIBS="$(OBJLIBS)" EXTRALIBS="$(EXTRALIBS)" nxlibs nxgenesis
+	@$(MAKE) -C $(SRCDIR) -f $(MF) CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" CFLAGS_IN="$(CFLAGS) $(DISKIOFLAGS) $(SPRNG_FLAG) -DNO_X" IRIX_HACK="$(IRIX_HACK)" LDFLAGS="$(LDFLAGS)" SPRNG_LIB="$(SPRNG_LIB)" LIBS="$(LIBS)" MF="$(MF)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)" SUBDIR="$(SUBDIR)" NXSUBDIR="$(NXSUBDIR)" MINSUBDIR="$(MINSUBDIR)" DISKIOSUBDIR="$(DISKIOSUBDIR)" BASECODE="$(BASECODE)" OBJLIBS="$(OBJLIBS)" EXTRALIBS="$(EXTRALIBS)" nxlibs nxgenesis
 
 mindefault: minliblist
-	@make -f $(MF) CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" CFLAGS_IN="$(CFLAGS) $(SPRNG_FLAG)" IRIX_HACK="$(IRIX_HACK)" LDFLAGS="$(LDFLAGS)" SPRNG_LIB="$(SPRNG_LIB)" LIBS="$(LIBS)" MF="$(MF)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)" SUBDIR="$(SUBDIR)" NXSUBDIR="$(NXSUBDIR)" MINSUBDIR="$(MINSUBDIR)" BASECODE="$(BASECODE)" OBJLIBS="$(OBJLIBS)" EXTRALIBS="$(EXTRALIBS)" minlibs mingenesis
+	@$(MAKE) -C $(SRCDIR) -f $(MF) CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" CFLAGS_IN="$(CFLAGS) $(SPRNG_FLAG)" IRIX_HACK="$(IRIX_HACK)" LDFLAGS="$(LDFLAGS)" SPRNG_LIB="$(SPRNG_LIB)" LIBS="$(LIBS)" MF="$(MF)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)" SUBDIR="$(SUBDIR)" NXSUBDIR="$(NXSUBDIR)" MINSUBDIR="$(MINSUBDIR)" BASECODE="$(BASECODE)" OBJLIBS="$(OBJLIBS)" EXTRALIBS="$(EXTRALIBS)" minlibs mingenesis
 
 code_g:
-	@make -f $(MF) CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" CFLAGS_IN="$(CFLAGS)" IRIX_HACK="$(IRIX_HACK)" LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" MF="$(MF)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)" SUBDIR="$(SUBDIR)" NXSUBDIR="$(NXSUBDIR)" MINSUBDIR="$(MINSUBDIR)" BASECODE="$(BASECODE)" OBJLIBS="$(OBJLIBS)" EXTRALIBS="$(EXTRALIBS)" code_g
+	@$(MAKE) -C $(SRCDIR) -f $(MF) CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" CFLAGS_IN="$(CFLAGS)" IRIX_HACK="$(IRIX_HACK)" LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" MF="$(MF)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)" SUBDIR="$(SUBDIR)" NXSUBDIR="$(NXSUBDIR)" MINSUBDIR="$(MINSUBDIR)" BASECODE="$(BASECODE)" OBJLIBS="$(OBJLIBS)" EXTRALIBS="$(EXTRALIBS)" code_g
 
 nxgenesis: code_g nxdefault
 nxall: code_g nxdefault
@@ -923,10 +399,10 @@ cleandist: clean
 
 
 clean:
-	@make -f $(MF) MF="$(MF)" DISKIOSUBDIR="$(DISKIOSUBDIR)" SUBDIR="$(SUBDIR)"  SPRNG_LIB="$(SPRNG_LIB)" clean
+	@$(MAKE) -C $(SRCDIR) -f $(MF) MF="$(MF)" DISKIOSUBDIR="$(DISKIOSUBDIR)" SUBDIR="$(SUBDIR)"  SPRNG_LIB="$(SPRNG_LIB)" clean
 
 rcsclean:
-	@make -f $(MF) MF="$(MF)" SUBDIR="$(SUBDIR)"  rcsclean
+	@$(MAKE) -C $(SRCDIR) -f $(MF) MF="$(MF)" SUBDIR="$(SUBDIR)"  rcsclean
 
 makedirs:
 	-@mkdir -p $(INSTALLDIR)
@@ -945,13 +421,13 @@ tags:
 	etags -a `find /usr/include -name '*.h'`
 
 install: makedirs
-	@make -f $(MF) MF="$(MF)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" DISKIOSUBDIR="$(DISKIOSUBDIR)" SPRNG_LIB="$(SPRNG_LIB)" SUBDIR="$(SUBDIR)" RANLIB="$(RANLIB)" install
+	@$(MAKE) -C $(SRCDIR) -f $(MF) MF="$(MF)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" DISKIOSUBDIR="$(DISKIOSUBDIR)" SPRNG_LIB="$(SPRNG_LIB)" SUBDIR="$(SUBDIR)" RANLIB="$(RANLIB)" install
 
 nxinstall: makedirs
-	@make -f $(MF) MF="$(MF)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" DISKIOSUBDIR="$(DISKIOSUBDIR)" SPRNG_LIB="$(SPRNG_LIB)" NXSUBDIR="$(NXSUBDIR)" RANLIB="$(RANLIB)" nxinstall
+	@$(MAKE) -C $(SRCDIR) -f $(MF) MF="$(MF)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" DISKIOSUBDIR="$(DISKIOSUBDIR)" SPRNG_LIB="$(SPRNG_LIB)" NXSUBDIR="$(NXSUBDIR)" RANLIB="$(RANLIB)" nxinstall
 
 mininstall: makedirs
-	@make -f $(MF) MF="$(MF)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" SPRNG_LIB="$(SPRNG_LIB)" MINSUBDIR="$(MINSUBDIR)" RANLIB="$(RANLIB)" mininstall
+	@$(MAKE) -C $(SRCDIR) -f $(MF) MF="$(MF)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" SPRNG_LIB="$(SPRNG_LIB)" MINSUBDIR="$(MINSUBDIR)" RANLIB="$(RANLIB)" mininstall
 
 VERSNAME="genesis-2.3"
 bindist: genesis nxgenesis

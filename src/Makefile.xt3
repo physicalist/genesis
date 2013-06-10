@@ -5,6 +5,40 @@
 # YOU MUST NOT EDIT THIS MAKEFILE TO CONFIGURE GENESIS!
 # All configuration is in the file Makefile.
 #
+
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+# System:	Cray XT3 (as installed at Pittsburgh Supercomputing Center)
+# Compiler:	Portland Group cc
+#
+#	see Makefile.xt3 for other important settings
+#
+# ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+
+# MACHINE=xt3
+OS=BSD
+
+XINCLUDE=-I/usr/include
+XLIB=/usr/lib
+
+CC=cc -target=catamount
+CPP=cpp -P  # NOTE: we really should be using "cc -E" here, but the PGI cc
+              #   compiler does not recognize files with extension .h as being
+              #   source files, so we use the gcc preprocessor.  We can get
+              #   away with this because the files to which CPP is applied
+              #   do not include any OS-specific .h files
+CFLAGS=-O3 -Mnontemporal -Mprefetch=distance:8,nta -Minfo=loop -D__NO_MATH_INLINES -DXT3
+LD=ld
+RANLIB=echo
+AR=ar
+YACC=bison -y
+LEX=flex -l
+LEXLIB=-lfl
+LIBS= $(LEXLIB) -lm
+TERMCAP=
+TERMOPT=-DPLAINTERM -DDONT_USE_SIGIO
+
+# end	Cray XT3 (as installed at Pittsburgh Supercomputing Center)
+
 # $Log: Makefile.xt3,v $
 # Revision 1.2  2006/01/11 06:25:53  svitak
 # Added Tutorials to list of things installed.
