@@ -232,8 +232,9 @@ MF = 		Makefile.$(MACHINE)
 
 # ensure that a proper Makefile for the current architecture exists
 # Terminate if not
-ifeq ($(wildcard $(MF)),)
-    $(error fatal error - Makefile not found for architecture $(MACHINE))
+MFD = $(SRCDIR)/$(MF)
+ifeq ($(wildcard $(MFD)),)
+    $(error fatal error - Makefile `$(MFD)` not found for architecture $(MACHINE))
 endif
 
 SHELL = 	/bin/sh

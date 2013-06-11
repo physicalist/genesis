@@ -24,7 +24,7 @@ OS=BSD
 XINCLUDE=-I/usr/X11R6/include
 XLIB=/usr/X11R6/lib
 
-CC=cc
+CC=gcc
 CPP=cpp -P 
 CFLAGS=-O2 -D__NO_MATH_INLINES
 
