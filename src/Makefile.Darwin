@@ -18,7 +18,7 @@
 ## This configuration was originally provided by a GENESIS user, Alfonso
 ## Delgado-Reyes.
 
-MACHINE=MacOSXDarwin
+#MACHINE=MacOSXDarwin
 OS=BSD
 
 XINCLUDE=-I/usr/X11R6/include

@@ -67,7 +67,11 @@
 # The following variable determines where GENESIS is placed by the
 # "make install" command. Substituting the full path here is preferable
 # to using `pwd`.
-#INSTALLDIR	=	`pwd`/..
+ifndef PREFIX
+	INSTALLDIR=`pwd`
+else
+	INSTALLDIR = $(PREFIX)/genesis
+endif
 
 # source directory
 SRCDIR = src
@@ -77,7 +81,7 @@ SRCDIR = src
 TMPDIR = /tmp
 
 # extract machine (OS) and architecture names
-# depends on POSIX-standard uname utility
+# (depends on POSIX-standard uname utility)
 MACHINE = $(shell uname -s)
 ARCH = $(shell uname -m)
 
