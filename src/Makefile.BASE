@@ -177,22 +177,26 @@ mingenesis: minlibs $(MINGENESIS)
 	@echo "Minimal GENESIS Compiled -- All Done"
 
 code_g:
-	@(echo cd sys; cd sys; make CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)" ; cd ..)
-	@(echo cd ss; cd ss; make CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)" ; cd ..)
-	@(echo cd shell; cd shell; make CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)"  code_g; cd ..)
-	@(echo cd sys; cd sys; make CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" LEXLIB="$(LEXLIB)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)"  code_g; cd ..)
+	@(echo Building deps in sys;)
+	$(MAKE) -C sys CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)"
+	@(echo Building deps in ss;)
+	$(MAKE) -C ss CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)"
+	@(echo Building deps in shell;)
+	$(MAKE) -C shell CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)"  code_g
+	@(echo Building sys;)
+	$(MAKE) -C sys CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" LEXLIB="$(LEXLIB)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)" TERMCAP="$(TERMCAP)" TERMOPT="$(TERMOPT)"  code_g
 	@echo "code_g Compiled"
 
 libs:
-	@(for i in $(SUBDIR); do echo cd $$i; cd $$i; make CC="$(CC)" TMPDIR="$(TMPDIR)" SPRNG_LIB=$(SPRNG_LIB) DISKIOSUBDIR="$(DISKIOSUBDIR)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)" XINCLUDE="$(XINCLUDE)"; cd ..;done)
+	@(for i in $(SUBDIR); do echo Build lib $$i; $(MAKE) -C $$i CC="$(CC)" TMPDIR="$(TMPDIR)" SPRNG_LIB=$(SPRNG_LIB) DISKIOSUBDIR="$(DISKIOSUBDIR)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)" XINCLUDE="$(XINCLUDE)"; done)
 	@echo "All Libs Compiled"
 
 nxlibs:
-	@(for i in $(NXSUBDIR); do echo cd $$i; cd $$i; make CC="$(CC)" TMPDIR="$(TMPDIR)" SPRNG_LIB=$(SPRNG_LIB) DISKIOSUBDIR="$(DISKIOSUBDIR)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)"; cd ..;done)
+	@(for i in $(NXSUBDIR); do echo Build lib $$i; $(MAKE) -C $$i CC="$(CC)" TMPDIR="$(TMPDIR)" SPRNG_LIB=$(SPRNG_LIB) DISKIOSUBDIR="$(DISKIOSUBDIR)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)"; done)
 	@echo "Non-X Libs Compiled"
 
 minlibs:
-	@(for i in $(MINSUBDIR); do echo cd $$i; cd $$i; make CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)"; cd ..;done)
+	@(for i in $(MINSUBDIR); do echo Build lib $$i; $(MAKE) -C $$i CC="$(CC)" TMPDIR="$(TMPDIR)" LD="$(LD)" CPP="$(CPP)" YACC="$(YACC)" LEX="$(LEX)" LEXLIB="$(LEXLIB)" LDFLAGS="$(LDFLAGS)" OS="$(OS)" MACHINE="$(MACHINE)" INSTALLDIR="$(INSTALLDIR)" CFLAGS_IN="$(CFLAGS)"; done)
 	@echo "Minimal Libs Compiled"
 
 .c.o:
@@ -211,7 +215,7 @@ cleandist:
 	@echo "You must run cleandist from the toplevel makefile"
 
 clean:
-	@(for i in $(SUBDIR); do echo cd $$i; cd $$i; make SPRNG_LIB=$(SPRNG_LIB) DISKIOSUBDIR="$(DISKIOSUBDIR)" MACHINE="$(MACHINE)" clean; cd ..;done)
+	@(for i in $(SUBDIR); do echo Cleangin $$i; $(MAKE) -C $$i SPRNG_LIB=$(SPRNG_LIB) DISKIOSUBDIR="$(DISKIOSUBDIR)" MACHINE="$(MACHINE)" clean; done)
 	-(rm -rf genesis       loadlib.o    loadlib.c)
 	-(rm -rf nxgenesis   nxloadlib.o  nxloadlib.c)
 	-(rm -rf mingenesis minloadlib.o minloadlib.c)
@@ -227,16 +231,16 @@ copydirs:
 	done
 
 install: copydirs
-	@(for i in $(FULLDIR); do echo cd $$i; cd $$i; make MACHINE=$(MACHINE) XINCLUDE="$(XINCLUDE)" SPRNG_LIB=$(SPRNG_LIB) DISKIOSUBDIR="$(DISKIOSUBDIR)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" RANLIB="$(RANLIB)" install; cd ..;done)
+	@(for i in $(FULLDIR); do echo Copy dir $$i; $(MAKE) -C $$i MACHINE=$(MACHINE) XINCLUDE="$(XINCLUDE)" SPRNG_LIB=$(SPRNG_LIB) DISKIOSUBDIR="$(DISKIOSUBDIR)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" RANLIB="$(RANLIB)" install; done)
 	@cp genesis$(EXE_EXT) "$(INSTALLDIR)"
 	@echo "Done with full install"
 
 nxinstall: copydirs
-	@(for i in $(NXDIR); do echo cd $$i; cd $$i; make MACHINE=$(MACHINE) SPRNG_LIB=$(SPRNG_LIB) DISKIOSUBDIR="$(DISKIOSUBDIR)" INSTALLDIR=$(INSTALLDIR) INSTALLBIN=$(INSTALLBIN) RANLIB="$(RANLIB)" install; cd ..;done)
+	@(for i in $(NXDIR); do echo Copy dir $$i; $(MAKE) -C $$i MACHINE=$(MACHINE) SPRNG_LIB=$(SPRNG_LIB) DISKIOSUBDIR="$(DISKIOSUBDIR)" INSTALLDIR=$(INSTALLDIR) INSTALLBIN=$(INSTALLBIN) RANLIB="$(RANLIB)" install; done)
 	@cp nxgenesis$(EXE_EXT) "$(INSTALLDIR)"
 	@echo "Done with non-X install"
 
 mininstall: copydirs
-	@(for i in $(MINDIR); do echo cd $$i; cd $$i; make MACHINE=$(MACHINE) SPRNG_LIB=$(SPRNG_LIB) INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" RANLIB="$(RANLIB)" install; cd ..;done)
+	@(for i in $(MINDIR); do echo Copy dir $$i; $(MAKE) -C $$i MACHINE=$(MACHINE) SPRNG_LIB=$(SPRNG_LIB) INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" RANLIB="$(RANLIB)" install; done)
 	@cp mingenesis$(EXE_EXT) "$(INSTALLDIR)"
 	@echo "Done with minimal install"

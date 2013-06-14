@@ -18,6 +18,8 @@
 ## This configuration was originally provided by a GENESIS user, Alfonso
 ## Delgado-Reyes.
 
+$(warning Pre-Makefile: TERMCAP=$(TERMCAP))
+
 #MACHINE=MacOSXDarwin
 OS=BSD
 
@@ -29,7 +31,7 @@ CPP=cpp -P
 CFLAGS=-O2 -D__NO_MATH_INLINES
 
 LD=ld
-LDFLAGS=
+LDFLAGS=-L/usr/local/opt/flex/lib
 
 RANLIB=ranlib
 AR=ar
@@ -58,8 +60,10 @@ CFLAGS		=	$(CFLAGS_IN)
 ## sprng may need different flags in order to compile.
 ## In general, it can be optimized at a higher level than genesis code.
 ##
-#RNG_CFLAGS = -O3 -DBIGENDIAN -D$(MACHINE)
+#RNG_CFLAGS = -O3 -DBIGENDIAN -D$(MACHINE) #PPC
 RNG_CFLAGS = -O3 -D$(MACHINE)
+
+$(warning Post-Makefile: TERMCAP=$(TERMCAP))
 
 include Makefile.BASE
 
