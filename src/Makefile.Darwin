@@ -18,20 +18,17 @@
 ## This configuration was originally provided by a GENESIS user, Alfonso
 ## Delgado-Reyes.
 
-$(warning Pre-Makefile: TERMCAP=$(TERMCAP))
-
-#MACHINE=MacOSXDarwin
 OS=BSD
 
 XINCLUDE=-I/usr/X11R6/include
 XLIB=/usr/X11R6/lib
 
 CC=gcc
-CPP=cpp -P 
+CPP=cpp -P
 CFLAGS=-O2 -D__NO_MATH_INLINES
 
 LD=ld
-LDFLAGS=-L/usr/local/opt/flex/lib
+LDFLAGS=
 
 RANLIB=ranlib
 AR=ar
@@ -39,22 +36,28 @@ AR=ar
 # Use 'yacc' or 'bison -y' here.
 YACC=yacc
 
-## Use lex or 'flex -l' here.
-LEX=lex
-
+## Use 'lex' or 'flex -l' here.
 ## If using flex, LEXLIB will be '-lfl'.
-LEXLIB=-lfl
+## depends on version of OSX: <=10.7 Lion has flex, ML+ provides lex
+ifeq ($(shell expr `uname -r | sed -e 's/\([0-9]*\).*/\1/'` \>= 12 ),1)
+# ML Kernel version is 12.x
+    LEX=lex
+    LEXLIB=-ll
+else
+    LEX=flex -l
+    LEXLIB=-lfl
+endif
 
 ## OSX 10.3.9 may require that '-lSM -lICE' be added to LIBS
 LIBS= $(LEXLIB)
- 
+
 TERMCAP=-lcurses
 TERMOPT=-DTERMIO -DDONT_USE_SIGIO
 
 ## end  MacOS X and Darwin (PPC-based systems)
 
-LLIBS           =       $(LIBS) $(EXTRALIBS)
-CFLAGS		=	$(CFLAGS_IN)
+LLIBS    = $(LIBS) $(EXTRALIBS)
+CFLAGS	+=	$(CFLAGS_IN)
 
 ##
 ## sprng may need different flags in order to compile.
@@ -62,8 +65,6 @@ CFLAGS		=	$(CFLAGS_IN)
 ##
 #RNG_CFLAGS = -O3 -DBIGENDIAN -D$(MACHINE) #PPC
 RNG_CFLAGS = -O3 -D$(MACHINE)
-
-$(warning Post-Makefile: TERMCAP=$(TERMCAP))
 
 include Makefile.BASE
 

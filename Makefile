@@ -384,7 +384,6 @@ genesis: all
 #
 default: liblist
 	@rm -f kinetics/text.o kinetics/kinlib.o
-	@$(error Target: $(TARGET))
 	$(MAKE) -C $(SRCDIR) -f $(MF) \
 	$(PARAMS) \
 	libs genesis
@@ -396,7 +395,6 @@ default: liblist
 #
 nxdefault: nxliblist
 	@rm -f kinetics/text.o kinetics/kinlib.o
-	@error Target: $(TARGET)
 	$(MAKE) -C $(SRCDIR) -f $(MF) \
 	$(PARAMS) \
 	nxlibs nxgenesis
