@@ -3,6 +3,11 @@ static char rcsid[] =
 
 /*
 ** $Log: shell_tty.c,v $
+**
+** 2014/09/09 dbeeman
+** Added patch from Gilles Detillieux to cure problem on some Linux systems
+** that resulted in no CR provided with LF after quitting GENESIS.
+**
 ** Revision 1.6  2005/10/24 06:31:22  svitak
 ** Fixed includes for Solaris.
 **
@@ -154,7 +159,7 @@ static char rcsid[] =
 #include <termio.h>
 #endif
 
-#if defined(__FreeBSD__) || defined(__APPLE__)
+#if defined(__FreeBSD__) || defined(__APPLE__) || defined(Linux)
 struct termios old_tty_stdin, old_tty_stdout, new_tty_stdin, new_tty_stdout;
 #else
 struct termio old_tty_stdin, old_tty_stdout, new_tty_stdin, new_tty_stdout;
@@ -473,7 +478,7 @@ void normal_tty()
      * reset the terminal parameters to their original state
      */
 #ifdef TERMIO
-#if defined(__FreeBSD__) || defined(__APPLE__)
+#if defined(__FreeBSD__) || defined(__APPLE__) || defined(Linux)
     tcsetattr(fileno(stdin), TCSANOW, &old_tty_stdin);
     tcsetattr(fileno(stdout), TCSANOW, &old_tty_stdout);
 #else
@@ -517,7 +522,7 @@ void terminal_setup()
      * save the old terminal parameters
      */
 #ifdef TERMIO
-#if defined(__FreeBSD__) || defined(__APPLE__)
+#if defined(__FreeBSD__) || defined(__APPLE__) || defined(Linux)
     tcgetattr(fileno(stdin), &old_tty_stdin);
     tcgetattr(fileno(stdout), &old_tty_stdout);
 #else
@@ -525,7 +530,7 @@ void terminal_setup()
     ioctl(fileno(stdout), TCGETA, &old_tty_stdout);
 #endif
 #else
-    ioctl(fileno(stdin), TIOCGETP, &old_tty_stdint);
+    ioctl(fileno(stdin), TIOCGETP, &old_tty_stdin);
     ioctl(fileno(stdout), TIOCGETP, &old_tty_stdout);
 #endif
     /*
@@ -673,12 +678,17 @@ tset()
      */
     new_tty_stdin.c_lflag &= ~(ECHO | ICANON);
     new_tty_stdin.c_oflag |= ONLCR;
-    new_tty_stdin.c_cc[VEOF] = 1;
-    new_tty_stdin.c_cc[VEOL] = 1;
+    /* on some systems the c_cc array is too small so test before setting: */
+    if (sizeof(new_tty_stdin) >
+           ((void *)&new_tty_stdin.c_cc[VEOF] - (void *)&new_tty_stdin))
+        new_tty_stdin.c_cc[VEOF] = 1;
+    if (sizeof(new_tty_stdin) >
+           ((void *)&new_tty_stdin.c_cc[VEOL] - (void *)&new_tty_stdin))
+        new_tty_stdin.c_cc[VEOL] = 1;
     /*
      * set the new parameters
      */
-#if defined(__FreeBSD__) || defined(__APPLE__)
+#if defined(__FreeBSD__) || defined(__APPLE__) || defined(Linux)
     tcsetattr(fileno(stdin), TCSANOW, &new_tty_stdin);
 #else
     ioctl(fileno(stdin), TCSETA, &new_tty_stdin);

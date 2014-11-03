@@ -9,19 +9,81 @@
 <HR>
 <H2><A NAME="Changes"></A> <A NAME="s2">2. Changes Introduced in GENESIS 2</A></H2>
 
-<P>GENESIS version 2.3 includes many new features and enhancements to previous
+<P>GENESIS version 2.4 includes many new features and enhancements to previous
 versions.  The following sections describe changes introduced between
-versions 2.0 and 2.3.  The final part of this chapter describes the considerable
+versions 2.0 and 2.4.  The final part of this chapter describes the considerable
 changes that were introduced in version 2.0.  If you have previously used
 GENESIS 1 (e.g., version 1.4 or earlier), please read those sections also,
 in order to understand the differences between GENESIS 2 and GENESIS 1.</P>
 
-<H2><A NAME="ss2.0">2.0 Changes Introduced in GENESIS 2.3</A></H2>
-
 <P>The <EM>ChangeLog</EM> file lists the changes introduced in each new
 release of GENESIS.  Likewise, <EM>Doc/README.changes</EM> lists the
-documentation files that have been added or changed.  In addition to many bug
-fixes, these are the most significant new features of GENESIS version 2.3:</P>
+documentation files that have been added or changed.  
+
+<H2><A NAME="ss2.0">2.0 Changes Introduced in GENESIS 2.4</A></H2>
+
+<P>
+
+The new 'stdp_rules' object has been added for efficiently implementing spike
+timing dependent plasticity in large networks of hsolved multicompartmental
+cells. There have also been additions to fields of the 'synapse' subelement of
+the synchan to provide time of last spike arrival, and fields to implement
+synaptic plasticity. See the documention
+for <A HREF="Manual-26.html#stdp_rules">stdp_rules</A>, and for
+<A HREF="Manual-21.html#NewPlasticityObjects">NewPlasticityObjects</A> for
+details of this object.  <EM>Scripts/stdp_rules</EM> contains both
+a text and HTML tutorial on using stdp_rules along with example scripts.
+Information on the added synapse fields of the synchan can be found in
+these, as well as the documentation for <A HREF="Manual-26.html#synchan">
+synchan</A>.
+
+<P>
+Three new network connection commands, 
+<A HREF="Manual-25.html#volumeconnect3">volumeconnect3</A>,
+<A HREF="Manual-25.html#volumeweight3">volumeweight3</A>, and
+<A HREF="Manual-25.html#volumedelay3">volumedelay3</A>
+have been added and documented. These allow distance-dependent
+connection probabilities and/or weights and the use of periodic boundary
+conditions for network connectivity.
+
+<P>
+A new version of the chemesis library for modeling second messengers and calcium
+dynamics is now installed by default. The documentation is found in
+<A HREF="chemesis.html">chemesis.html</A>, with examples and a tutorial
+<EM>Scripts/chemesis/CalTut.html</EM>.
+<P>
+
+New tutorial Scripts and Documentation were added for:
+<UL>
+     <LI> chemesis
+     <LI> the <EM>Scripts/gpython-tools</EM> Python utility collection
+     <LI> An updated Purkinje tutorial in <EM>Scripts/purkinje</EM>
+     <LI> stdp_rules, including 'NewPlasticityObjects' documentation for
+       implementing similar objects.
+     <LI> <EM>Scripts/VAnet2</EM> contains an improved hsolved implementation of
+       the dual exponential conductance version of the Vogels-Abbott network
+       model. It serves as a tutorial on how to achieve a speed improvement of
+       10 to 20 times when using hsolve with network models.
+</UL>
+
+<P>
+The genesis/contrib directory is for utilities, scripts, and other files that
+have been contributed by users. It may also used in a personal GENESIS
+installation for storing downloaded patches, updates, and other material that
+has become available since the last GENESIS release. It currently contains
+emacs macros for editing GENESIS scripts.
+
+
+<P>
+Several Makefile changes and bug fixes were made to ease installation with
+recent versions of the gcc compiler and X11 versions.
+
+<P>
+
+<H2><A NAME="ss2.01">2.01 Changes Introduced in GENESIS 2.3</A></H2>
+
+In addition to many bug fixes, these are the most significant new
+features of GENESIS version 2.3:</P>
 
 <P>The GENESIS 2.3 release supercedes version 2.2.1, which was primarily a
   bug fix release.  It has a number of changes in the simulator source code to

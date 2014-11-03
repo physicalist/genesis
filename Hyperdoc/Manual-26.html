@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<TITLE>GENESIS Reference ManualMay 5, 2001: GENESIS Object Reference</TITLE>
+<TITLE>GENESIS Reference Manual: GENESIS Object Reference</TITLE>
 </HEAD>
 <BODY>
 <A HREF="Manual-25.html">Previous</A>
@@ -388,12 +388,14 @@ Example:        Scripts/squid/squid_electronics.g
 
 See also:       
 </PRE>
-</P>
+
 
 <H2><A NAME="RC"></A> <A NAME="ss26.6">26.6 RC</A></H2>
 
 <P>
 <PRE>
+
+</P>
 Object Type:    RC
 
 Description:    A series resistance R, shunted by a capacitance C.
@@ -439,6 +441,204 @@ Example:        Scripts/squid/squid_electronics.g
 See also:       
 </PRE>
 </P>
+
+
+<H2><A NAME="SynE_object"></A> <A NAME="ss26.6.1">26.6.1 SynE_object </A></H2>
+
+<P>
+<PRE>
+Object Type:    SynE_object
+ 
+Description:    Implements electrical synaptic transmission in the leech
+ 
+Author:         J. Lu and A. Hill, Calabrese Lab, 5/99
+ 
+------------------------------------------------------------------------------
+ 
+ELEMENT PARAMETERS
+ 
+DataStructure:  SynE_type  [in src/newconn/SynGS_struct.h]
+ 
+Size:           148 bytes
+ 
+Fields:         TauPre       Tau for RC filter of presynaptic Vm
+                TauPost      Tau for RC filter of presynaptic Vm
+                Vpre         RC filtered presynaptic Vm
+                Vpost        RC filtered postsynaptic Vm
+                Gbar         maximal conductance
+                rectify      0 = no rectify, 1 = pass pos., -1 pass neg.
+
+------------------------------------------------------------------------------
+
+SIMULATION PARAMETERS
+ 
+Function:       SynE  [in src/newconn/SynE.c]
+ 
+Classes:        device synchannel
+ 
+Actions:        RESTORE2  SAVE2  CHECK  RESET  PROCESS  INIT
+ 
+Messages:       VOLTAGE         presynaptic membrane potential
+                POSTVOLTAGE     postsynaptic membrane potential
+ 
+--------------------------------------------------------------------------
+
+Notes:          Simulates electrical synaptic transmission designed
+                specifically for leech HN cells, based on the synchan object.
+		Needs presynaptic and postsynaptic membrane potential as
+		input.  The output is the synaptic current that is added to
+		the postsynaptic compartment via an inject message.  In
+		addition, the pre- and postsynaptic membrane potentials can be
+		lowpass filtered with an RC circuit.  The time contants can be
+		set for both potentials. The synapse is unidirectional, that
+		is, the current is injected into only the postsynaptic cell.
+		To make a bidirectional synapse, another element must be
+		created.  The synapse can be configured to be non-rectifying
+		(passes both positive and negative current) or retifying
+		(passes only either positive or negative current).  This is
+		done by setting the rectify field to 0 for non-retifying, 1
+		for passes positve current, or -1 for passes negative current.  
+
+Example:        See http://calabreselx.biology.emory.edu/software.html.
+
+</PRE>
+
+See also:
+<A HREF="#synchan">synchan</A>,
+<A HREF="#SynG_object">SynG_object</A>,
+<A HREF="#SynS_object">SynS_object</A>.
+
+<H2><A NAME="SynG_object"></A> <A NAME="ss26.6.2">26.6.2 SynG_object </A></H2>
+
+<P>
+<PRE>Object Type:    SynG_object
+ 
+Description:    Implements graded synaptic inhibition in the leech
+ 
+Author:         J. Lu and A. Hill, Calabrese Lab, 3/97
+ 
+------------------------------------------------------------------------------
+ 
+ELEMENT PARAMETERS
+ 
+DataStructure:  SynG_type  [in src/newconn/SynGS_struct.h]
+ 
+Size:           196 bytes
+ 
+Fields:         Ik                 channel current
+                Gk                 time varying channel conductance
+                Ek                 reversal potential of channel
+                A                  shunts effective Ca current
+                B                  buffering parameter
+                P                  Ca factor governing transmitter release
+                C                  limit parameter(limits release to Gbar)
+                R                  release = p^3/(p^3+C)
+                Gbar               maximal conductance
+                A1                 A1 in Ainf=A1+A2/(1+exp(A3+(Vm+A4)))
+                A2                 A2
+                A3                 A3
+                A4                 A4
+                A5                 A5 is the time constant
+                POWER              POWER
+
+------------------------------------------------------------------------------
+
+SIMULATION PARAMETERS
+ 
+Function:       SynG  [in src/newconn/SynG.c]
+
+Classes:        device synchannel
+ 
+Actions:        RESTORE2  SAVE2  CHECK  RESET  PROCESS  INIT
+ 
+Messages:       VOLTAGE         presynaptic membrane potential
+                CAF             presynaptic fast Ca current, ICaF
+                CAS             presynaptic slow Cacurrent, ICaS
+                POSTVOLTAGE     postsynaptic membrane potential
+ 
+------------------------------------------------------------------------------
+ 
+Notes:          Simulates graded synaptic transmission designed specifically
+                for leech HN cells, based on the synchan object.  Needs
+		presynaptic calcium currents (ICaF and ICaS) and presynaptic
+		membrane potential as input.  The output is the synaptic
+		conductance.  In addition, this object can calculate the
+		synpatic current if it is given the postsynaptic membrane
+		potential.  This is useful only for the purpose of plotting
+		the synaptic current.  The simuation will work without
+		calculating synaptic current because the postsynaptic
+		compartment calculates the current based on the postsynaptic
+		Vm and the synaptic reversal potential.
+
+Example:        See http://calabreselx.biology.emory.edu/software.html.
+
+</PRE> 
+
+See also:       
+
+See also:
+<A HREF="#synchan">synchan</A>,
+<A HREF="#SynE_object">SynE_object</A>,
+<A HREF="#SynS_object">SynS_object</A>.
+
+
+<H2><A NAME="SynS_object"></A> <A NAME="ss26.6.3">26.6.3 SynS_object </A></H2>
+
+<P>
+<PRE>
+Object Type:    SynS_object
+ 
+Description:    Implements voltage-dependent modulation of spike-mediated
+                synaptic transmission.
+ 
+Author:         Calabrese Lab, 3/97
+ 
+------------------------------------------------------------------------------
+ 
+ELEMENT PARAMETERS
+ 
+DataStructure:  SynS_type  [in src/newconn/SynGS_struct.h]
+ 
+Size:           148 bytes
+ 
+Fields:         m_SynS       modulation factor = A+B/(1+exp(C*(Vm+D)))
+                A            A
+                B            B
+                C            C
+                D            D
+                E            E = time constant  
+
+------------------------------------------------------------------------------
+
+SIMULATION PARAMETERS
+ 
+Function:       SynS  [in src/newconn/SynS.c]
+ 
+Classes:        device synchannel
+ 
+Actions:        RESTORE2  SAVE2  CHECK  RESET  PROCESS  INIT
+ 
+Messages:       VOLTAGE         membrane potential Vm
+
+ 
+------------------------------------------------------------------------------
+
+Notes:          Calculates the voltage dependent modulation of spike mediated
+                transmission in the leech HN cells.  Therefore, it needs the
+		presynaptic membrane potential.  Modulation is a sigmoidal
+		function of the membrane potential given by
+		m_SynS = A+B/(1+exp(C*(Vm+D))), with a time constant E.
+
+Example:        See http://calabreselx.biology.emory.edu/software.html.
+
+</PRE> 
+
+See also:
+<A HREF="#synchan">synchan</A>,
+<A HREF="#SynG_object">SynG_object</A>,
+<A HREF="#SynE_object">SynE_object</A>.
+
+
 
 <H2><A NAME="asc_file"></A> <A NAME="ss26.7">26.7 asc_file</A></H2>
 
@@ -7078,7 +7278,7 @@ Fields:
                 thresh          threshold level for spike generation
                 abs_refract     minimum interval between spikes
                 output_amp      spike event amplitude
-
+                lastevent       time of last generated spike
 ------------------------------------------------------------------------------
 
 SIMULATION PARAMETERS
@@ -7241,7 +7441,67 @@ See also:
 <A HREF="#asc_file">asc_file </a>, 
 <A HREF="#spikegen">spikegen </a></P>
 
+<H2><A NAME="stdp_rules"></A> <A NAME="ss26.57.1">26.57.1 stdp_rules</A></H2>
 
+<P>
+<PRE>
+Object Type:	stdp_rules
+
+Description:	Performs a weight modification of synchan connections,
+                according to spike timing dependent (STDP) rules and
+		settable parameters.  Works with hsolved cells.
+
+Author:		Dave Beeman, University of Colorado, June 2014
+
+------------------------------------------------------------------------------
+
+ELEMENT PARAMETERS
+
+DataStructure:	stdp_rules_type [in src/newconn/stdp_rules_struct.h]
+
+Size:		208 bytes
+
+Fields:
+             synpath         relative path to synchan to be modified
+             spikepath       relative path to the cell spikegen
+             tau_pre         decay constant for pre before post spike
+             tau_post        decay constant for post before pre spike
+             min_dt          minimum time diff to account for latency
+             max_weight      maximum synaptic weight allowed
+             min_weight      minimum synaptic weight allowed
+             dAplus          increment for postive weight changes
+             dAminus         increment for negative weight changes
+             change_weights  flag: 0 = plasticity off, otherwise on
+             debug_level     flag: 0 = no messages, 1 = some messages, 2 = more
+             celllist         GENESIS ElementList of cells to modify
+
+
+------------------------------------------------------------------------------
+
+SIMULATION PARAMETERS
+
+Function:   StdpRules [in src/newconn/stdp_rules.c]
+
+Class:		output
+
+Actions:	CHECK  RESET  PROCESS  INIT  CREATE
+
+Messages:	None
+
+------------------------------------------------------------------------------
+
+Notes: A clocked object to modify synaptic weights for all synapses of
+       a specified (wildcarded) cell and synchan, e.g. '/layer4/pyr[]'
+       and 'apical3/AMPA'.  The spike timing dependent plasticity
+       (STDP) rules algorithm is from Song, Miller, and Abbott (2000).
+
+Example:  Scripts/stdp_rules/README.txt
+
+</PRE>
+See also:       
+<A HREF="#synchan">synchan </a>, 
+<A HREF="#spikegen">spikegen </a>
+<P>
 <H2><A NAME="symcompartment"></A> <A NAME="ss26.58">26.58 symcompartment</A></H2>
 
 <P>
@@ -7407,22 +7667,25 @@ DataStructure:  Synchan_type  [in src/newconn/newconn_struct.h]
  
 Size:           200 bytes
  
-Fields:         activation         driving force (transmitter) for channel
+Fields: activation         driving force (transmitter) for channel
                                    conductance
-                Ik                 channel current
-                Gk                 time varying channel conductance
-                Ek                 reversal potential of channel
-                tau1               first time constant of channel activation
-                tau2               second time constant of channel activation
-                gmax               peak channel conductance
-                frequency          random activation frequency (default = 0)
-                nsynapses          number of incoming spike messages (readonly)
-                event_buffer_size  size of event buffer (readonly)
-                pending_events     number of pending spike events in event 
-                                   buffer (readonly)
-                nodes_per_synapse  number of event nodes to allocate per 
-                                   synapse (default 1)
-                synapse            synapse buffer
+        Ik                 channel current
+        Gk                 time varying channel conductance
+        Ek                 reversal potential of channel
+        tau1               first time constant of channel activation
+        tau2               second time constant of channel activation
+        gmax               peak channel conductance
+        frequency          random activation frequency (default = 0)
+        nsynapses          number of incoming spike messages (readonly)
+	time_last_event    arrival time (including delay) of last spike (readonly)
+	Aplus              unused field available to store positive weight changes
+	Aminus             unused field available to store negative weight changes
+        event_buffer_size  size of event buffer (readonly)
+        pending_events     number of pending spike events in event 
+                           buffer (readonly)
+        nodes_per_synapse  number of event nodes to allocate per 
+                           synapse (default 1)
+        synapse            synapse buffer
 
 ------------------------------------------------------------------------------
 
@@ -7568,14 +7831,43 @@ Notes:          Simulates a time dependent synaptically activated ionic
                 synchan and renamed synchan2 to be synchan.  &quot;synchan2&quot; is
                 now just an alias for synchan -- they are identical.
 
-Example:        (Using Scripts/tutorials/tutorial4.g)
+	Additions for GENESIS 2.4:
 
-                genesis &gt; showfield /cell/dend/Ex_channel synapse[1].weight
-                [ /cell/dend/Ex_channel ]
-                synapse[1].weight    = 10
+	The individual synapse substructures of the synchan now have
+	four additional fields that can be used to implement synaptic
+	plasticity in hsolved synchans.
 
-                genesis &gt; echo {getfield /cell/dend/Ex_channel synapse[1].delay}
-                0.004999999888
+	'last_spike_time' records the arrival time (including delay) of the
+	last presynaptic spike. It can be used along with the
+	'lastevent' field of the cell spikegen to determine the times
+	of presynaptic and postsynaptic spikes.  It is set to -1 on
+	RESET.
+
+	The settable fields 'Aplus' and 'Aminus' are set to 0.0 on
+	RESET. Otherwise, they are not used by the synchan. They are
+	available to store positive and negative weight when synaptic
+	plasticity rules are applied with an external function or
+	object, such as the stdp_rules object. Likewise, 'lastupdate'
+	is not directly used by the synchan, except to set it to -1 on
+	RESET. It is used by plasticity objects such as stdp_rules to
+	keep track of when the synapse weight, Aplus, and Aminus
+	fields were last updated.
+
+
+Example: (Using Scripts/tutorials/tutorial4.g)
+
+         genesis &gt; showfield /cell/dend/Ex_channel synapse[1].weight
+         [ /cell/dend/Ex_channel ]
+         synapse[1].weight    = 10
+
+        genesis &gt; echo {getfield /cell/dend/Ex_channel synapse[1].delay}
+        0.004999999888
+
+        genesis >  showfield /cell/soma/Ex_channel synapse[0].last_spike_time
+
+	[ /cell/soma/Ex_channel ]
+	synapse[0].last_spike_time = 99.92880249
+
 </PRE>
 
 See also: 
@@ -7587,7 +7879,11 @@ See also:
 <A HREF="Manual-25.html#getsyncount">getsyncount </a>, 
 <A HREF="Manual-25.html#getsynindex">getsynindex </a>,
 <A HREF="Manual-25.html#getsynsrc">getsynsrc </a>, 
-<A HREF="Manual-25.html#getsyndest">getsyndest </a></P>
+<A HREF="Manual-25.html#getsyndest">getsyndest </a>,
+<A HREF="Manual-21.html#ss21.4">New Synaptic Plasticity Objects</A>,
+<A HREF="Manual-26.html#stdp_rules">stdp_rules </A>
+
+</P>
 
 
 

@@ -67,6 +67,7 @@ echo making Purkinje synapse library...
 		create synchan non_NMDA
     end
 
+//     setfield non_NMDA Ek {E_non_NMDA} tau1 {2.60e-3} tau2 {63.00e-3}
     setfield non_NMDA Ek {E_non_NMDA} tau1 {0.50e-3} tau2 {1.20e-3}  \
         frequency {0.0}
 

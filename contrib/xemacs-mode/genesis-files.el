@@ -24,8 +24,8 @@
 
 ;; configure function menu for genesis mode
 (defvar fume-function-name-regexp-genesis
-  "^\\(function\\|procedure\\)[ \t]+\\([_a-zA-Z][_a-zA-Z0-9]*\\)"
-  "Expression to get function/procedure names in Genesis scripts.")
+  "^\\(function\\|extern\\)[ \t]+\\([_a-zA-Z][_a-zA-Z0-9]*\\)"
+  "Expression to get function/extern names in Genesis scripts.")
 
 (setq fume-function-name-regexp-alist
       (append '((genesis-mode . fume-function-name-regexp-genesis))
@@ -37,7 +37,7 @@
 (defun fume-find-next-genesis-function-name (buffer)
   "Search for the next Genesis function in BUFFER."
   (set-buffer buffer)
-  (if (re-search-forward fume-function-name-regexp nil t)
+  (if (re-search-forward fume-function-name-regexp-genesis nil t)
       (let ((beg (match-beginning 2))
             (end (match-end 2)))
         (cons (buffer-substring beg end) beg))))

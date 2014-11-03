@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: output.g,v 1.6 2006/02/22 05:56:56 svitak Exp $
+// $Id: output.g 1.19 Mon, 21 Aug 2006 23:40:45 +0200 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////
@@ -35,11 +35,6 @@ extern OutputRecordToFile
 include simulation_sequence.g
 include xcell_name_requester.g
 include xgraph.g
-
-
-//v normal path for xcell script
-
-str cbOutputXCell
 
 
 ///
@@ -76,6 +71,28 @@ function OutputInitialize
 
 	setfield ^ \
 		linked_form "/xgraphs/Vm"
+
+// 	create xtoggle /output/panel/graph_im \
+// 		-offlabel "Display Graph (Im)" \
+// 		-onlabel "Hide Graph (Im)" \
+// 		-script "OutputSetVisible <w> <v>"
+
+// 	addfield ^ \
+// 		linked_form -description "Form linked to this toggle"
+
+// 	setfield ^ \
+// 		linked_form "/xgraphs/Im"
+
+// 	create xtoggle /output/panel/graph_leak \
+// 		-offlabel "Display Graph (Leak)" \
+// 		-onlabel "Hide Graph (Leak)" \
+// 		-script "OutputSetVisible <w> <v>"
+
+// 	addfield ^ \
+// 		linked_form -description "Form linked to this toggle"
+
+// 	setfield ^ \
+// 		linked_form "/xgraphs/leak"
 
 	create xtoggle /output/panel/graph_ca \
 		-offlabel "Display Graph (Ca)" \
@@ -123,16 +140,9 @@ function OutputInitialize
 
 	//- create toggle to show cell
 
-	create xtoggle /output/panel/cell \
-		-offlabel "Display Cell" \
-		-onlabel "Hide Cell" \
-		-script "OutputSetVisible <w> <v>"
-
-	addfield ^ \
-		linked_form -description "Form linked to this toggle"
-
-	setfield ^ \
-		linked_form "/xcell"
+	create xbutton /output/panel/cell \
+		-title "Add Cell View (+ resets)" \
+		-script "OutputAddVisible <w> <v>"
 
 	//- create button to allow ascii output
 
@@ -165,9 +175,6 @@ function OutputInitialize
 
 	pope
 
-	//- show the output panel
-
-	xshow /output/panel
 end
 
 
@@ -182,14 +189,12 @@ function OutputRecorderAsk(widget)
 
 str widget
 
-	//- store field for xcell script
+	XCellGlobalElectrodeAddCallback {"ISOLATE"}
 
-	cbOutputXCell = {getfield /xcell/draw/xcell1 script}
-
-	//- set field for xcell script
-
-	setfield /xcell/draw/xcell1 \
-		script "OutputRecorderToFile <v>"
+	XCellGlobalElectrodeAddCallback \
+		{"OutputRecorderToFile" \
+			@ "_" \
+			@ {cellpath}}
 
 	//- pop add plot form
 
@@ -209,10 +214,8 @@ end
 
 function OutputRecorderHideRequester
 
-	//- restore field for xcell script
-
-	setfield /xcell/draw/xcell1 \
-		script {cbOutputXCell}
+	XCellGlobalElectrodePopCallback
+	XCellGlobalElectrodePopCallback
 
 	//- hide add plot window
 
@@ -229,9 +232,12 @@ end
 /// sequence.
 ///
 
-function OutputRecorderToFile(name)
+function OutputRecorderToFile(solver,name,color,cell)
 
+str solver
 str name
+int color
+str cell
 
 	//- for empty given name
 
@@ -292,7 +298,27 @@ str name
 	//! check how input.g and settings.g deal with it,
 	//! checkout SettingsIClampSetTarget().
 
-	OutputRecordToFile {cellpath} {name}
+	OutputRecordToFile {cellpath} {name} {cell}
+end
+
+
+///
+/// SH:	OutputAddVisible
+///
+/// DE:	Add a new form for output.
+///
+/// The form to show is registered in the clicked widget using the
+/// field 'linked_form'.
+///
+
+function OutputAddVisible(widget,value)
+
+str widget
+
+str value
+
+	XCellCreate "/comp" "default"
+
 end
 
 
@@ -324,6 +350,10 @@ str value
 	else
 		xhide {form}
 	end
+
+	//- synchronize the state with widget look
+
+	setfield {widget} state {value}
 end
 
 
@@ -333,11 +363,11 @@ end
 /// DE:	Record the simulation sequence of the given compartment.
 ///
 
-function OutputRecordToFile(path,comp)
+function OutputRecordToFile(path,comp,cell)
 
 str path
-
 str comp
+str cell
 
 	//- set default result : success
 
@@ -345,31 +375,31 @@ str comp
 
 	//- get the registered xcell output
 
-	str xcOutput = {getfield /xcell output}
+	str xcOutput = {getfield {cell} output}
 
 	//- get the registered xcell output source
 
-	str xcOutputSource = {getfield /xcell outputSource}
+	str xcOutputSource = {getfield {cell} outputSource}
 
 	//- get the registered xcell output value
 
-	str xcOutputValue = {getfield /xcell outputValue}
+	str xcOutputValue = {getfield {cell} outputValue}
 
 	//- get the registered xcell output flags
 
-	int xcOutputFlags = {getfield /xcell outputFlags}
+	int xcOutputFlags = {getfield {cell} outputFlags}
 
 	//- get the registered xcell output description
 
-	str xcOutputDescription = {getfield /xcell outputDescription}
+	str xcOutputDescription = {getfield {cell} outputDescription}
 
 	//- get the registered xcell channel mode
 
-	str xcChannelMode = {getfield /xcell channelMode}
+	str xcChannelMode = {getfield {cell} channelMode}
 
 	//- get xcell field for registering boundary element
 
-	str xcBoundElement = {getfield /xcell boundElement}
+	str xcBoundElement = {getfield {cell} boundElement}
 
 	//- get tail of compartment
 

@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: actions.g,v 1.8 2006/02/22 05:56:56 svitak Exp $
+// $Id: actions.g 1.13.1.1.1.5.1.10 Mon, 21 Aug 2006 23:07:20 +0200 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,6 @@ int climbingDelaySteps = 0
 //v climbing fiber active synapse
 
 int climbingSynapse = 0
-
 
 ///
 /// SH:	ActionBasket

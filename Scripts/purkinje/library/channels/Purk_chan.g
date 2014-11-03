@@ -45,6 +45,11 @@ int bSaveTables = 0
 *********************************************************************/
 
 /* Make tabchannels */
+/// XAA: multiplier divided by 1e3
+/// XAB: multiplier membrane dependence, convert to DBL_MAX
+/// XAC: (de)nominator offset
+/// XAD: membrane offset
+/// XAF: denormalized time constant
 function make_chan(chan, Ec, Gc, Xp, XAA, XAB, XAC, XAD, XAF, XBA, XBB,  \
     XBC, XBD, XBF, Yp, YAA, YAB, YAC, YAD, YAF, YBA, YBB, YBC, YBD, YBF \
     , Zp, ZAA, ZAB, ZAC, ZAD, ZAF, ZBA, ZBB, ZBC, ZBD, ZBF)
@@ -91,11 +96,11 @@ function make_Purkinje_chans
 
     echo "making Purkinje channel library"
     if (bSaveTables)
-	echo "I will not save the library,"
-	echo "set bSaveTables to 1 if you want to save the tables."
+	echo "saving the channel tables, set bSaveTables to 0 if this is not what you want"
 	echo "Hint : > grep -R bSaveTables ."
     else
-	echo "saving the library, set bSaveTables to 0 if this is not what you want"
+	echo "I will not save the channel tables,"
+	echo "set bSaveTables to 1 if you want to save the tables."
 	echo "Hint : > grep -R bSaveTables ."
     end
 

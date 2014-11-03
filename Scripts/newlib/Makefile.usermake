@@ -1,5 +1,7 @@
 # $Id: Makefile.usermake,v 1.6 2005/11/07 21:14:19 svitak Exp $
 #
+# Updated for GENESIS 2.4 - 2014/10/17 dbeeman
+#
 # Usermake: A Makefile template for compiling a new version of
 #           GENESIS that includes user-defined objects and libraries.
 #
@@ -54,24 +56,26 @@
 # the top-level GENESIS Makefile. Note that `pwd`/<something> will
 # NOT WORK! Use a full path here.
 
-INSTALLDIR   = /usr/local/genesis
+INSTALLDIR   = /usr/local/genesis-2.4/genesis
 TMPDIR   = /tmp
 
 # The following should have the same values as the settings you used for
 # these same variables in the file genesis/src/Makefile.  Please consult
 # that file for the values to use.
+#
+# The values given below are for a typical x86_64 Linux installation
+# 
 
-MACHINE   = 
-OS	  = 
-XLIB      = 
-CC	  = 
-CFLAGS	  = 
-CPP	  = 
-LD        = 
+MACHINE   = Linux
+OS	  = BSD
+XLIB      = /usr/lib64
+CC	  = cc
+CFLAGS	  = -O2 -D__NO_MATH_INLINES -DLONGWORDS
+CPP	  = cpp -P
+LD        = ld
 LDFLAGS   = 
-LEXLIB    = 
-TERMCAP   =
-
+LEXLIB    = -lfl
+TERMCAP   = -lncurses
 #
 # USER CONFIGURATION VARIABLES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
@@ -167,7 +171,9 @@ SPRNGLIB   = $(SIMLIB)/lib$(SPRNG_LIB).a
 # in batch mode without graphics, comment out XLIBS, XODUS and XODUSLIB
 # to get a non-Xodus genesis.
 
-XLIBS    = -L$(XLIB)  -lXt  -lXmu  -lXext  -lX11
+XLIBS    = -L$(XLIB)  -lXt  -lX11
+# Some systems may need libXmu and libXext
+# XLIBS    = -L$(XLIB)  -lXt  -lXmu  -lXext  -lX11
 XODUS 	 = $(SIMLIB)/drawlib.o \
 	   $(SIMLIB)/widglib.o \
 	   $(SIMLIB)/xolib.o \

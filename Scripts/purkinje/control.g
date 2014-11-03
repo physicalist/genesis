@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: control.g,v 1.8 2006/02/22 05:56:56 svitak Exp $
+// $Id: control.g 1.14.1.1.2.1.1.1.1.1.1.1.1.2.2.3.1.1.1.14 Mon, 21 Aug 2006 23:40:45 +0200 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////
@@ -30,72 +30,13 @@ if ( {include_control} == 0 )
 
 
 include actions.g
+include xcell.g
 
 
 //! I define the vars first before including any scripts because else 
 //! genesis starts complaining about syntax errors when functions in the 
 //! scripts reference them. 
 
-
-//v default simulation time (msec)
-
-float runtime = 500
-
-//v target element for current injection
-
-str iClampCurrentTarget = "soma"
-
-//v current injection without pulses (nA)
-
-float iClampCurrentBase = 0.5
-
-//v current injection with pulses, first delay (msec)
-
-float iClampCurrentDelay1 = 0.0
-
-//v current injection with pulses, first level (nA)
-
-float iClampCurrentOffset = -0.5
-
-//v current injection with pulses, first pulse width (msec)
-
-float iClampCurrentWidth = 100
-
-//v current injection with pulses, second level (nA)
-
-float iClampCurrentOffset2 = 2.5
-
-//v current injection with pulses, second pulse delay (msec)
-
-float iClampCurrentPeriod = 200
-
-//v current injection with pulses, second pulse width (msec)
-
-float iClampCurrentWidth2 = 50
-
-//v boolean to enable local synchro firing
-
-int bSynchroLocal = 0
-
-//v branch for synchro parallel fiber firing
-
-str synchroBranch = "b3s44"
-
-//v level of synchro activation, distributed
-
-float synchroDistrLevel = 1
-
-//v level of synchro activation, local
-
-float synchroLocalLevel = 10
-
-//v number of synchro synapses to activate
-
-int synchroSynapses = 50
-
-//v basket synaptical strength
-
-float basketLevel = 1
 
 
 // include scripts that handle settings and actions
@@ -188,11 +129,25 @@ function PurkinjeReset
 	else
 	end
 
+	//- update the firing frequencies for stellate and parallel fibers
+
+	UpdateFrequencies
+
+// 	//! the single argument call form of silent reports the actual value
+// 	//! instead of the previous one.  So I need two calls to unsilence hsolve.
+
+// 	str previous_silent = {silent}
+
+// 	silent -1
+
 	//- reset all
 
 	//t normally all modules should receive their own reset
 
 	reset
+
+// 	silent {previous_silent}
+
 end
 
 
@@ -325,7 +280,7 @@ function ToggleAction(action)
 
 int action
 
-	//- check for parallel fiber
+	//- for parallel fiber
 
 	if (action == 1)
 
@@ -346,7 +301,7 @@ int action
 				{synchroDistrLevel}
 		end
 
-	//- check for basket axon
+	//- for basket axon
 
 	elif (action == 2)
 
@@ -358,7 +313,7 @@ int action
 
 		ActionBasketStart {basketLevel}
 
-	//- check for climbing fiber
+	//- for climbing fiber
 
 	elif (action == 3)
 
@@ -603,7 +558,7 @@ function ControlPanelCreate
 
 	//- create form for control panel
 
-	create xform /control [0, 520, 300, 340]
+	create xform /control [0, 520, 300, 360]
 
 	//! Xodus contains a couple of bugs regarding layout of
 	//! widgets using reference edges.  The offset logic is a workaround,
@@ -662,13 +617,6 @@ function ControlPanelCreate
 		-title "Time (msec) : " \
 		-script "SetRunTime <v>"
 
-	//- create the time step dialog
-
-	create xdialog outputRate \
-		-value {outputRate} \
-		-title "Output rate : " \
-		-script "SetOutputRate <v>"
-
 	//- create label for simulation time
 
 	create xlabel simulationTimeLabel \
@@ -679,9 +627,52 @@ function ControlPanelCreate
 
 	create xlabel simulationTimeOutput \
 		-xgeom 0:last.right \
-		-ygeom 0:outputRate.bottom \
+		-ygeom 0:time.bottom \
 		-wgeom 30% \
 		-title "0.0000"
+
+	//- create the time step dialog
+
+	create xdialog outputRate \
+		-value {outputRate} \
+		-title "Output rate : " \
+		-script "SetOutputRate <v>"
+
+	//- create label with normalized / absolute description
+
+	create xlabel chanlabel \
+		-ygeom 2:outputRate.bottom \
+		-wgeom 70% \
+		-title "Output mode :"
+
+	//- create toggle to change normalized / absolute output
+
+	create xtoggle chanmode \
+		-xgeom 70% \
+		-ygeom 0:outputRate.bottom \
+		-wgeom 30% \
+		-title "" \
+		-onlabel "Normalized" \
+		-offlabel "Absolute" \
+		-script "ControlSwitchChanmode <v>"
+
+	//- if chanmode is 5
+
+	if ({getglobal iChanMode} == 5)
+
+		//- set widget to normalized output
+
+		setfield chanmode \
+			state 1
+
+	//- else
+
+	else
+		//- set widget to absolute output
+
+		setfield chanmode \
+			state 0
+	end
 
 	//- create a simulation mode label
 
@@ -854,10 +845,6 @@ function ControlPanelCreate
 		-title "Credits" \
 		-script "InfoCredits"
 
-	//- show the control panel
-
-	xshow /control
-
 	//- create refresh funtionality for control panel
 
 	CreateRefresh /control/ ControlRefresh
@@ -865,6 +852,48 @@ function ControlPanelCreate
 	//- pop previous current element from stack
 
 	pope
+
+end
+
+
+///
+/// SH:	ControlSwitchChanmode
+///
+/// PA:	state.: new chanmode state (0 or 1).
+///
+/// DE:	Refresh the control panel
+///	Does update for simulation time widget in the control panel
+///
+
+function ControlSwitchChanmode(state)
+
+int state
+
+	//- if state is not zero
+
+	if (state)
+
+		//- switch to chanmode 5
+
+		setglobal iChanMode 5
+
+		setfield {cellpath}/solve \
+			chanmode {getglobal iChanMode}
+
+	//- else
+
+	else
+		//- switch to chanmode 4
+
+		setglobal iChanMode 4
+
+		setfield {cellpath}/solve \
+			chanmode {getglobal iChanMode}
+	end
+
+	//- synchronize xcell views
+
+	XCellAllSwitchChanMode {state}
 
 end
 

@@ -1,4 +1,13 @@
-GENESIS 2.3 Binary Distribution README
+GENESIS 2.4 Binary Distribution README
+
+Binary distributions of GENESIS are typically released shortly after
+the public release of the source distribution. These instructions
+refer to the installation of Cygwin, Linux, and OSX binaries in
+the form of 'genesis-2.4-<os>-bin.tar.gz' files.
+
+Binary distributions of GENESIS 2.4 for Debian (.deb) and Fedora
+(.rpm) Linux should be available from the GENESIS web site shortly
+after the November 1014 GENESIS 2.4 release.
 
 CONTENTS
     1  QUICK START
@@ -19,11 +28,11 @@ CONTENTS
 
 1  QUICK START
     cd <install_directory>
-    tar xzf genesis-2.3-<os>-bin.tar.gz
-    cd genesis-2.3/genesis
+    tar xzf genesis-2.4-<os>-bin.tar.gz
+    cd genesis-2.4/genesis
     ./binsetup
     cp .simrc ~
-    export PATH=$PATH:/usr/local/genesis-2.3/genesis   # use 'set' for csh
+    export PATH=$PATH:/usr/local/genesis-2.4/genesis   # use 'set' for csh
 
     If it didn't work, you'll have to read on...
 
@@ -57,7 +66,7 @@ directory from the archive file, e.g. genesis-2.3-linux-bin.tar.gz.  For
 example,
 
         cd /usr/local
-        tar xvzf /mnt/cdrom/genesis-2.3-linux-bin.tar.gz
+        tar xvzf /mnt/cdrom/genesis-2.4-linux-bin.tar.gz
 
 or from wherever you have it (e.g.~/downloads/genesis-2.3-linux-bin.tar.gz)
 
@@ -67,7 +76,7 @@ or from wherever you have it (e.g.~/downloads/genesis-2.3-linux-bin.tar.gz)
 A small setup script should be run to create a GENESIS initialization file
 (.simrc) which is modified to reflect your installation directory.
 
-        cd genesis-2.3/genesis
+        cd genesis-2.4/genesis
         ./binsetup
 
 Then copy the resulting .simrc to your home directory.
@@ -82,11 +91,11 @@ can be found from any directory.  If your login shell is bash, do this by
 editing the .bashrc file in your home directory. For example, if you have
 installed genesis in /usr/local, add this line:
 
-        PATH=$PATH:/usr/local/genesis-2.3/genesis
+        PATH=$PATH:/usr/local/genesis-2.4/genesis
 
 If you are using tcsh or csh as your command shell, add
 
-        set path=($path /usr/local/genesis-2.3/genesis)
+        set path=($path /usr/local/genesis-2.4/genesis)
 
 to your .tcsh or .csh file.
 

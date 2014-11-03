@@ -140,11 +140,27 @@ struct Randomspike_type
     short       list_alloced;                \
     short       allocednodes;       
 
+/* New synapse fields added in GENESIS 2.4 (Hugo Cornelis and Dave Beeman)
+
+   last_spike_time is a copy of ((struct Spikegen_type *) mi->src)->lastevent
+   giving the the time of arrival (including delay) of the presynaptic spike.
+   The Aplus and Aminus fields are available for storage of synaptic weight
+   changes when plasticity functions are applied to a synchan synapse, but
+   are not used by the normal synchan PROCESS action.
+
+   lastupdate is used by the stdp_update.c code to keep track of when
+   the synapse weight, Aplus, and Aminus fields were last updated.
+   It is also not modified by the normal synchan PROCESS action.
+*/
+
 #define SYNAPSE_TYPE     \
     MsgIn*	mi;      \
     float	weight;  \
-    float	delay;  
-
+    float	delay;   \
+    float 	last_spike_time; \
+    float	Aplus; \
+    float	Aminus; \
+    float       lastupdate;
 
 struct Synapse_type 
 {
@@ -204,9 +220,10 @@ struct HebbSynchan_type
   short       change_weights;      /* flag: nonzero means weights can be changed */
 };
 
-
 #include "fac_struct.h" /* for facsynchan */
 
 #include "SynGS_struct.h"
+
+#include "stdp_rules_struct.h"
 
 #endif

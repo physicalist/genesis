@@ -1,20 +1,57 @@
   2.  Changes Introduced in GENESIS 2
 
-  GENESIS version 2.3 includes many new features and enhancements to
+  The ChangeLog file lists the changes introduced in each new release of
+  GENESIS.  Likewise, Doc/README.changes lists the documentation files that have
+  been added or changed.
+
+  GENESIS version 2.4 includes many new features and enhancements to
   previous versions.  The following sections describe changes introduced
-  between versions 2.0 and 2.3.  The final part of this chapter describes
+  between versions 2.0 and 2.4. The final part of this chapter describes
   the considerable changes that were introduced in version 2.0.  If you
   have previously used GENESIS 1 (e.g., version 1.4 or earlier), please
   read those sections also, in order to understand the differences between
   GENESIS 2 and GENESIS 1.
 
-  2.0.  Changes Introduced in GENESIS 2.3
+2.0  Changes Introduced in GENESIS 2.4
 
-  The ChangeLog file lists the changes introduced in each new
-  release of GENESIS.  Likewise, Doc/README.changes lists the
-  documentation files that have been added or changed.  In addition to
-  many bug fixes, these are the most significant new features of GENESIS
-  version 2.3:
+The new 'stdp_rules' object has been added for efficiently implementing spike
+timing dependent plasticity in large networks of hsolved multicompartmental
+cells. There have also been additions to fields of the 'synapse' subelement of
+the synchan to provide time of last spike arrival, and fields to implment
+synaptic plasticity.
+
+Three new network connection commands, 'volumeconnect3', 'volumeweight3', and
+'volumedelay3', have been added and documented. These allow distance-dependent
+connection probabilities and/or weights and the use of periodic boundary
+conditions for network connectivity.
+
+A new version of the chemesis library for modeling second messengers and calcium
+dynamics is now installed by default.
+
+New tutorial Scripts and Doc entries were added for:
+
+     * chemesis
+     * the gpython-tools Python utility collection
+     * An updated Purkinje tutorial
+     * stdp_rules, including 'NewPlasticityObjects' documentation for
+       implementing similar objects.
+     * An improved hsolved implementation of the dual exponential
+       conductance version of the Vogels-Abbott network model. It serves
+       as a tutorial on how to achieve a speed improvement of 10 to 20
+       times when using hsolve with network models.
+
+The genesis/contrib directory contains utilities, scripts, and other files that
+have been contributed by users. It may also used in a personal GENESIS
+installation for storing downloaded patches, updates, and other material that
+has become available since the last GENESIS release. It currently contains
+emacs macros for editing GENESIS scripts.
+
+Makefile changes and bug fixes were made to ease installation.
+
+2.0.1  Changes Introduced in GENESIS 2.3
+
+  In addition to many bug fixes, these are the most significant new
+  features of GENESIS version 2.3:
 
   The GENESIS 2.3 release supercedes version 2.2.1, which was primarily a
   bug fix release.  It has a number of changes in the simulator source code

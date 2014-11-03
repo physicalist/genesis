@@ -95,13 +95,17 @@ Documentation for most UNIX commands can be obtained with the 'man'
 command. For example "man ls" will tell you about all the options for
 the 'ls' command.
 
-The standard program for reading email on UNIX is called 'mail'. You can
-find more about it with "man mail". The 'pine' program is much more
-user-friendly and has built in help. The Mozilla browser is also good
-for reading mail.
+Most modern Linux distributions provide a variety of graphical email
+clients. The standard command line program for reading email on UNIX
+is called 'mail'. You can find more about it with "man mail". The
+'pine' program is much more user-friendly and has built in help. The
+Firefox browser is also good for reading mail.
 
-The main source for information about Linux is the web site for The
-Linux Documentation Project, http://www.tldp.org/.
+http://www.linux.org/ is a good source for information about Linux,
+with a collection of tutorials for beginners. The Linux Documentation
+Project, http://www.tldp.org/ is another good source for Linux
+documentation.
 
 If most of this is new to you, now would be a good time to open a
 terminal window and try out some of the commands described above.
+ 

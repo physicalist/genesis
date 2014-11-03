@@ -55,7 +55,8 @@
 #undef ssize_t
 
 /* Define to `int' if system doesn't define.  */
-#undef ptrdiff_t
+/* Removed next line to enable MacOS compile - July 2014 */
+/*  #undef ptrdiff_t */
 
 /* Define to `unsigned char' if system doesn't define.  */
 #undef uchar

@@ -2,7 +2,7 @@
 #
 #				G E N E S I S
 #		    The General Neural Simulation System
-#				 Version 2.3
+#				 Version 2.4
 #
 # SYNOPSIS: This is the top-level Makefile for GENESIS.  
 #           YOU MUST EDIT THIS FILE BEFORE RUNNING "make".
@@ -89,6 +89,13 @@ TMPDIR = /tmp
 KINETICSLIB = kin
 KINETICSDIR = kinetics
 KINETICSOBJ = $(KINETICSDIR)/kinlib.o
+
+#
+# chemesis - chemesis modeling library
+#
+CHEMESISLIB = chem
+CHEMESISDIR = chemesis
+CHEMESISOBJ = $(CHEMESISDIR)/chemlib.o
 
 #
 # diskio --- Binary file format support library
@@ -829,13 +836,18 @@ SPRNGLIB   = $(SPRNGDIR)/lib/lib$(SPRNG_LIB).a
 # MACHINE=Linux
 # OS=BSD
 
-# XINCLUDE=-I/usr/X11R6/include
+# XINCLUDE=-I/usr/include/X11
 
 ## Choose ONE XLIB line to uncomment:
 ## For 32-bit architectures
-# XLIB=/usr/X11R6/lib
-## For 64-bit machines, probably need /usr/X11R6/lib64 here.
-# XLIB=/usr/X11R6/lib64
+# XLIB=/usr/lib
+## For 64-bit machines
+#  XLIB=/usr/lib64
+
+## Older versions of Linux that use X11R6 may need one of these:
+## XINCLUDE=-I/usr/X11R6/include
+## XLIB=/usr/X11R6/lib
+## XLIB=/usr/X11R6/lib64
 
 # CC=cc
 
@@ -923,18 +935,51 @@ SPRNGLIB   = $(SPRNGDIR)/lib/lib$(SPRNG_LIB).a
 ## end	Linux 2.x and up on PPC-based systems (LinuxPPC)
 
 # ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
-# System:       MacOS X and Darwin (PPC-based systems)
+# System:       Mac OS X and Darwin (PPC and Intel x86 based systems)
 # Compiler:     Apple Computer, Inc. v.gcc-932.1, based on gcc v.2.95.2
 # ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
 
-## This configuration was originally provided by a GENESIS user, Alfonso
-## Delgado-Reyes.
+## This configuration was originally provided by a GENESIS user,
+## Alfonso Delgado-Reyes.  For this GENESIS 2.4 release, we would
+## appreciate comments and feedback from other users of recent
+## versions of MacOS , and the upcoming Yosemite release, in
+## particular.  
+##
+## If compilation fails because of errors in netcdf, see the earlier
+## comments on changing the definitions for the netCDF file format, in
+## order to disable it. Recent changes to the src/diskio library may
+## have solved this problem.
+##
+## For most Mac users, the biggest problem will be installing the
+## necessary X window system libraries, and locating where they are
+## installed in order to properly set the Makefile definitions in the
+## section "Mac OS X and Darwin (PPC and Intel x86 based systems)".
+##
+## It is recommended that you first try "make nxgenesis" to see if
+## there are any problems other than with the installation of XODUS.
+## XODUS makes use of the legacy Athena Widget set (Xaw) within the
+## X.org libraries. When building GENESIS with XODUS, you may
+## encounter compilation errors involving the failure to find header
+## files for Xlib.h and Intrinsic.h, which are expected to be in
+## /usr/X11/include/.
+
+## Support for the X.org version of the X11 libraries is often found
+## within the 'Xcode' developer toolset provided by Apple. On newer
+## Macs, there will be a menu within Xcode for installing development
+## packages.  Another option is to visit the web site
+## htp://xquartz.macosforge.org/landing/ for a version of the X.Org X
+## Window System that runs on OS X.
+
+## The paths below for XLIB and XINCLUDE may not be valid, but may not
+## cause problems if the compiler is aware of the actual location of
+## the needed X libraries and include files.
 
 # MACHINE=MacOSXDarwin
 # OS=BSD
 
-# XINCLUDE=-I/usr/X11R6/include
-# XLIB=/usr/X11R6/lib
+## Older versions may use /usr/X11R6
+# XINCLUDE=-I/usr/X11/include
+# XLIB=/usr/X11/lib
 
 # CC=cc
 # CPP=cpp -P 
@@ -961,7 +1006,7 @@ SPRNGLIB   = $(SPRNGDIR)/lib/lib$(SPRNG_LIB).a
 # TERMCAP=-lcurses
 # TERMOPT=-DTERMIO -DDONT_USE_SIGIO
 
-## end  MacOS X and Darwin (PPC-based systems)
+## end  Mac OS X and Darwin (PPC and Intel x86 based systems)
 
 # ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
 # System:	FreeBSD 4.1
@@ -1337,6 +1382,7 @@ OBJLIBS =	buffer/buflib.o \
 		$(OLDCONNOBJ) \
 		$(DISKIOOBJ) \
 		$(KINETICSOBJ) \
+		$(CHEMESISOBJ) \
 		newconn/newconnlib.o
 
 XODUS 	=	$(XODUSLIB)/_xo/xolib.o \
@@ -1351,12 +1397,12 @@ EXTRALIBS =  	$(SPRNGLIB) $(TERMCAP)
 SUBDIR =        sys ss sim $(SPRNGDIR) shell newconn $(OLDCONNDIR) \
 		buffer concen device hh hines olf out segment \
                 tools user param pore convert $(DISKIODIR) \
-                $(KINETICSDIR) Xodus par
+                $(KINETICSDIR) $(CHEMESISDIR) Xodus par
 
 NXSUBDIR =	sys ss shell sim $(SPRNGDIR) newconn oldconn \
 		buffer concen device hh hines olf out segment \
                 tools user param pore convert $(DISKIODIR) \
-		$(KINETICSDIR) par
+		$(KINETICSDIR) $(CHEMESISDIR) par
 
 MINSUBDIR =	sys ss shell sim $(SPRNGDIR) par
 
@@ -1378,7 +1424,8 @@ LIBLIST =	output \
 		newconn \
 		$(DISKIOLIB) \
 		$(OLDCONNLIB) \
-		$(KINETICSLIB)
+		$(KINETICSLIB) \
+		$(CHEMESISLIB)
 
 NXLIBLIST = 	output \
 		hh \
@@ -1395,7 +1442,8 @@ NXLIBLIST = 	output \
 		newconn \
 		$(DISKIOLIB) \
 		$(OLDCONNLIB) \
-		$(KINETICSLIB)
+		$(KINETICSLIB) \
+		$(CHEMESISLIB)
 
 #
 # all is now the default target
@@ -1509,7 +1557,7 @@ nxinstall: makedirs
 mininstall: makedirs
 	@make -f $(MF) MF="$(MF)" INSTALLDIR="$(INSTALLDIR)" INSTALLBIN="$(INSTALLBIN)" SPRNG_LIB="$(SPRNG_LIB)" MINSUBDIR="$(MINSUBDIR)" RANLIB="$(RANLIB)" mininstall
 
-VERSNAME="genesis-2.3"
+VERSNAME="genesis-2.4"
 bindist: genesis nxgenesis
 	make INSTALLDIR="`pwd`/../distributions/$(VERSNAME)/genesis" install
 	cp nxgenesis "../distributions/$(VERSNAME)/genesis"
@@ -1556,7 +1604,6 @@ TestSuite:
 		tar czf TestSuite.tar.gz --exclude CVS TestSuite; \
 		tar cjf TestSuite.tar.bz2 --exclude CVS TestSuite)
 
-		
 
 # ----------------------------------------------------------------------
 # G. REVISION HISTORY

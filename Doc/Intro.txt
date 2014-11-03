@@ -1,6 +1,6 @@
   1.  Introduction
 
-  This is the reference manual for GENESIS version 2.3.  As there will
+  This is the reference manual for GENESIS version 2.4.  As there will
   be continuing updates and additions to the manual, please be sure that
   you have the most recent version.  Information about the latest
   version of GENESIS and its documentation may be found on the GENESIS

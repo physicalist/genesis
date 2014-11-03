@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<TITLE>GENESIS 2.3 Reference Manual</TITLE>
+<TITLE>GENESIS 2.4 Reference Manual</TITLE>
 </HEAD>
 <BODY>
 Previous
@@ -8,10 +8,10 @@ Previous
 Table of Contents
 <HR>
 <CENTER>
-<H1>GENESIS 2.3 Reference Manual</H1>
+<H1>GENESIS 2.4 Reference Manual</H1>
 <p>
 <img align=middle src="genesis5.gif">
-<H2>March 2006</H2>
+<H2>July 2014</H2>
 </CENTER>
 <P>
 <H2><A NAME="toc1">1.</A> <A HREF="Manual-1.html">Introduction</A></H2>
@@ -24,7 +24,8 @@ Table of Contents
 <P>
 <H2><A NAME="toc2">2.</A> <A HREF="Manual-2.html">Changes Introduced in GENESIS 2</A></H2>
 <UL>
-<LI><A HREF="Manual-2.html#ss2.0">2.0 Changes Introduced in GENESIS 2.3</A>
+<LI><A HREF="Manual-2.html#ss2.0">2.0 Changes Introduced in GENESIS 2.4</A>
+<LI><A HREF="Manual-2.html#ss2.01">2.01 Changes Introduced in GENESIS 2.3</A>
 <LI><A HREF="Manual-2.html#ss2.1">2.1 Changes Introduced in GENESIS 2.2</A>
 <LI><A HREF="Manual-2.html#ss2.2">2.2 Changes Introduced in GENESIS 2.1</A>
 <LI><A HREF="Manual-2.html#ss2.3">2.3 Changes Introduced in GENESIS 2.0</A>
@@ -131,6 +132,12 @@ Table of Contents
 <LI><A HREF="Manual-17.html#ss17.1">17.1 Using interpol_structs</A>
 </UL>
 
+
+
+<P>
+
+<H2><A NAME="toc17.5">17.5</A> <A HREF="chemesis.html">The
+'chemesis' library of GENESIS objects</A></H2>
 <P>
 <H2><A NAME="toc18">18.</A> <A HREF="Manual-18.html">The GENESIS Parameter Search Library</A></H2>
 <UL>
@@ -167,6 +174,8 @@ Table of Contents
 <H2><A NAME="toc21">21.</A> <A HREF="Manual-21.html">Customizing GENESIS</A></H2>
 <UL>
 <LI><A HREF="Manual-21.html#ss21.1">21.1 Defining New Objects and Commands</A>
+<LI><A HREF="Manual-21.html#ss21.3">21.3 Creating New Synaptic Objects</A>
+<LI><A HREF="Manual-21.html#ss21.4">21.4 Creating New Synaptic Plasticity Objects</A>
 <LI><A HREF="Manual-21.html#ss21.2">21.2 Compiling a New Version of GENESIS</A>
 </UL>
 
@@ -400,10 +409,13 @@ Table of Contents
 <LI><A HREF="Manual-25.html#ss25.194">25.194 useclock</A>
 <LI><A HREF="Manual-25.html#ss25.195">25.195 version</A>
 <LI><A HREF="Manual-25.html#ss25.196">25.196 volumeconnect</A>
+<LI><A HREF="Manual-25.html#ss25.196.1">25.196.1 volumeconnect3</A>
 <LI><A HREF="Manual-25.html#ss25.197">25.197 volumedelay</A>
 <LI><A HREF="Manual-25.html#ss25.198">25.198 volumedelay2</A>
+<LI><A HREF="Manual-25.html#ss25.198.1">25.198.1 volumedelay3</A>
 <LI><A HREF="Manual-25.html#ss25.199">25.199 volumeweight</A>
 <LI><A HREF="Manual-25.html#ss25.200">25.200 volumeweight2</A>
+<LI><A HREF="Manual-25.html#ss25.200.1">25.200.1 volumeweight3</A>
 <LI><A HREF="Manual-25.html#ss25.201">25.201 where</A>
 <LI><A HREF="Manual-25.html#ss25.202">25.202 writecell</A>
 <LI><A HREF="Manual-25.html#ss25.203">25.203 writefile</A>
@@ -422,6 +434,9 @@ Table of Contents
 <LI><A HREF="Manual-26.html#ss26.4">26.4 Napores</A>
 <LI><A HREF="Manual-26.html#ss26.5">26.5 PID</A>
 <LI><A HREF="Manual-26.html#ss26.6">26.6 RC</A>
+<LI><A HREF="Manual-26.html#ss26.6.1">26.6.1 SynE_object</A>
+<LI><A HREF="Manual-26.html#ss26.6.2">26.6.2 SynG_object</A>
+<LI><A HREF="Manual-26.html#ss26.6.3">26.6.3 SynS_object</A>
 <LI><A HREF="Manual-26.html#ss26.7">26.7 asc_file</A>
 <LI><A HREF="Manual-26.html#ss26.8">26.8 autocorr</A>
 <LI><A HREF="Manual-26.html#ss26.9">26.9 calculator</A>
@@ -473,6 +488,7 @@ Table of Contents
 <LI><A HREF="Manual-26.html#ss26.55">26.55 sigmoid</A>
 <LI><A HREF="Manual-26.html#ss26.56">26.56 spikegen</A>
 <LI><A HREF="Manual-26.html#ss26.57">26.57 spikehistory</A>
+<LI><A HREF="Manual-26.html#ss26.57.1">26.57.1 stdp_rules</A>
 <LI><A HREF="Manual-26.html#ss26.58">26.58 symcompartment</A>
 <LI><A HREF="Manual-26.html#ss26.59">26.59 synchan</A>
 <LI><A HREF="Manual-26.html#ss26.60">26.60 synchan2</A>

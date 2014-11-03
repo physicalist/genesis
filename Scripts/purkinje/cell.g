@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: cell.g,v 1.8 2006/02/22 05:56:56 svitak Exp $
+// $Id: purkinje_eds1994.g 1.10.1.3.2.4.1.2.1.12 Wed, 09 Aug 2006 21:07:02 +0200 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ function CellInit
 
 	//- initialize actions : all of them
 
-	ActionsInit 0 0 0 0 0
+	ActionsInit 0 0 0 0 0 0
 
 	//- initialize boundaries
 

@@ -30,10 +30,10 @@ object	synchan	        Synchan_type Synchan segment channel synchannel          
 	-hidden		xconst2               "internal variable for synaptic conductances"              \
 	-hidden		yconst2               "internal variable for synaptic conductances"              \
 	-hidden		norm                  "normalization factor for psp amplitude"                   \
-	-readwrite	tau1                  "first time constant of channel activation"                \
-	-readwrite	tau2                  "second time constant of channel activation"               \
-	-readwrite	gmax                  "peak conductance"                                         \
-	-readwrite	frequency             "random activation frequency" 0.0                          \
+	-readwrite	tau1                "first time constant of channel activation"                \
+	-readwrite	tau2                 "second time constant of channel activation"               \
+	-readwrite	gmax                 "peak conductance"                                         \
+	-readwrite	frequency           "random activation frequency" 0.0                          \
 	-readonly	nsynapses             "Number of incoming spike messages"                        \
 	-hidden		synapse_size          "size of synapse in bytes"                                 \
 	-readonly	event_buffer_size     "size of event buffer" 0                                   \
@@ -45,7 +45,6 @@ object	synchan	        Synchan_type Synchan segment channel synchannel          
         -hidden         allocednodes          "number of nodes that are the head of a malloced block" 0  \
 	-readwrite	synapse               "synapse buffer"                                           \   
 	-description    "Synaptically activated channel."
-
 
 // This is a duplicate of synchan, for backwards-compatibility:
 
@@ -285,7 +284,6 @@ object facsynchan fac_synchan_type FacSynchan segment channel synchannel   \
 // End of objects.
 //
 
-
 object	spikegen	Spikegen_type Spikegen spiking               \
 	-author 	"M.Wilson Caltech 6/88, Dave Bilitch 1/94"   \
 	-actions 	PROCESS RESET CHECK SAVE2 RESTORE2           \
@@ -299,8 +297,6 @@ object	spikegen	Spikegen_type Spikegen spiking               \
 	-description	"Performs threshold spike discrimination."   \
 			"Generates an impulse each time an input crosses the"   \
 			"spike threshold at a maximal rate set by abs_refract."
-
-
 
 object	randomspike	Randomspike_type Randomspike spiking                       \
 	-author 	"M.Wilson Caltech 6/88, Dave Bilitch 1/94"                 \
@@ -401,6 +397,28 @@ object	SynE_object	SynE_type	SynE	synchannel  device \
 	-hidden 	activation "activation not used" \
 	-description	"A new object specifically for" \
 			"electrical synaptic transmission in the leech"
+
+object	stdp_rules  stdp_rules_type StdpRules       output \
+	-author	     "Dave Beeman, June 2014" \
+	-actions     CREATE INIT PROCESS RESET CHECK \
+	-readwrite   cellpath	  "full wildcard path to the postsynaptic cells" \
+	-readwrite   synpath	  "relative path to synchan to be modified" \
+	-readwrite   spikepath	 "relative path to the cell spikegen" \
+	-readwrite   tau_pre	  "decay constant for pre before post spike" \
+	-readwrite   tau_post	  "decay constant for post before pre spike" \
+	-readwrite   min_dt	  "minimum time diff to account for latency" \
+	-readwrite   min_weight	  "minimum synaptic weight allowed" \
+	-readwrite   max_weight	  "maximum synaptic weight allowed" \
+	-readwrite   dAplus	  "increment for postive weight changes" \
+	-readwrite   dAminus	  "increment for negative weight changes" \
+	-readwrite   change_weights "flag: 0 = plasticity off, otherwise on" \
+	-readwrite   debug_level "flag: 0 = no messages, 1 = some messages, 2 = more" \
+  -readonly    celllist     "GENESIS ElementList of cells to modify" \
+	-description "A clocked object to modify synaptic weights for all " \
+		     "synapses of a specified (wildcarded) cell and synchan, " \
+         "e.g. '/layer4/pyr[]' and 'apical3/AMPA'. " \
+		     "The spike timing dependent plasticity (STDP) rules " \
+		     "algorithm is from Song, Miller, and Abbott (2000)."
 
 addfunc planardelay         PlanarDelay
 addfunc volumedelay         VolumeDelay

@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: xgraph.g,v 1.8 2006/02/22 05:56:56 svitak Exp $
+// $Id: xgraph.g 1.13.1.1.1.1.2.1.2.1.2.1.1.2.1.2.1.17 Fri, 11 Aug 2006 18:30:44 +0200 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,6 @@ if ( {include_xgraph} == 0 )
 	include_xgraph = 1
 
 
-extern XGraphNextColor
 extern XGraphPlotCompartment
 extern XGraphPlotTitle
 extern XGraphReset
@@ -37,156 +36,16 @@ extern XGraphSetBoundaries
 
 
 include xcell_name_requester.g
+include xcell.g
 
-
-//v default color for plots
-
-int iDefaultPlotColor = 38
 
 //v bool for communication between XGraphPlotCompartment and others
 
 int bXGraphPlotCompartmentResult = 0
 
-//v normal path for xcell script
-
-str cbXCell
-
 //v number of graphs created so far
 
 int iCreatedGraphs = 0
-
-
-///
-/// SH:	XGraphCBAddPlot
-///
-/// PA:	path..:	path to the graph.
-///	comp..:	path to the clicked compartment
-///
-/// DE:	Callback to add compartment to graph
-///
-
-function XGraphCBAddPlot(path,comp)
-
-str path
-
-str comp
-
-	//- allocate next color
-
-	XGraphNextColor {path}
-
-	//! the field cNextColor should be considered private,
-	//! but read the comments below to understand why I had to
-	//! read it as if it is public.
-	//!
-	//! With this public read it becomes more difficult to decide if the
-	//! graph should do a reset (and skipping back to the default color)
-	//! Modularity with genesis scripts can be tough...
-
-	//- get allocated color
-
-	int color = {getfield {path}/graph cNextColor}
-
-	//! genesis callfunc cannot handle strings nor can it handle ints
-	//! so the return value gets lost for the if statement
-
-	//- get name of electrode
-
-	str xcOutputSource = {getfield /xcell outputSource}
-
-	str outputValue = {getfield {path} outputValue}
-
-	str outputFlags = {getfield {path} outputFlags}
-
-	str electrode = {XGraphPlotTitle \
-				{comp} \
-				{xcOutputSource} \
-				{outputValue} \
-				{outputFlags}}
-
-	//- if the electrode exists
-
-	if ( {exists /electrodes/draw/{electrode}} )
-
-		//- give diagnostics
-
-		echo {electrode}" is already a recording site"
-
-	//- else
-
-	else
-		//- add plot for clicked compartment
-
-		XGraphPlotCompartment {path} /Purkinje {comp} {color}
-
-		if ( {getglobal bXGraphPlotCompartmentResult} )
-
-			//- add electrode for the compartment
-
-			XCellAddElectrode {comp} {electrode} {color}
-		end
-	end
-end
-
-
-///
-/// SH:	XGraphPlotColor
-///
-/// PA:	path..:	path to the graph.
-///
-/// RE:	color for current plot
-///
-/// DE:	Give color for current plot
-///
-
-function XGraphPlotColor(path)
-
-str path
-
-	//- get next color
-
-	int color = {getfield {path}/graph cNextColor}
-
-	//- modulo 64 to get a legal value
-
-	color = {color} % 64
-
-	//- return result
-
-	return {color}
-end
-
-
-///
-/// SH:	XGraphNextColor
-///
-/// PA:	path..:	path to the graph.
-///
-/// RE:	color for current plot
-///
-/// DE:	Give color for next plot
-///
-
-function XGraphNextColor(path)
-
-str path
-
-	//- get next available color
-
-	int color = {getfield {path}/graph cNextColor}
-
-	//- modulo 64 to get a legal value
-
-	color = {color + 19} % 64
-
-	//- increment the color count
-
-	setfield {path}/graph cNextColor {color}
-
-	//- return result
-
-	return {color}
-end
 
 
 ///
@@ -335,6 +194,7 @@ end
 ///	solver:	path with solver
 ///	comp..:	compartment to be plotted
 ///	color.:	color for new plot
+///	cell..:	cell display (if any)
 ///
 /// RE:	1 if successfull
 ///	0 if failed
@@ -344,22 +204,36 @@ end
 ///	the message to the graph.
 ///
 
-function XGraphPlotCompartment(path,solver,comp,color)
+function XGraphPlotCompartment(path,solver,comp,color,cell)
 
 str path
 str solver
 str comp
 int color
+str cell
 
 	//- set default result : success
 
 	int bResult = 1
 
+	//- apply defaults for xcell output source
+
+	str xcOutputSource = "NaF"
+
+	str xcOutputFlags = {getfield {path} outputFlags}
+
 	//- get the registered xcell output source
 
-	str xcOutputSource = {getfield /xcell outputSource}
+	//! given the NULL string, exists says yes...
 
-	str xcOutputFlags = {getfield /xcell outputFlags}
+	if ( {exists {cell} } && {cell} != "" )
+
+		xcOutputSource = {getfield {cell} outputSource}
+
+		xcOutputFlags = {getfield {cell} outputFlags}
+	end
+
+	//- get graph output source
 
 	str outputValue = {getfield {path} outputValue}
 
@@ -407,7 +281,7 @@ int color
 
 		//- if the specified element exists
 
-		if ( {exists {comp} {outputValue}} )
+		if ( {exists {comp} {outputValue}} || {outputValue} == "leak" )
 
 			//- give an informational message
 
@@ -428,8 +302,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"Added output " @ {plotTitle}}
+			XGraphSetStatusMessage {path} {"Added output " @ {plotTitle}}
 
 		//- else
 
@@ -443,8 +316,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"The output " @ {plotTitle} @ " does not exist."}
+			XGraphSetStatusMessage {path} {"The output " @ {plotTitle} @ " does not exist."}
 
 			//- set result
 
@@ -507,8 +379,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"Added output " @ {plotTitle}}
+			XGraphSetStatusMessage {path} {"Added output " @ {plotTitle}}
 
 		//- else inform the user
 
@@ -522,8 +393,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"The output " @ {plotTitle} @ " does not exist."}
+			XGraphSetStatusMessage {path} {"The output " @ {plotTitle} @ " does not exist."}
 
 			//- set result
 
@@ -590,8 +460,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"Added output " @ {plotTitle}}
+			XGraphSetStatusMessage {path} {"Added output " @ {plotTitle}}
 
 		//- else if we can find a climbing fiber input
 
@@ -616,8 +485,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"Added output " @ {plotTitle}}
+			XGraphSetStatusMessage {path} {"Added output " @ {plotTitle}}
 
 		//- else inform the user
 
@@ -631,8 +499,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"The output " @ {plotTitle} @ " does not exist."}
+			XGraphSetStatusMessage {path} {"The output " @ {plotTitle} @ " does not exist."}
 
 			//- set result
 
@@ -666,8 +533,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"Added output " @ {plotTitle}}
+			XGraphSetStatusMessage {path} {"Added output " @ {plotTitle}}
 
 		//- else if we can find a stellate 1 cell
 
@@ -692,8 +558,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"Added output " @ {plotTitle}}
+			XGraphSetStatusMessage {path} {"Added output " @ {plotTitle}}
 
 		//- else if we can find a basket cell
 
@@ -718,8 +583,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"Added output " @ {plotTitle}}
+			XGraphSetStatusMessage {path} {"Added output " @ {plotTitle}}
 
 		//- else inform the user
 
@@ -733,8 +597,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"The output " @ {plotTitle} @ " does not exist."}
+			XGraphSetStatusMessage {path} {"The output " @ {plotTitle} @ " does not exist."}
 
 			//- set result
 
@@ -768,8 +631,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"Added output " @ {plotTitle}}
+			XGraphSetStatusMessage {path} {"Added output " @ {plotTitle}}
 
 		//- else
 
@@ -783,8 +645,7 @@ int color
 
 			//- set the status bar
 
-			setfield {path}/status \
-				label {"The output " @ {plotTitle} @ " does not exist."}
+			XGraphSetStatusMessage {path} {"The output " @ {plotTitle} @ " does not exist."}
 
 			//- set result
 
@@ -815,19 +676,21 @@ end
 /// SH:	XGraphRemoveCompartment
 ///
 /// PA:	path..:	path with solver
+///	cell..: path to xcell view
 ///	comp..:	compartment to be removed from plot list
 ///
 /// DE:	Remove the plot for the given compartment
 ///
 
-function XGraphRemoveCompartment(path,comp)
+function XGraphRemoveCompartment(path,cell,comp)
 
 str path
+str cell
 str comp
 
 	//- get the registered xcell output source
 
-	str xcOutputSource = {getfield /xcell outputSource}
+	str xcOutputSource = {getfield {cell} outputSource}
 
 	str outputValue = {getfield {path} outputValue}
 
@@ -939,11 +802,9 @@ str path
 		|| {unit} == "Gk" \
 		|| {unit} == "Ek")
 
-		setfield {path}/status \
-			label {"Cleared.  To add new plots, select a channel as output variable."}
+		XGraphSetStatusMessage {path} {"Cleared.  To add new plots, select a channel as output variable in a cell view."}
 	else
-		setfield {path}/status \
-			label {"Cleared.  Click on the dendrite to add new plots."}
+		XGraphSetStatusMessage {path} {"Cleared.  Click on the dendrite to add new plots."}
 	end	
 end
 
@@ -965,9 +826,15 @@ str path
 
 	//- get relevant output parameters
 
-	str xcOutputSource = {getfield /xcell outputSource}
+// 	str xcOutputSource = {getfield /xcell outputSource}
 
-	str xcOutputFlags = {getfield /xcell outputFlags}
+// 	str xcOutputFlags = {getfield /xcell outputFlags}
+
+	//t this is a hack to get it to work, should be revisited
+
+	str xcOutputSource = "NaF"
+
+	str xcOutputFlags = {getfield {path} outputFlags}
 
 	str outputSource = {getfield {path} outputSource}
 
@@ -976,6 +843,8 @@ str path
 	str outputFlags = {getfield {path} outputFlags}
 
 	//- if this graph has a fixed output source
+
+	//! i.e. a fixed value field (dia etc.)
 
 	if ({outputSource} != "-1")
 
@@ -1130,139 +999,6 @@ end
 
 
 ///
-/// SH:	XGraphHideAddPlot
-///
-/// PA:	path..:	path to the graph.
-///
-/// DE:	Hide the add plot window
-///	Resets the xcell call back
-///
-
-function XGraphHideAddPlot(path)
-
-str path
-
-	//- restore field for xcell script
-
-	setfield /xcell/draw/xcell1 \
-		script {cbXCell}
-
-	//- hide add plot window
-
-	str requestername = {getfield {path} requestername}
-
-	XCellNameRequesterHide {requestername}
-end
-
-
-///
-/// SH:	XGraphSetAddPlot
-///
-/// PA:	path..:	path to the graph.
-///	name..:	name of compartment to add plot for
-///
-/// DE:	Add plot for specified compartment name
-///	The field and subelement to output are taken from xgraph output mode
-///	If the function is successfull, the add plot window will hide.
-///
-
-function XGraphSetAddPlot(path,name)
-
-str path
-
-str name
-
-	//- for empty given name
-
-	if ( {name} == "" )
-
-		//- just return
-
-		return
-	end
-
-	//- if name is relative
-
-	if ( {substring {name} 0 0} != "/" )
-
-		//- add cell path to compartment name
-
-		name = {{cellpath} @ "/" @ {name}}
-	end
-
-	//- get tail of string
-
-	str tail = {getpath {name} -tail}
-
-	//- find opening bracket
-
-	int iOpen = {findchar {tail} "["}
-
-	//- if name has index
-
-	if ( iOpen != -1 )
-
-		//- find closing bracket
-
-		int iClose = {findchar {tail} "]"}
-
-		//- get index from tail of name
-
-		int iIndex = {substring {tail} {iOpen + 1} {iClose - 1}}
-
-		//- if index count of tail is zero
-
-		if ( iIndex == 0 )
-
-			//- delete index of tail of name
-
-			tail = {substring {tail} 0 {iOpen - 1}}
-
-			//- construct new name
-
-			name = {{getpath {name} -head} @ {tail}}
-		end
-	end
-
-	//- call callback script for xcell
-
-	XGraphCBAddPlot {path} {name}
-end
-
-
-///
-/// SH:	XGraphShowAddPlot
-///
-/// PA:	path..:	path to the graph.
-///
-/// DE:	Popup add plot window
-///	This function messes with the xcell call back script
-///
-
-function XGraphShowAddPlot(path)
-
-str path
-
-	//- store field for xcell script
-
-	cbXCell = {getfield /xcell/draw/xcell1 script}
-
-	//- set field for xcell script
-
-	setfield /xcell/draw/xcell1 \
-		script {"XGraphCBAddPlot " @ {path} @ " <v>"}
-
-	//- pop add plot form
-
-	str unit = {getfield {path} unit}
-
-	str requestername = {getfield {path} requestername}
-
-	XCellNameRequesterShow {requestername}
-end
-
-
-///
 /// SH:	XGraphToggleOverlay
 ///
 /// PA:	widget:	name of widget to toggle overlay for
@@ -1320,7 +1056,7 @@ int iChannelMode
 	//- create container form
 
 	int x1 = 500 + {iCreatedGraphs * 10}
-	int y1 = 0 + {iCreatedGraphs * 10}
+	int y1 = 520 + {iCreatedGraphs * 10}
 	int x2 = 500
 	int y2 = 420
 
@@ -1395,7 +1131,7 @@ int iChannelMode
 		-xgeom 1% \
 		-ygeom 2% \
 		-wgeom 99% \
-		-hgeom 85% \
+		-hgeom 80% \
 		-title {outputDescription}
 
 	//- set appropriate dimensions for voltage
@@ -1416,15 +1152,6 @@ int iChannelMode
 		-wgeom 24% \
 		-title "Clear graph" \
 		-script {"XGraphClear /xgraphs/" @ {unit}}
-
-// 	//- add a button to add a plot
-
-// 	create xbutton addPlot \
-// 		-xgeom 0:last.right \
-// 		-ygeom 0:graph \
-// 		-wgeom 24% \
-// 		-title "Add plot" \
-// 		-script {"XGraphShowAddPlot /xgraphs/" @ {unit}}
 
 	//- add toggle for overlay
 
@@ -1459,17 +1186,24 @@ int iChannelMode
 		-title "Reset axes" \
 		-script {"XGraphResetAxes /xgraphs/" @ {unit}}
 
+	//- create the info area
+
+	create xlabel area \
+		-xgeom 1% \
+		-wgeom 99% \
+		-label "Tip : use the 'a' key at any time to see all plots."
+
 	//- create a status bar
 
 	create xlabel status \
 		-xgeom 1% \
 		-wgeom 99% \
-		-label "Initialized"
+		-label "Initialized (no plots)"
 
-	//- add an initialized field for allocated colors
+// 	//- add an initialized field for allocated colors
 
-	addfield /xgraphs/{unit}/graph cNextColor -descr "next color to allocate"
-	setfield /xgraphs/{unit}/graph cNextColor {iDefaultPlotColor}
+// 	addfield /xgraphs/{unit}/graph cNextColor -descr "next color to allocate"
+// 	setfield /xgraphs/{unit}/graph cNextColor {iDefaultPlotColor}
 
 	//- set clock to use for graph
 
@@ -1524,32 +1258,14 @@ int iChannelMode
 
 	pope
 
-	//- create the form to request a compartment name
-
-	str requestername \
-		= {XCellNameRequester \
-			"" \
-			"Add a plot to the graph" \
-			"Select a compartment from the Purkinje cell" \
-			"to plot its output value in the graph," \
-			"or type a compartment name below :" \
-			"Compartment name to plot : " \
-			{"XGraphSetAddPlot /xgraphs/" @ {unit} @ "<v>"} \
-			"" \
-			"Done" \
-			{"XGraphHideAddPlot /xgraphs/" @ {unit}}}
-
-	setfield /xgraphs/{unit} \
-		requestername {requestername}
-
 	//- add callback for the xcell display
 
 	//! callback called when an electrode is added
 
-	XCellElectrodeAddCallback \
-		/xcell/draw/xcell1 \
-		{"XGraphPlotCompartment_/xgraphs/" \
-			@ {unit} \
+	XCellGlobalElectrodeAddCallback \
+		{"XGraphPlotCompartment" \
+			@ "_" \
+			@ "/xgraphs/" @ {unit} \
 			@ "_" \
 			@ {cellpath}}
 
@@ -1563,110 +1279,114 @@ int iChannelMode
 end
 
 
-///
-/// SH:	XGraphReset
-///
-/// PA:	path..:	path to the graph.
-///
-/// DE:	Clear the graph and reset the title
-///	This functions relies on an xcell form /xcell that has fields for
-///	registering output source, value etc.
-///
+// ///
+// /// SH:	XGraphReset
+// ///
+// /// PA:	path..:	path to the graph.
+// ///
+// /// DE:	Clear the graph and reset the title
+// ///	This functions relies on an xcell form /xcell that has fields for
+// ///	registering output source, value etc.
+// ///
 
-function XGraphReset(path)
+// function XGraphReset(path)
 
-str path
+// str path
 
-	//- clear the graph
+// 	//- clear the graph
 
-	XGraphClear {path}
+// 	XGraphClear {path}
 
-	//- get the registered xcell output source
+// 	//- get the registered xcell output source
 
-	str xcOutputSource = {getfield /xcell outputSource}
+// 	str xcOutputSource = "NaF"
 
-	//- if output is comp. Vm
+// // 	str xcOutputSource = {getfield /xcell outputSource}
 
-	str outputFlags = {getfield {path} outputFlags}
+// 	//- if output is comp. Vm
 
-	if (outputFlags == 1)
+// 	str outputFlags = {getfield {path} outputFlags}
 
-		//- set title
+// 	if (outputFlags == 1)
 
-		setfield {path}/graph \
-			title "Compartmental voltage"
+// 		//- set title
 
-	//- else if output is channel with IGE
+// 		setfield {path}/graph \
+// 			title "Compartmental voltage or current"
 
-	elif (outputFlags == 2)
+// 	//- else if output is channel with IGE
 
-		//- set title
+// 	elif (outputFlags == 2)
 
-		setfield {path}/graph \
-			title {xcOutputValue}
+// 		//- set title
 
-	//- else if the output is excitatory channel with IGE
+// 		setfield {path}/graph \
+// 			title {xcOutputValue}
 
-	elif (outputFlags == 3)
+// 	//- else if the output is excitatory channel with IGE
 
-		//- set title
+// 	elif (outputFlags == 3)
 
-		setfield {path}/graph \
-			title {xcOutputValue}
+// 		//- set title
 
-	//- else if the output is spine comp. Vm
+// 		setfield {path}/graph \
+// 			title {xcOutputValue}
 
-	elif (outputFlags == 4)
+// 	//- else if the output is spine comp. Vm
 
-		//- set title
+// 	elif (outputFlags == 4)
 
-		setfield {path}/graph \
-			title {xcOutputSource}" spine "{xcOutputValue}
+// 		//- set title
 
-	//- else if the output is nernst E
+// 		setfield {path}/graph \
+// 			title {xcOutputSource}" spine "{xcOutputValue}
 
-	elif (outputFlags == 5)
+// 	//- else if the output is nernst E
 
-		//- set title
+// 	elif (outputFlags == 5)
 
-		setfield {path}/graph \
-			title {xcOutputSource}" nernst potential"
+// 		//- set title
 
-	//- else if the output is Calcium concen Ca
+// 		setfield {path}/graph \
+// 			title {xcOutputSource}" nernst potential"
 
-	elif (outputFlags == 6)
+// 	//- else if the output is Calcium concen Ca
 
-		//- set title
+// 	elif (outputFlags == 6)
 
-		setfield {path}/graph \
-			title {xcOutputSource}" Calcium concentration"
+// 		//- set title
 
-	//- else if the output is inhibitory channel with IGE
+// 		setfield {path}/graph \
+// 			title {xcOutputSource}" Calcium concentration"
 
-	elif (outputFlags == 7)
+// 	//- else if the output is inhibitory channel with IGE
 
-		//- set title
+// 	elif (outputFlags == 7)
 
-		setfield {path}/graph \
-			title {outputValue}
+// 		//- set title
 
-	end
+// 		setfield {path}/graph \
+// 			title {outputValue}
 
-	//- set new axes
+// 	end
 
-	//- get name for boundary element
+// 	//- set new axes
 
-	str bound = {BoundElementName \
-			{getfield /xcell outputSource} \
-			{getfield {path} outputValue} \
-			{getglobal iChanMode}}
+// 	//- get name for boundary element
 
-	callfunc XGraphSetBoundaries {path} {bound}
+// 	str xcOutputSource = "NaF"
 
-	//- register next output mode
+// 	str bound = {BoundElementName \
+// 			{xcOutputSource} \
+// 			{getfield {path} outputValue} \
+// 			{getglobal iChanMode}}
 
-	XGraphNextPlotMode {path} {outputValue}
-end
+// 	callfunc XGraphSetBoundaries {path} {bound}
+
+// 	//- register next output mode
+
+// 	XGraphNextPlotMode {path} {outputValue}
+// end
 
 
 ///
@@ -1729,35 +1449,60 @@ end
 
 
 ///
-/// SH:	XGraphSwitchChanMode
+/// SH:	XGraphSetStatusMessage
 ///
-/// PA:	state.:	0 for absolute chanmode (chanmode 4)
-///		1 for normalized chanmode (chanmode 5)
+/// PA:	path....: path to the graph.
+///	message.: status message.
 ///
-/// DE:	Switch between normalized and absolute channel mode
-///	Sets the min/max color values for the xgraph display
+/// DE:	Set status message.
 ///
 
-function XGraphSwitchChanMode(state)
+function XGraphSetStatusMessage(path,message)
 
-int state
+str path
+str message
 
-	//- get name for boundary element
+	int iPlots = {CountArguments {el {path}/graph/##[][TYPE=xplot]}}
 
-	str bound = {BoundElementName \
-			{getfield /xcell outputSource} \
-			{getfield {path} outputValue} \
-			{getglobal iChanMode}}
+	message = {{message} @ " (displaying " @ iPlots @ " plot(s))"}
 
-	//- set new boundaries from element
+	setfield {path}/status label {message}
 
-	callfunc XGraphSetBoundaries {path} {bound}
-
-	//- set field for boundaries
-
-	setfield {path} \
-		boundElement {bound}
 end
+
+
+// ///
+// /// SH:	XGraphSwitchChanMode
+// ///
+// /// PA:	state.:	0 for absolute chanmode (chanmode 4)
+// ///		1 for normalized chanmode (chanmode 5)
+// ///
+// /// DE:	Switch between normalized and absolute channel mode
+// ///	Sets the min/max color values for the xgraph display
+// ///
+
+// function XGraphSwitchChanMode(state)
+
+// int state
+
+// 	//- get name for boundary element
+
+// 	str xcOutputSource = "NaF"
+
+// 	str bound = {BoundElementName \
+// 			{xcOutputSource} \
+// 			{getfield {path} outputValue} \
+// 			{getglobal iChanMode}}
+
+// 	//- set new boundaries from element
+
+// 	callfunc XGraphSetBoundaries {path} {bound}
+
+// 	//- set field for boundaries
+
+// 	setfield {path} \
+// 		boundElement {bound}
+// end
 
 
 end

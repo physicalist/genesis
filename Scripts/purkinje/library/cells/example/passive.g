@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: passive.g,v 1.6 2006/02/22 05:56:56 svitak Exp $
+// $Id: passive.g 1.5 Wed, 09 Aug 2006 21:07:02 +0200 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ function CellInit
 
 	//- initialize actions : iclamp switch always there
 
-	ActionsInit 1 1 0 1 1
+	ActionsInit 1 1 0 1 1 1
 
 	//- initialize boundaries
 

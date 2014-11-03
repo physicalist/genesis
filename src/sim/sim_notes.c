@@ -32,6 +32,13 @@ static char rcsid[] = "$Id: sim_notes.c,v 1.3 2005/10/16 20:48:35 svitak Exp $";
  * Initial revision
  *
 */
+/* mds3 changes - moved outside function by Hugo Cornelis 2014-07-09 */
+#ifdef SYSV
+#include <sys/utsname.h>
+struct utsname utsn;
+#else
+#include <unistd.h>
+#endif
 
 #include <stdio.h>
 #include "shell_func_ext.h"
@@ -46,13 +53,6 @@ char *directory;
 char hostname[100];
 static char line[1000];
 char *getenv();
-/* mds3 changes */
-#ifdef SYSV
-#include <sys/utsname.h>
-struct utsname utsn;
-#else
-#include <unistd.h>
-#endif
 
     if((user=getenv("USER")) == NULL){
 	    user = "???";

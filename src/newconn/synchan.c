@@ -179,6 +179,8 @@ int Synchan( channel, action )
 	  
 	  if ( channel->synapse[i].mi == spikemsg )
 	    {
+	      channel->synapse[i].last_spike_time = SimulationTime() + channel->synapse[i].delay;
+
 	      ++channel->pending_events;
 	      
 	      eventtime = *(double*)action->argv;
@@ -290,6 +292,11 @@ int Synchan( channel, action )
 		      event->next = NULL;
 		    }
 		}
+
+	      //- time_last_event needs to include the shortest delay
+	      //- of all the synapses, but be larger than the current
+	      //- simulation time.
+
 	      channel->time_last_event=SimulationTime();
 	    }
 	}
@@ -503,7 +510,23 @@ int Synchan( channel, action )
 	      RemovePendingSynapticEvents( channel );
 	    }
 	}
-	  
+
+      {
+	/* double dRefract = - ((struct Spikegen_type *)spikemsg->src)->abs_refract; */
+
+	  int i;
+
+	  for (i = 0 ; i < channel->nsynapses ; i++)
+	  {
+	      channel->synapse[i].last_spike_time = -1.0;
+	      channel->synapse[i].lastupdate = -1.0;
+
+	      channel->synapse[i].Aplus = 0.0;
+
+	      channel->synapse[i].Aminus = 0.0;
+	  }
+      }
+
       /* RECALC is automatically done on a RESET */
       
       /*FALLTHROUGH*/
@@ -678,6 +701,10 @@ int Synchan( channel, action )
       /* set up defaults for new message */
       channel->synapse[i].weight =  1;
       channel->synapse[i].delay  =  0;
+      channel->synapse[i].last_spike_time  =  - ((struct Spikegen_type *)spikemsg->src)->abs_refract;
+      channel->synapse[i].Aplus = 0.0;
+      channel->synapse[i].Aminus = 0.0;
+      channel->synapse[i].lastupdate = -1.0;
 
       break; /* ADDMSGIN */
 

@@ -9,6 +9,9 @@
  *
  * AUTHOR: Mike Vanier
  *
+ * Removed "inline" declaration of functions to fix errors with MacOS
+ * July 2014 for GENESIS 2.4
+ * 
  * $Log: facsynchan.c,v $
  * Revision 1.2  2005/07/20 20:02:01  svitak
  * Added standard header files needed by some architectures.
@@ -92,8 +95,7 @@ savedata[3];
  *
  */
 
-inline void
-FacSynchan_initialize_facilitation(element)
+void FacSynchan_initialize_facilitation(element)
 struct fac_synchan_type *element;
 {
     /* The default is no synaptic facilitation or depression. */
@@ -127,8 +129,7 @@ struct fac_synchan_type *element;
  *
  */
 
-inline void
-FacSynchan_reset_facilitation(element)
+void FacSynchan_reset_facilitation(element)
 struct fac_synchan_type *element;
 {
     int i;
@@ -162,8 +163,7 @@ struct fac_synchan_type *element;
  *
  */
 
-inline void
-FacSynchan_recalc_facilitation(element)
+void FacSynchan_recalc_facilitation(element)
 struct fac_synchan_type *element;
 {
     double dt = Clockrate(element);
@@ -206,8 +206,7 @@ struct fac_synchan_type *element;
  *
  */
 
-inline int
-FacSynchan_check_facilitation(element)
+int FacSynchan_check_facilitation(element)
 struct fac_synchan_type *element;
 {
     ERROR_IF (element->fac_per_spike < 0.0,
@@ -252,8 +251,7 @@ struct fac_synchan_type *element;
  *
  */
 
-inline void
-FacSynchan_initialize_synapse(element, i)
+void FacSynchan_initialize_synapse(element, i)
 struct fac_synchan_type *element;
 int i;
 {
@@ -293,8 +291,7 @@ int i;
  *
  */
 
-inline int
-FacSynchan_update_facilitation(element)
+int FacSynchan_update_facilitation(element)
 struct fac_synchan_type *element;
 {
     int i;
@@ -347,8 +344,7 @@ struct fac_synchan_type *element;
  *
  */
 
-inline int
-FacSynchan_update_facilitation_spike(element, i)
+int FacSynchan_update_facilitation_spike(element, i)
 struct fac_synchan_type *element;
 int i;
 {
@@ -386,8 +382,7 @@ int i;
  *
  */
 
-inline double
-FacSynchan_get_effective_weight(element, i)
+double FacSynchan_get_effective_weight(element, i)
 struct fac_synchan_type *element;
 int i;
 {

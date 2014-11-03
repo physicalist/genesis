@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: stack.g,v 1.6 2006/02/22 05:56:56 svitak Exp $
+// $Id: stack.g 1.8 Tue, 21 Feb 2006 16:51:16 +0100 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////

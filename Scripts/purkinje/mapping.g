@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: mapping.g,v 1.8 2006/02/22 05:56:56 svitak Exp $
+// $Id: mapping.g 1.13 Tue, 21 Feb 2006 16:51:16 +0100 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////

@@ -1,23 +1,19 @@
+
+::
+
 			       G E N E S I S
 
 		   The GEneral NEural Simulation System
-			Version 2.3 - final release
-           Last edited: $Date: 2006/03/17 17:00:08 $
+			     Version 2.4
+           Last edited: $Date:Fri Oct 17 15:49:46 MDT 2014 $
 
-------------
 Introduction
 ------------
 
-This directory contains the distribution of GENESIS version 2.3.
-
-This release supercedes version 2.2.1, and has a number of changes in
-the simulator source code to allow use on a greater variety of platforms,
-including Intel and AMD 64 bit processors, MacIntosh with OS/X, and
-Microsoft Windows with the Cygwin environment.  It includes Kinetikit
-Version 11, and revised documentation.
+This directory contains the distribution of GENESIS version 2.4.
 
 A detailed list of source code changes from previous versions is provided in
-genesis/ChangeLog.  New features of version 2.3 are described in
+genesis/ChangeLog.  New features of version 2.3 and 2.4 are described in
 genesis/Doc/Changes.txt.
 
 Directions for installing binary distributions may be found in README.bindist
@@ -28,7 +24,6 @@ and using the documentation may be found in Doc/README.  The
 Scripts/README file describes the demonstration and tutorial simulations
 which are included with this distribution.
 
-----------------------
 Description of GENESIS
 ----------------------
 
@@ -52,24 +47,24 @@ Additional hypertext documentation, including a beginners guide to
 UNIX/Linux commands, can be found in genesis/Tutorials.
 
 Source code contributed by GENESIS users which must be compiled is found in
-src/contrib; other contributions are in contrib.
+src/contrib; other contributions, such as scripts and utilities are in contrib.
 
-------------------
-Obtaining Genesis
+Obtaining GENESIS
 ------------------
 
 GENESIS source and binary distributions can be obtained from:
-http://sourceforge.net/projects/genesis-sim.
+http://sourceforge.net/projects/genesis-sim, and http://genesis-sim.org.
 
-
-------------------
 Machine dependence  
 ------------------
 
-GENESIS and its graphical front-end XODUS are written in C and are known to
-run under many UNIX-based systems with the X Window System (X11R5 or X11R6),
-as well as OSX and Windows with Cygwin. Here's a partial list of tested
-platforms:
+GENESIS and its graphical front-end XODUS are written in C and are
+known to run under many UNIX-based systems with the X Window System
+(X11R5, X11R6, Xorg), as well as OSX and Windows with Cygwin. Most
+recent experiences are with Fedora and Ubuntu. It has also been used
+under various MS Windows virtual environments for running Linux.
+
+Here is a partial list of tested older platforms:
 
 * x86-based Linux systems:
    + Debian Linux with kernel 2.x
@@ -111,32 +106,16 @@ use GENESIS on these systems and have problem reports (or even better,
 fixes), please contact the GENESIS maintainers.
 
 
--------------------
-GENESIS Users Group
--------------------
+GENESIS Users Mailing List
+--------------------------
 
-Serious users of GENESIS are advised to join the users group, BABEL.
-Members of BABEL are entitled to access the BABEL directories and email
-newsgroup.  These are used as a repository for the latest contributions by
-GENESIS users and developers.  These include new simulations, libraries of
-cells and channels, additional simulator components, new documentation and
-tutorials, bug reports and fixes, and the posting of questions and hints
-for setting up GENESIS simulations.  As the results of GENESIS research
-simulations are published, many of these simulations are being made
-available through BABEL.  New developments are announced via the
-BABEL mailing list.  Members are able to access the BABEL directories via
-the passworded BABEL web page.
+Serious users of GENESIS are advised to join the GENESIS
+genesis-sim-users mailing list at
+https://lists.sourceforge.net/lists/listinfo/genesis-sim-users.  Find
+the latest new simulations, libraries of cells and channels,
+additional simulator components, new documentation and tutorials, and
+patches at the main GENESIS web site http://genesis-sim.org.
 
-Inquiries concerning GENESIS should be addressed to genesis@genesis-sim.org.
-Inquiries concerning BABEL memberships should be sent to
-babel@genesis-sim.org.  Other information concerning GENESIS, including
-"snapshots" of GENESIS simulations and descriptions of research which has been
-conducted with GENESIS may be found on the GENESIS World Wide Web Server at
-the following URL:
-
-       http://www.genesis-sim.org/GENESIS
-
-----------
 Disclaimer
 ----------
 

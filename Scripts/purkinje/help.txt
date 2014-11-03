@@ -1,11 +1,11 @@
-$ProjectVersion: Release2-2.11 $
+$ProjectVersion: Release2-2.17 $
 
 Purkinje tutorial
 -----------------
 
 1. THE PURKINJE CELL
-The cerebellar Purkinje cell is the only output neuron from the cerebellar
-cortex. It is also among the largest and most complex neurons in the 
+The cerebellar Purkinje cell is the only output neuron of the cerebellar
+cortex.  It is also among the largest and most complex neurons in the 
 mammalian brain. The about 200,000 synaptic inputs received by each Purkinje 
 cell constitute the most massive synaptic convergence found on any neuron 
 in the brain. Purkinje cells are also distinguished by high densities of 
@@ -97,6 +97,17 @@ The buttons in the Simulation control panel fall into three categories :
 	of 10 means that only once every 10 steps the Purkinje cell
 	picture is updated.
 
+    Output mode : Normalized / Absolute
+	Toggle between Normalized (default) or Absolute values.  For
+	channel types only.  In the Normalized output mode the
+	conductance or current is normalized relative to the surface
+	area of the compartment, this allows you to compare relative
+	activation levels between different compartments (the units
+	are arbitrary). In the Absolute output mode the real values
+	are shown in Amperes (current) or Siemens (conductance);
+	these are typically much larger for large compartments so
+	that changes in smaller ones might not be discernible.
+
   2. Buttons for Simulation mode: Purkinje cell simulation experiments
 
         (Depending on the cell that you are simulating, some of the
@@ -159,12 +170,12 @@ The buttons in the Simulation control panel fall into three categories :
 
 b. Output windows
 
-There are many output windows: the window with the picture of a Purkinje
-cell (the cell viewer), and multiple graph windows that are not visible
-when the simulation is started.  The cell and graph windows can be
-displayed or hidden by clicking the appropriate toggle buttons in the
-output menu.  The use of the graph windows is explained in further detail
-below.
+There are many output windows: the windows with the picture of a
+Purkinje cell (the cell viewer), and multiple graph windows that are
+not visible when the simulation is first started.  The cell and graph
+windows can be displayed or hidden by clicking the appropriate toggle
+buttons in the output menu.  The use of the graph windows is explained
+in further detail below.
 
   1. The cell output window
 
@@ -226,17 +237,6 @@ below.
 	  (in Siemens or arbitrary units) or reversal potential (in
 	  volts) of a channel. These buttons are only available if the
 	  main output for the cell is a channel type.
-
-      Output mode : Normalized / Absolute
-	  Toggle between Normalized (default) or Absolute values.  For
-	  channel types only.  In the Normalized output mode the
-	  conductance or current is normalized relative to the surface
-	  area of the compartment, this allows you to compare relative
-	  activation levels between different compartments (the units
-	  are arbitrary). In the Absolute output mode the real values
-	  are shown in Amperes (current) or Siemens (conductance);
-	  these are typically much larger for large compartments so
-	  that changes in smaller ones might not be discernible.
 
       Electrodes / No Electrodes
 	  Toggle between hide (default) / show the recording electrodes 

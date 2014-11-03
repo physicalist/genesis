@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: xcell.g,v 1.8 2006/02/22 05:56:56 svitak Exp $
+// $Id: xcell.g 1.1.1.6.1.5.2.6.1.1.2.1.2.2.1.25 Mon, 21 Aug 2006 23:40:45 +0200 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////
@@ -29,100 +29,12 @@ if ( {include_xcell} == 0 )
 	include_xcell = 1
 
 
-//////////////////////////////////////////////////////////////////////////////
-//o
-//o xcell library : future enhancements
-//o -----------------------------------
-//o
-//o The main major idea for future enhancement is to have a library for xcell
-//o	displays where each display can have its own output mode.
-//o
-//o
-//o 1. Requirements
-//o ---------------
-//o
-//o Because the number of possible outputs is finite, the idea is to mirror 
-//o	the output mode of an xcell display in its path.
-//o
-//o	e.g.: 
-//o		/xcells/Vm............:	gives Vm output
-//o		/xcells/CaP/Ik........:	gives Ik for CaP channel
-//o		/xcells/Cap/Gk........:	gives Gk for CaP channel
-//o		/xcells/CaP/Ek........:	gives Ek for CaP channel
-//o		.	.	.	.	.	.
-//o		.	.	.	.	.	.
-//o
-//o The xcell displays are created only when they are needed. This gives less
-//o	overhead at setup time (mainly because the messages don't have to be 
-//o	created) and at run time (because each visible xcell display doesn't
-//o	have to go through an enormous amount of messages). Opportunity must
-//o	be given to delete/hide xcells. If necessary / possible the messages
-//o	should be deleted to increase performance. When an xcell display is 
-//o	hidden, it should be disabled such that it doesn't receive any PROCESS
-//o	actions anymore.
-//o
-//o Graphs plotting the values associated with particular compartments are 
-//o	different in there path hierarchy : One graph is created for each of
-//o	Ik,Gk,Ek and for Vm and [Ca2+]. Perhaps this can also give a nicer 
-//o	name to the different plots (e.g. b1s14_16 instead of
-//o	b1s14_16_Ca_pool_Ca etc).
-//o	The link between the xcell displays and the plotting graphs is as
-//o	follows : if a click occures inside an xcell display, we ask the user
-//o	first which output parameter he wants, this defaults to the xcell's 
-//o	display output parameter.
-//o
-//o	Besides this we still have to provide a possibility to have a plot
-//o	without any xcell display where we can type the compartment name to
-//o	plot.
-//o	As with xcell displays, opportunity must be given to delete graphs. 
-//o	If possible any messages should be deleted to increase performance.
-//o
-//o The config file/module should be able to reflect a particular situation.
-//o	This situation should then be created at initialization. To specify
-//o	this situation an enumeration of xcell displays and xgraphs is given
-//o	with their output parameters. 
-//o
-//o	e.g. :
-//o
-//o		.	.	.
-//o		.	.	.
-//o		xCellElements 1600	(old values)
-//o		XCell Vm		(creates /xcells/Vm)
-//o		XCell CaP Ik		(creates /xcells/CaP/Ik)
-//o		XGraph CaP Ek		(creates /xgraphs/CaP/Ek)
-//o		XGraph Vm soma[0]	(creates /xgraphs/Vm plotting soma Vm)
-//o		.	.	.
-//o		.	.	.
-//o
-//o	In the long run it should be possible to save such a configuration 
-//o	from the tutorial itself (without having to run the configuration 
-//o	script). Perhaps a seperate file for this configuration from which the
-//o	name is given in the config file is better. This lets one choose 
-//o	between different output modes easily by changing the config file.
-//o
-//o At this moment I don't see any interference with the boundaries settings,
-//o	but I could be wrong on that.
-//o
-//o
-//o 2. Implementation
-//o -----------------
-//o
-//o A seperate library is needed asking for a particular output mode. Part of
-//o	this is present in the actual xcell code. The same applies for asking
-//o	the user for a particular compartment to plot. This code is partly 
-//o	present in the xgraph code.
-//o
-//o
-//////////////////////////////////////////////////////////////////////////////
-
-
-extern XCellAddElectrodeCallback
-extern XCellElectrodeAdd
-extern XCellElectrodeAddCallback
+extern XCellCallback
+extern XCellCallbacksTrigger
+extern XCellAllSwitchChanMode
 extern XCellElectrodeColor
 extern XCellElectrodeColorNext
 extern XCellElectrodeName
-extern XCellElectrodeTriggerCallbacks
 extern XCellRemoveElectrode
 
 
@@ -130,28 +42,229 @@ include stack.g
 include xcell_name_requester.g
 
 
-//v default color for electrodes
+//v first color for electrodes
 
-int iXCellElectrodeDefaultColor = 38
-
-//v bool to indicate first toggle for tabchannel has been created
-
-int bButtonsCreated = 0
+int iXCellElectrodeStartColor = 38
 
 //v basename for library file of all channels
 
 str strXCLibrary = "XCLib"
 
-//v xcell callback
+//v number of cell views created so far
 
-str cbXCellShowCompartment
+int iCreatedCells = 0
+
+
+///
+/// SH:	XCellAllAddElectrodes
+///
+/// PA:	path..:	path to the clicked compartment
+///	name..:	name for electrode
+///	color.:	color for the electrode
+///
+/// RE:	1 if successfull
+///	0 if failed (the electrode already exists)
+///
+/// DE:	Associate an electrode with {path} for registered xcell parameters
+///
+/// Electrode prototype is /electrodes/draw/proto {xshape}
+///
+/// The electrode is created within 
+///	/electrodes/draw/{name}.......:	always
+///	{form}/draw/{name}............:	when electrodes visible
+///					in xcell display
+///
+
+function XCellAllAddElectrodes(path,name,color)
+
+str path
+str name
+int color
+
+	//- loop over all xcell displays
+
+	str form
+
+	foreach form ( {el /xcells/views/#} )
+
+		//- add electrode to this xcell display
+
+		XCellAddElectrode {form} {path} {name} {color}
+	end
+
+end
+
+
+///
+/// SH:	XCellAllReset
+///
+/// DE:	Set the default state for all xcell views
+///
+
+function XCellAllReset
+
+	//- loop over all xcell displays
+
+	str form
+
+	foreach form ( {el /xcells/views/#} )
+
+		//- reset display
+
+		XCellReset {form} "default" "default"
+	end
+
+end
+
+
+///
+/// SH:	XCellAllSwitchChanMode
+///
+/// PA:	state.: new chanmode.
+///
+/// DE:	Switch between normalized and absolute channel mode.
+///	Sets the min/max color values for the xcell display.
+///
+
+function XCellAllSwitchChanMode(state)
+
+int state
+
+	//- loop over all xcell displays
+
+	str form
+
+	foreach form ( {el /xcells/views/#} )
+
+		//- switch chanmode
+
+		XCellSwitchChanMode {form} {state}
+	end
+
+end
+
+
+///
+/// SH:	XCellCallback
+///
+/// PA:	widget.: clicked widget, needed to computer container form.
+///	comp...: compartname of clicked compartment.
+///
+/// RE:	1 if successfull
+///	0 if failed (the electrode already exists)
+///
+/// DE: Main call back, computes a color and calls all other
+/// callbacks.
+///
+
+function XCellCallback(widget,comp)
+
+str widget
+str comp
+
+	str form
+
+	if ( {widget} != "" )
+
+		form = {{widget} @ "/../.."}
+
+	else
+
+		form = ""
+	end
+
+	//- set default result
+
+	int bResult = 0
+
+	//- get color for the electrode
+
+	//- get allocated color
+
+	XCellElectrodeColorNext {form}
+
+	int color = {getfield /xcells/electrode_colors cNextColor}
+
+	//- call the callbacks
+
+	XCellCallbacksTrigger {form} {comp} {color}
+
+	//- set success
+
+	bResult = 1
+
+	//- return result
+
+	return {bResult}
+end
+
+
+///
+/// SH:	XCellCallbacksTrigger
+///
+/// PA:	form..:	path to the xcell display
+///	comp..:	path to compartment
+///	color.:	color of electrode of the compartment
+///
+/// DE:	Call all callbacks after an electrode has been added.
+///
+
+function XCellCallbacksTrigger(form,comp,color)
+
+str form
+str comp
+str color
+
+	//- get path to the stack
+
+	str callbacks = {StackElementValues /xcells/stack/}
+
+// 	echo {callbacks}
+
+	//- loop over all callbacks in reverse order
+
+	str callback
+
+	foreach callback ( {arglist {Reverse {arglist {callbacks}} } } )
+
+		//- if the callback is a stop command
+
+		if ( {callback} == "ISOLATE" )
+
+			//- break callback loop
+
+			break
+		end
+
+		//- replace underscores
+
+		int pos = {findchar {callback} "_"}
+
+		while ({pos} != -1)
+
+			str head = {substring {callback} 0 {{pos} - 1}}
+
+			str tail = {substring {callback} {{pos} + 1}}
+
+			callback = {{head} @ " " @ {tail}}
+
+			pos = {findchar {callback} "_"}
+			
+		end
+
+		echo {"Calling electrode callback (" @ {callback} @ ", for compartment " @ {comp} @ " with color code " @ {color} @ ")"}
+
+		callfunc {arglist {callback}} {comp} {color} {form}
+	end
+end
 
 
 ///
 /// SH:	XCellElectrodeAdd
 ///
-/// PA:	path..:	path to the xcell widget
-///	comp..:	compartname name for electrode
+/// PA:	comp...: compartment name.
+///	color..: color to be used.
+///	form...: xcell view.
 ///
 /// RE:	1 if successfull
 ///	0 if failed (the electrode already exists)
@@ -166,10 +279,11 @@ str cbXCellShowCompartment
 ///					in xcell display
 ///
 
-function XCellElectrodeAdd(path,comp)
+function XCellElectrodeAdd(comp,color,form)
 
-str path
 str comp
+int color
+str form
 
 	//- set default result
 
@@ -178,14 +292,6 @@ str comp
 	//- get a name for the electrode
 
 	str electrode = {XCellElectrodeName {comp}}
-
-	//- get color for the electrode
-
-	//- get allocated color
-
-	XCellElectrodeColorNext {path}/../..
-
-	int color = {getfield {path}/../.. cNextColor}
 
 	//- give diagnostics
 
@@ -210,16 +316,15 @@ str comp
 
 	//- if the electrodes toggle is set
 
-	if ( {getfield /xcell/electrodes state} )
+	if ( {form} != "" )
 
-		//- copy the electrode to the xcell window
+		if ( {getfield {form}/electrodes state} )
 
-		copy ^ /xcell/draw/{electrode}
+			//- copy the electrode to the xcell window
+
+			copy ^ {form}/draw/{electrode}
+		end
 	end
-
-	//- call the callbacks
-
-	XCellElectrodeTriggerCallbacks {path} {comp} {color}
 
 	//- set success
 
@@ -232,45 +337,62 @@ end
 
 
 ///
-/// SH:	XCellElectrodeAddCallback
+/// SH:	XCellGlobalElectrodeAddCallback
 ///
-/// PA:	path..:	path to the xcell display.
-///	cback.: arguments to be called by the callback.
+/// PA:	cback.: arguments to be called by the callback.
 ///
-/// DE: Add an callback to the xcell display.  The callback will be
-/// 	called whenever new electrodes are added.  The callback is a
-/// 	single string without whitespaces.  Underscores will be
-/// 	replaced by spaces whenever it is called.
+/// DE: Add a callback to the xcell displays.
+///
+/// The callback will be called whenever new electrodes are added.
+/// The callback is a single string without whitespaces.  Underscores
+/// will be replaced by spaces whenever it is called.
 ///
 
-function XCellElectrodeAddCallback(path,cback)
+function XCellGlobalElectrodeAddCallback(cback)
 
-str path
 str cback
 
 	//- push the call back on the stack
 
-	StackPush {path}/../../stack/ {cback}
+	StackPush /xcells/stack/ {cback}
+end
+
+
+///
+/// SH:	XCellGlobalElectrodePopCallback
+///
+/// PA:	cback.: arguments to be called by the callback.
+///
+/// DE: Pop a callback to the xcell displays.
+///
+
+function XCellGlobalElectrodePopCallback(cback)
+
+str cback
+
+	//- pop the call back on the stack
+
+	StackPop /xcells/stack/ {cback}
 end
 
 
 ///
 /// SH:	XCellElectrodeColor
 ///
-/// PA:	path..:	path to the xcell.
+/// PA:	form..:	path to the xcell.
 ///
 /// RE:	color for current plot
 ///
 /// DE:	Give color for current plot
 ///
 
-function XCellElectrodeColor(path)
+function XCellElectrodeColor(form)
 
-str path
+str form
 
 	//- get next color
 
-	int color = {getfield {path} cNextColor}
+	int color = {getfield /xcells/electrode_colors cNextColor}
 
 	//- modulo 64 to get a legal value
 
@@ -285,20 +407,20 @@ end
 ///
 /// SH:	XCellElectrodeColorNext
 ///
-/// PA:	path..:	path to the xcell.
+/// PA:	form..:	path to the xcell.
 ///
 /// RE:	color for current plot
 ///
 /// DE:	Give color for next plot
 ///
 
-function XCellElectrodeColorNext(path)
+function XCellElectrodeColorNext(form)
 
-str path
+str form
 
 	//- get next available color
 
-	int color = {getfield {path} cNextColor}
+	int color = {getfield /xcells/electrode_colors cNextColor}
 
 	//- modulo 64 to get a legal value
 
@@ -306,7 +428,7 @@ str path
 
 	//- increment the color count
 
-	setfield {path} cNextColor {color}
+	setfield /xcells/electrode_colors cNextColor {color}
 
 	//- return result
 
@@ -372,58 +494,10 @@ end
 
 
 ///
-/// SH:	XCellElectrodeTriggerCallbacks
-///
-/// PA:	path..:	path to the xcell display
-///	comp..:	path to compartment
-///	color.:	color of electrode of the compartment
-///
-/// DE:	Call all callbacks after an electrode has been added.
-///
-
-function XCellElectrodeTriggerCallbacks(path,comp,color)
-
-str path
-str comp
-str color
-
-	//- get path to the stack
-
-	str callbacks = {StackElementValues {path}/../../stack/}
-
-	//- loop over all callbacks
-
-	str callback
-
-	foreach callback ({arglist {callbacks}})
-
-		//- replace underscores
-
-		int pos = {findchar {callback} "_"}
-
-		while ({pos} != -1)
-
-			str head = {substring {callback} 0 {{pos} - 1}}
-
-			str tail = {substring {callback} {{pos} + 1}}
-
-			callback = {{head} @ " " @ {tail}}
-
-			pos = {findchar {callback} "_"}
-			
-		end
-
-		echo {"Calling electrode callback (" @ {callback} @ ")"}
-
-		callfunc {arglist {callback}} {comp} {color}
-	end
-end
-
-
-///
 /// SH:	XCellAddElectrode
 ///
-/// PA:	path..:	path to the clicked compartment
+/// PA:	form..: container form.
+///	path..:	path to the clicked compartment
 ///	name..:	name for electrode
 ///	color.:	color for the electrode
 ///
@@ -436,12 +510,13 @@ end
 ///
 /// The electrode is created within 
 ///	/electrodes/draw/{name}.......:	always
-///	/xcell/draw/{name}............:	when electrodes visible
+///	{form}/draw/{name}............:	when electrodes visible
 ///					in xcell display
 ///
 
-function XCellAddElectrode(path,name,color)
+function XCellAddElectrode(form,path,name,color)
 
+str form
 str path
 str name
 int color
@@ -473,11 +548,11 @@ int color
 
 	//- if the electrodes toggle is set
 
-	if ( {getfield /xcell/electrodes state} )
+	if ( {getfield {form}/electrodes state} )
 
 		//- copy the electrode to the xcell window
 
-		copy ^ /xcell/draw/{name}
+		copy ^ {form}/draw/{name}
 	end
 
 	//- set success
@@ -527,32 +602,54 @@ function XCellPrepareElectrodes
 
 	setfield ^ \
 		ident "prototype"
+
+	//- add the callback for adding electrodes
+
+	XCellGlobalElectrodeAddCallback {"XCellElectrodeAdd"}
+
+	//- create color container
+
+	create neutral /xcells/electrode_colors
+
+	disable ^
+
+	pushe ^
+
+	//- add an initialized field for allocated colors
+
+	addfield . cNextColor -descr "next color to allocate"
+	setfield . cNextColor {iXCellElectrodeStartColor}
+
+	pope
+
 end
 
 
 ///
 /// SH:	XCellRemoveElectrode
 ///
-/// PA:	path..:	path to the clicked compartment
+/// PA:	form..: container form.
+///	path..:	path to the clicked compartment
 ///
 /// DE:	Remove the electrode associated with {path}
 ///
 
-function XCellRemoveElectrode(path)
+function XCellRemoveElectrode(form,path)
 
+str form
 str path
 
 	//- get the registered xcell output source
 
-	str xcOutputSource = {getfield /xcell outputSource}
+	str xcOutputSource = {getfield {form} outputSource}
 
 	//- get the registered xcell output value
 
-	str xcOutputValue = {getfield /xcell outputValue}
+	str xcOutputValue = {getfield {form} outputValue}
 
 	//- get the registered xcell output flags
 
-	int xcOutputFlags = {getfield /xcell outputFlags}
+	int xcOutputFlags = {getfield {form} outputFlags}
 
 	//- get the electrode title
 
@@ -576,23 +673,23 @@ str path
 
 		//- if the electrodes toggle is set
 
-		if ( {getfield /xcell/electrodes state} )
+		if ( {getfield {form}/electrodes state} )
 
 			//- delete the electrode from the xcell window
 
-			delete /xcell/draw/{plotTitle}
+			delete {form}/draw/{plotTitle}
 
 			//- update the draw widget
 
 			//xflushevents
-			xupdate /xcell/draw
+			xupdate {form}/draw
 
 			//! to get around a bug that does not update 
 			//! the deleted electrodes :
 			//! hide and show the parent form
 
-			xhide /xcell
-			xshow /xcell
+			xhide {form}
+			xshow {form}
 		end
 
 	//- else
@@ -608,13 +705,15 @@ end
 ///
 /// SH:	XCellRemoveElectrodes
 ///
-/// PA:	unit..:	unit of the electrodes to be removed.
+/// PA:	form..: container form.
+///	unit..:	unit of the electrodes to be removed.
 ///
 /// DE:	Remove all electrodes
 ///
 
-function XCellRemoveElectrodes(unit)
+function XCellRemoveElectrodes(form,unit)
 
+str form
 str unit
 
 	//- give diagnostics
@@ -643,28 +742,32 @@ str unit
 
 	//- update the state of the electrodes
 
-	callfunc XCellSetupElectrodes {getfield /xcell/electrodes state}
+	callfunc XCellSetupElectrodes {form} {getfield {form}/electrodes state}
 end
 
 
 ///
 /// SH:	XCellSetupElectrodes
 ///
-/// PA:	state.:	0 if electrodes should be invisible
+/// PA:	widget.: clicked widget, needed to computer container form.
+///	state.:	0 if electrodes should be invisible
 ///		1 if electrodes should be visible
 ///
 /// DE:	Show/hide the electrodes
 ///
 
-function XCellSetupElectrodes(state)
+function XCellSetupElectrodes(widget,state)
 
+str widget
 int state
+
+	str form = {{widget} @ "/.."}
 
 	//- loop over all electrodes in the xcell window
 
 	str electr
 
-	foreach electr ( {el /xcell/draw/#[][ident=record]} )
+	foreach electr ( {el {form}/draw/#[][ident=record]} )
 
 		//- remove the electrode
 
@@ -695,7 +798,7 @@ int state
 
 				//- copy the electrode to the xcell window
 
-				copy {electr} /xcell/draw/{tail}
+				copy {electr} {form}/draw/{tail}
 			end
 		end
 
@@ -708,127 +811,75 @@ int state
 		echo "Hiding electrodes"
 	end
 
+	//- synchronize the GUI button state
+
+	setfield {form}/electrodes state {state}
+
 	//- update the draw widget
 
 	xflushevents
-	xupdate /xcell/draw
+	xupdate {form}/draw
 
 	//! to get around a bug that does not update the deleted electrodes :
 	//! hide and show the parent form
 	//! for some reason it is not necessary here, but it is above 
 	//! (removal of electrodes).
 
-//	xhide /xcell
-//	xshow /xcell
-end
-
-
-///
-/// SH:	XCellSetupGraph
-///
-/// PA:	state.:	0 if graph should be invisible
-///		1 if graph should be visible
-///
-/// DE:	Show/hide the graph
-///
-
-function XCellSetupGraph(state)
-
-int state
-
-	//- if the graph should be visible
-
-	if (state)
-
-		//- show the graph
-
-		xshow /xgraphs
-
-	//- else
-
-	else
-		//- hide the graph
-
-		xhide /xgraphs
-	end
+//	xhide {form}
+//	xshow {form}
 end
 
 
 ///
 /// SH:	XCellSwitchChanMode
 ///
-/// PA:	state.:	0 for absolute chanmode (chanmode 4)
-///		1 for normalized chanmode (chanmode 5)
+/// PA:	form..: container form.
+///	state.: new chanmode state.
 ///
-/// DE:	Switch between normalized and absolute channel mode
-///	Sets the solver in {cellpath}/solve in chanmode 4 or 5.
-///	Sets the min/max color values for the xcell display
-///	Notifies graph for new chanmode
+/// DE:	Switch between normalized and absolute channel mode.
+///	Sets the min/max color values for the xcell display.
 ///
 
-function XCellSwitchChanMode(state)
+function XCellSwitchChanMode(form,state)
 
+str form
 int state
-
-	//- if state is not zero
-
-	if (state)
-
-		//- switch to chanmode 5
-
-		setglobal iChanMode 5
-
-		setfield {cellpath}/solve \
-			chanmode {getglobal iChanMode}
-
-	//- else
-
-	else
-		//- switch to chanmode 4
-
-		setglobal iChanMode 4
-
-		setfield {cellpath}/solve \
-			chanmode {getglobal iChanMode}
-	end
 
 	//- get name for boundary element
 
 	str bound = {BoundElementName \
-			{getfield /xcell outputSource} \
-			{getfield /xcell outputValue} \
+			{getfield {form} outputSource} \
+			{getfield {form} outputValue} \
 			{getglobal iChanMode}}
 
 	//- set field for boundaries
 
-	setfield /xcell \
+	setfield {form} \
 		boundElement {bound}
 
 	//- set new boundaries from element
 
-	callfunc XCellSetBoundaries {bound}
-
-// 	//- notify graph new chanmode
-
-// 	extern XGraphSwitchChanMode
-
-// 	XGraphSwitchChanMode {state}
+	callfunc XCellSetBoundaries {form} {bound}
 end
 
 
 ///
 /// SH:	XCellDeleteMessages
 ///
+/// PA:	form..: container form.
+///
 /// DE:	Delete the messages from the xcell
 ///	If no messages are setup, none will be deleted and the function
 ///	will cleanly return.
 ///
 
-function XCellDeleteMessages
+function XCellDeleteMessages(form)
+
+str form
 
 	//- count the number of incoming messages
 
-	int iCount = {getmsg /xcell/draw/xcell1 -incoming -count}
+	int iCount = {getmsg {form}/draw/xcell1 -incoming -count}
 
 	//- if the count is not zero
 
@@ -846,7 +897,7 @@ function XCellDeleteMessages
 
 			//- delete the first message
 
-			deletemsg /xcell/draw/xcell1 {0} -incoming
+			deletemsg {form}/draw/xcell1 {0} -incoming
 		end
 	end
 end
@@ -855,15 +906,17 @@ end
 ///
 /// SH:	XCellSetupMessages
 ///
-/// PA:	source:	message source in {cellpath}
+/// PA:	form..: container form.
+///	source:	message source in {cellpath}
 ///	value.:	message value within {source}
 ///
 /// DE:	Setup the messages between the solver and xcell
 ///	The solver is assumed to be {cellpath}/solve .
 ///
 
-function XCellSetupMessages(source,value)
+function XCellSetupMessages(form,source,value)
 
+str form
 str source
 str value
 
@@ -904,7 +957,7 @@ str value
 
 			//- find solve field and add the message
 
-			addmsg {cellpath}/solve /xcell/draw/xcell1 \
+			addmsg {cellpath}/solve {form}/draw/xcell1 \
 				COLOR {findsolvefield \
 					{cellpath}/solve \
 					{element}/{source} \
@@ -918,13 +971,13 @@ str value
 
 			//- add a dummy message
 
-			addmsg /config /xcell/draw/xcell1 COLOR z
+			addmsg /config {form}/draw/xcell1 COLOR z
 		end
 	end
 
 	//- set number of compartments in the xcell object
 
-	setfield /xcell/draw/xcell1 \
+	setfield {form}/draw/xcell1 \
 		nfield {getfield /config xCellElements}
 
 	//- give diagnostics
@@ -936,15 +989,17 @@ end
 ///
 /// SH:	XCellSetupCompMessages
 ///
-/// PA:	source:	message source in {cellpath} (not used)
+/// PA:	form..: container form.
+///	source:	message source in {cellpath} (not used)
 ///	value.:	message value within {source}
 ///
 /// DE:	Setup the messages between the solver and xcell for compartments
 ///	The solver is assumed to be {cellpath}/solve .
 ///
 
-function XCellSetupCompMessages(source,value)
+function XCellSetupCompMessages(form,source,value)
 
+str form
 str source
 str value
 
@@ -970,7 +1025,7 @@ str value
 
 			//- find solve field and add the message
 
-			addmsg {cellpath}/solve /xcell/draw/xcell1 \
+			addmsg {cellpath}/solve {form}/draw/xcell1 \
 				COLOR {findsolvefield \
 					{cellpath}/solve \
 					{element} \
@@ -984,13 +1039,13 @@ str value
 
 			//- add a dummy message
 
-			addmsg /config /xcell/draw/xcell1 COLOR z
+			addmsg /config {form}/draw/xcell1 COLOR z
 		end
 	end
 
 	//- set number of compartments in the xcell object
 
-	setfield /xcell/draw/xcell1 \
+	setfield {form}/draw/xcell1 \
 		nfield {getfield /config xCellElements}
 
 	//- give diagnostics
@@ -1002,15 +1057,17 @@ end
 ///
 /// SH:	XCellSetupExcIGEMessages
 ///
-/// PA:	source:	message source in {cellpath}
+/// PA:	form..: container form.
+///	source:	message source in {cellpath}
 ///	value.:	message value within {source}
 ///
 /// DE:	Setup the messages between the solver and xcell
 ///	The solver is assumed to be {cellpath}/solve .
 ///
 
-function XCellSetupExcIGEMessages(source,value)
+function XCellSetupExcIGEMessages(form,source,value)
 
+str form
 str source
 str value
 
@@ -1091,7 +1148,7 @@ str value
 
 			//- find solve field and add the message
 
-			addmsg {cellpath}/solve /xcell/draw/xcell1 \
+			addmsg {cellpath}/solve {form}/draw/xcell1 \
 				COLOR {findsolvefield \
 					{cellpath}/solve \
 					{spineHead}{source} \
@@ -1103,7 +1160,7 @@ str value
 
 			//- find solve field and add the message
 
-			addmsg {cellpath}/solve /xcell/draw/xcell1 \
+			addmsg {cellpath}/solve {form}/draw/xcell1 \
 				COLOR {findsolvefield \
 					{cellpath}/solve \
 					{element}/climb \
@@ -1114,13 +1171,13 @@ str value
 		else
 			//- add a dummy message
 
-			addmsg /config /xcell/draw/xcell1 COLOR z
+			addmsg /config {form}/draw/xcell1 COLOR z
 		end
 	end
 
 	//- set number of compartments in the xcell object
 
-	setfield /xcell/draw/xcell1 \
+	setfield {form}/draw/xcell1 \
 		nfield {getfield /config xCellElements}
 
 	//- give diagnostics
@@ -1132,15 +1189,17 @@ end
 ///
 /// SH:	XCellSetupInhIGEMessages
 ///
-/// PA:	source:	message source in {cellpath}
+/// PA:	form..: container form.
+///	source:	message source in {cellpath}
 ///	value.:	message value within {source}
 ///
 /// DE:	Setup the messages between the solver and xcell
 ///	The solver is assumed to be {cellpath}/solve .
 ///
 
-function XCellSetupInhIGEMessages(source,value)
+function XCellSetupInhIGEMessages(form,source,value)
 
+str form
 str source
 str value
 
@@ -1188,7 +1247,7 @@ str value
 
 			//- find solve field and add the message
 
-			addmsg {cellpath}/solve /xcell/draw/xcell1 \
+			addmsg {cellpath}/solve {form}/draw/xcell1 \
 				COLOR {findsolvefield \
 					{cellpath}/solve \
 					{element}/stell \
@@ -1200,7 +1259,7 @@ str value
 
 			//- find solve field and add the message
 
-			addmsg {cellpath}/solve /xcell/draw/xcell1 \
+			addmsg {cellpath}/solve {form}/draw/xcell1 \
 				COLOR {findsolvefield \
 					{cellpath}/solve \
 					{element}/stell1 \
@@ -1212,7 +1271,7 @@ str value
 
 			//- find solve field and add the message
 
-			addmsg {cellpath}/solve /xcell/draw/xcell1 \
+			addmsg {cellpath}/solve {form}/draw/xcell1 \
 				COLOR {findsolvefield \
 					{cellpath}/solve \
 					{element}/basket \
@@ -1223,13 +1282,13 @@ str value
 		else
 			//- add a dummy message
 
-			addmsg /config /xcell/draw/xcell1 COLOR z
+			addmsg /config {form}/draw/xcell1 COLOR z
 		end
 	end
 
 	//- set number of compartments in the xcell object
 
-	setfield /xcell/draw/xcell1 \
+	setfield {form}/draw/xcell1 \
 		nfield {getfield /config xCellElements}
 
 	//- give diagnostics
@@ -1241,15 +1300,17 @@ end
 ///
 /// SH:	XCellSetupSpineVmMessages
 ///
-/// PA:	source:	message source in {cellpath}
+/// PA:	form..: container form.
+///	source:	message source in {cellpath}
 ///	value.:	message value within {source}
 ///
 /// DE:	Setup the messages between the solver and xcell
 ///	The solver is assumed to be {cellpath}/solve .
 ///
 
-function XCellSetupSpineVmMessages(source,value)
+function XCellSetupSpineVmMessages(form,source,value)
 
+str form
 str source
 str value
 
@@ -1309,7 +1370,7 @@ str value
 
 			//- find solve field and add the message
 
-			addmsg {cellpath}/solve /xcell/draw/xcell1 \
+			addmsg {cellpath}/solve {form}/draw/xcell1 \
 				COLOR {findsolvefield \
 					{cellpath}/solve \
 					{spineHead}{source} \
@@ -1320,13 +1381,13 @@ str value
 		else
 			//- add a dummy message
 
-			addmsg /config /xcell/draw/xcell1 COLOR z
+			addmsg /config {form}/draw/xcell1 COLOR z
 		end
 	end
 
 	//- set number of compartments in the xcell object
 
-	setfield /xcell/draw/xcell1 \
+	setfield {form}/draw/xcell1 \
 		nfield {getfield /config xCellElements}
 
 	//- give diagnostics
@@ -1338,7 +1399,8 @@ end
 ///
 /// SH:	XCellSetupButtons
 ///
-/// PA:	widget:	name of toggled widget
+/// PA:	form..: container form.
+///	widget:	name of toggled widget
 ///	mode..:	output mode of xcell
 ///		1	comp. Vm
 ///		2	channel with IGE
@@ -1351,8 +1413,9 @@ end
 /// DE:	Display the buttons according to the output mode
 ///
 
-function XCellSetupButtons(widget,mode)
+function XCellSetupButtons(form,widget,mode)
 
+str form
 str widget
 int mode
 
@@ -1360,8 +1423,8 @@ int mode
 
 	//- set the heading for the xcell form
 
-	setfield /xcell/heading \
-		title {getfield /xcell outputDescription}
+	setfield {form}/heading \
+		title {getfield {form} outputDescription}
 
 	//- comp. Vm
 	//- or spine comp. Vm
@@ -1372,18 +1435,18 @@ int mode
 
 		//- hide I,G toggles
 
-		xhide /xcell/Ik
-		xhide /xcell/Gk
+		xhide {form}/Ik
+		xhide {form}/Gk
 
 		//- show I,G labels
 
-		xshow /xcell/noIk
-		xshow /xcell/noGk
+		xshow {form}/noIk
+		xshow {form}/noGk
 
 		//- show E label
 
-		xhide /xcell/Ek
-		xshow /xcell/noEk
+		xhide {form}/Ek
+		xshow {form}/noEk
 
 	//- channel with IGE
 	//- or excitatory channel with IGE
@@ -1393,13 +1456,13 @@ int mode
 
 		//- hide I,G labels
 
-		xhide /xcell/noIk
-		xhide /xcell/noGk
+		xhide {form}/noIk
+		xhide {form}/noGk
 
 		//- show I,G toggles
 
-		xshow /xcell/Ik
-		xshow /xcell/Gk
+		xshow {form}/Ik
+		xshow {form}/Gk
 
 		//- get widget tail
 
@@ -1411,16 +1474,16 @@ int mode
 
 			//- show Ek toggle
 
-			xhide /xcell/noEk
-			xshow /xcell/Ek
+			xhide {form}/noEk
+			xshow {form}/Ek
 
 		//- else 
 
 		else
 			//- hide Ek toggle
 
-			xshow /xcell/noEk
-			xhide /xcell/Ek
+			xshow {form}/noEk
+			xhide {form}/Ek
 		end
 
 	//- else there is something wrong
@@ -1435,18 +1498,16 @@ int mode
 
 	str toggle
 
-	foreach toggle ( {el /xcell/#[][TYPE=xtoggle]} )
+	foreach toggle ( {el {form}/#[][TYPE=xtoggle]} )
 
 		//- isolate the tail
 
 		str toggleTail = {getpath {toggle} -tail}
 
-		//- if the toggle is not for graph, 
-		//-	electrodes or abs/norm output
+		//- if the toggle is not for graph or electrodes
 
 		if (toggleTail != "graph" \
-			&& toggleTail != "electrodes" \
-			&& toggleTail != "chanmode")
+			&& toggleTail != "electrodes")
 
 			//- unset the toggle
 
@@ -1462,7 +1523,7 @@ int mode
 
 	//- set the toggle for the channel mode
 
-	setfield /xcell/{getfield /xcell channelMode} \
+	setfield {form}/{getfield {form} channelMode} \
 		state 1
 
 end
@@ -1471,7 +1532,8 @@ end
 ///
 /// SH:	XCellSetOutput
 ///
-/// PA:	widget:	name of toggled widget
+/// PA:	form..: container form.
+///	widget:	name of toggled widget
 ///
 /// RE: output mode
 ///	1	comp. Vm
@@ -1485,18 +1547,19 @@ end
 /// DE:	Setup messages for update of xcell, setup buttons, do a reset
 ///
 
-function XCellSetOutput(widget)
+function XCellSetOutput(form,widget)
 
+str form
 str widget
 
 	//- set the field for output
 
-	setfield /xcell \
+	setfield {form} \
 		output {widget}
 
 	//- delete all messages from the xcell
 
-	XCellDeleteMessages
+	XCellDeleteMessages {form}
 
 	//- default we should not continue
 
@@ -1524,7 +1587,7 @@ str widget
 
 	str parameters = {getfield {widget} parameters}
 
-	//- if we are dealing with compartments
+	//- if we are dealing with compartmental membrane potential
 
 	if (parameters == "Vm")
 
@@ -1539,6 +1602,54 @@ str widget
 		//- the value is Vm
 
 		msgValue = "Vm"
+
+		//- remember to continue
+
+		bContinue = 1
+
+		//- set flags for buttons
+
+		flButtons = 1
+
+	//- if we are dealing with compartmental current
+
+	elif (parameters == "Im")
+
+		//- the description is compartmental voltage
+
+		msgDescription = "Compartmental current"
+
+		//- the source is empty
+
+		msgSource = ""
+
+		//- the value is Vm
+
+		msgValue = "Im"
+
+		//- remember to continue
+
+		bContinue = 1
+
+		//- set flags for buttons
+
+		flButtons = 1
+
+	//- if we are dealing with compartmental leak
+
+	elif (parameters == "leak")
+
+		//- the description is compartmental voltage
+
+		msgDescription = "Compartmental leak current"
+
+		//- the source is empty
+
+		msgSource = ""
+
+		//- the value is Vm
+
+		msgValue = "leak"
 
 		//- remember to continue
 
@@ -1630,16 +1741,16 @@ str widget
 			= {getpath {widget} -tail} \
 				@ " " \
 				@ {getfield \
-					/xcell/{getfield /xcell channelMode} \
+					{form}/{getfield {form} channelMode} \
 					description}
 
 		//- the source is slash + the widget tail
 
 		msgSource = {getpath {widget} -tail}
 
-		//- the value is registered in /xcell
+		//- the value is registered in {form}
 
-		msgValue = {getfield /xcell channelMode}
+		msgValue = {getfield {form} channelMode}
 
 		//- remember to continue
 
@@ -1658,16 +1769,16 @@ str widget
 		msgDescription \
 			= "Excitatory " \
 				@ {getfield \
-					/xcell/{getfield /xcell channelMode} \
+					{form}/{getfield {form} channelMode} \
 					description}
 
 		//- the source is not relevant
 
 		msgSource = "excitatory"
 
-		//- the value is registered in /xcell
+		//- the value is registered in {form}
 
-		msgValue = {getfield /xcell channelMode}
+		msgValue = {getfield {form} channelMode}
 
 		//- remember to continue
 
@@ -1686,16 +1797,16 @@ str widget
 		msgDescription \
 			= "Inhibitory " \
 				@ {getfield \
-					/xcell/{getfield /xcell channelMode} \
+					{form}/{getfield {form} channelMode} \
 					description}
 
 		//- the source is not relevant
 
 		msgSource = "inhibitory"
 
-		//- the value is registered in /xcell
+		//- the value is registered in {form}
 
-		msgValue = {getfield /xcell channelMode}
+		msgValue = {getfield {form} channelMode}
 
 		//- remember to continue
 
@@ -1724,7 +1835,7 @@ str widget
 
 			//- setup messages for compartments
 
-			XCellSetupCompMessages {msgSource} {msgValue}
+			XCellSetupCompMessages {form} {msgSource} {msgValue}
 
 		//- else if we are handling spine compartments
 
@@ -1732,7 +1843,7 @@ str widget
 
 			//- setup messages for spines
 
-			XCellSetupSpineVmMessages {msgSource} {msgValue}
+			XCellSetupSpineVmMessages {form} {msgSource} {msgValue}
 
 		//- else if we are handling exc channels
 
@@ -1740,7 +1851,7 @@ str widget
 
 			//- setup messages for those channels
 
-			XCellSetupExcIGEMessages {msgSource} {msgValue}
+			XCellSetupExcIGEMessages {form} {msgSource} {msgValue}
 
 		//- else if we are handling inh channels
 
@@ -1748,25 +1859,25 @@ str widget
 
 			//- setup messages for those channels
 
-			XCellSetupInhIGEMessages {msgSource} {msgValue}
+			XCellSetupInhIGEMessages {form} {msgSource} {msgValue}
 
 		//- else we are handling normal messages
 
 		else
 			//- setup messages
 
-			XCellSetupMessages {msgSource} {msgValue}
+			XCellSetupMessages {form} {msgSource} {msgValue}
 		end
 	end
 
 	//- register output description
 
-	setfield /xcell \
+	setfield {form} \
 		outputDescription {msgDescription}
 
 	//- set up buttons correctly
 
-	XCellSetupButtons {widget} {flButtons}
+	XCellSetupButtons {form} {widget} {flButtons}
 
 	//- get name of boundary element
 
@@ -1774,7 +1885,7 @@ str widget
 
 	//- register the output parameters and boundary element
 
-	setfield /xcell \
+	setfield {form} \
 		outputSource {msgSource} \
 		outputValue {msgValue} \
 		outputFlags {flButtons} \
@@ -1783,7 +1894,7 @@ str widget
 
 	//- set boundaries for xcell
 
-	callfunc XCellSetBoundaries {bound}
+	callfunc XCellSetBoundaries {form} {bound}
 
 	//- reset the simulation
 
@@ -1802,15 +1913,17 @@ end
 ///
 /// SH:	XCellSetBoundaries
 ///
-/// PA:	bound.:	boundary element
+/// PA:	form..: container form.
+///	bound.:	boundary element
 ///
 /// RE:	Success of operation
 ///
 /// DE:	Set boundaries from the given element, update color widgets
 ///
 
-function XCellSetBoundaries(bound)
+function XCellSetBoundaries(form,bound)
 
+str form
 str bound
 
 	//v result var
@@ -1827,13 +1940,13 @@ str bound
 
 		//- set the fields for dimensions
 
-		setfield /xcell/draw/xcell1 \
+		setfield {form}/draw/xcell1 \
 			colmin {getfield {bound} xcellmin} \
 			colmax {getfield {bound} xcellmax}
 
 		//- set config values in color widgets
 
-		callfunc XCellShowConfigure
+		callfunc XCellShowConfigure {form}
 
 		//- set result : ok
 
@@ -1856,13 +1969,15 @@ end
 ///
 /// SH:	XCellSetChannelMode
 ///
-/// PA:	widget:	name of toggled widget
+/// PA:	form..: container form.
+///	widget:	name of toggled widget
 ///
 /// DE:	Set the channel mode
 ///
 
-function XCellSetChannelMode(widget)
+function XCellSetChannelMode(form,widget)
 
+str form
 str widget
 
 	//- isolate the tail of the toggled widget
@@ -1871,59 +1986,106 @@ str widget
 
 	//- set the channelmode field
 
-	setfield /xcell \
+	setfield {form} \
 		channelMode {widgetTail}
 
 	//- update the output messages
 
-	XCellSetOutput {getfield /xcell output}
+	XCellSetOutput {form} {getfield {form} output}
 end
 
 
 ///
 /// SH:	XCellCancelConfigure
 ///
+/// PA:	form..: container form.
+///
 /// DE:	Hide the configure window
 ///
 
-function XCellCancelConfigure
+function XCellCancelConfigure(form)
+
+str form
 
 	//- hide the configure window
 
-	xhide /xcell/configure
+	xhide {form}/configure
 end
 
 
 ///
 /// SH:	XCellSetConfigure
 ///
+/// PA:	form..: container form.
+///
 /// DE:	Set xcell config as in the configuration window
 ///
 
-function XCellSetConfigure
+function XCellSetConfigure(form)
+
+str form
 
 	//- set color min
 
-	setfield /xcell/draw/xcell1 \
-		colmin {getfield /xcell/colormin value}
+	setfield {form}/draw/xcell1 \
+		colmin {getfield {form}/colormin value}
 
 	//- set color max
 
-	setfield /xcell/draw/xcell1 \
-		colmax {getfield /xcell/colormax value}
+	setfield {form}/draw/xcell1 \
+		colmax {getfield {form}/colormax value}
+end
+
+
+///
+/// SH:	XCellSimulateClick
+///
+/// PA:	comp...: compartname of clicked compartment.
+///
+/// RE:	1 if successfull
+///	0 if failed (the electrode already exists)
+///
+/// DE: Simulate a click on the given compartment.
+///
+
+function XCellSimulateClick(comp)
+
+str comp
+
+	return {XCellCallback "" {comp}}
+
 end
 
 
 ///
 /// SH:	XCellShowCompartment
 ///
+/// PA:	form........: container form.
+///	compartment.: compartment name
+///
 /// DE:	Popup compartment namer window.
 ///	This function messes with the xcell call back script
 ///
 
-function XCellShowCompartment(compartment)
+function XCellShowCompartment(solver,compartment,color,cell)
 
+str solver
 str compartment
+int color
+str cell
+
+	//- protect relative pathnames
+
+	if ( ! {exists {compartment} } )
+
+		//! hamper, unrelated globals here
+
+		if ( {exists {{cellpath} @ {compartment}} } )
+
+			compartment = {{cellpath} @ {compartment}}
+
+		end
+	end
 
 	//- construct an appropriate message text
 
@@ -1951,7 +2113,7 @@ str compartment
 
 	//- display the message in the requester
 
-	str requestername = {getfield /xcell requestername}
+	str requestername = {getfield {cell} requestername}
 
 	XCellNameRequesterSetWarning {requestername} {message}
 
@@ -1961,19 +2123,23 @@ end
 ///
 /// SH:	XCellShowCompartmentHideWindow
 ///
+/// PA:	form..: container form.
+///
 /// DE:	Hide the compartment namer window.
 ///
 
-function XCellShowCompartmentHideWindow
+function XCellShowCompartmentHideWindow(form)
+
+str form
 
 	//- restore field for xcell script
 
-	setfield /xcell/draw/xcell1 \
-		script {cbXCellShowCompartment}
+	XCellGlobalElectrodePopCallback
+	XCellGlobalElectrodePopCallback
 
 	//- hide add plot window
 
-	str requestername = {getfield /xcell requestername}
+	str requestername = {getfield {form} requestername}
 
 	XCellNameRequesterHide {requestername}
 end
@@ -1982,24 +2148,28 @@ end
 ///
 /// SH:	XCellShowCompartmentShowWindow
 ///
+/// PA:	form..: container form.
+///
 /// DE:	Popup compartment namer window.
 ///	This function messes with the xcell call back script
 ///
 
-function XCellShowCompartmentShowWindow
+function XCellShowCompartmentShowWindow(form)
 
-	//- store field for xcell script
-
-	cbXCellShowCompartment = {getfield /xcell/draw/xcell1 script}
+str form
 
 	//- set field for xcell script
 
-	setfield /xcell/draw/xcell1 \
-		script "XCellShowCompartment <v>"
+	XCellGlobalElectrodeAddCallback {"ISOLATE"}
+
+	XCellGlobalElectrodeAddCallback \
+		{"XCellShowCompartment" \
+			@ "_" \
+			@ {cellpath}}
 
 	//- pop compartment namer
 
-	str requestername = {getfield /xcell requestername}
+	str requestername = {getfield {form} requestername}
 
 	XCellNameRequesterShow {requestername}
 end
@@ -2008,82 +2178,77 @@ end
 ///
 /// SH: XCellShowConfigure
 ///
+/// PA:	form..: container form.
+///
 /// DE:	Show configuration window for xcell
 ///
 
-function XCellShowConfigure
+function XCellShowConfigure(form)
+
+str form
 
 	//- set color min value
 
-	setfield /xcell/colormin \
-		value {getfield /xcell/draw/xcell1 colmin}
+	setfield {form}/colormin \
+		value {getfield {form}/draw/xcell1 colmin}
 
 	//- set color max value
 
-	setfield /xcell/colormax \
-		value {getfield /xcell/draw/xcell1 colmax}
+	setfield {form}/colormax \
+		value {getfield {form}/draw/xcell1 colmax}
 /*
 	//- pop up the configuration window
 
-	xshow /xcell/configure
+	xshow {form}/configure
 */
 end
 
 
 ///
-/// SH:	XCellCreateToggle
+/// SH:	XCellCloseWindow
 ///
-/// PA:	name..:	name of widget to create
+/// PA:	form..: container form.
 ///
-/// DE:	Create a channel toggle button in the xcell form.
-///	The button is only created if it does not exist yet.
+/// DE:	Close xcell display.
 ///
 
-function XCellCreateToggle(name)
+function XCellCloseWindow(form)
 
-str name
+	//- hide all requesters
 
-	//- if the widget does not exist yet
+	XCellShowCompartmentHideWindow {form}
 
-	if ( ! {exists /xcell/{name}} )
+	//- just remove from memory
 
-		//- if there are already channels created
+	delete {form}
 
-		if (bButtonsCreated)
+	//! let's hope Genesis does not crash ...
 
-			//- create a toggle button beneath previous
+	// xhide {form}
+end
 
-			create xtoggle /xcell/{name} \
-				-xgeom 90% \
-				-wgeom 10% \
-				-script "XCellSetOutput <w>"
 
-		//- else 
+///
+/// SH:	XCellCreateControlButtons
+///
+/// PA:	form..: container form.
+///
+/// DE:	Create control buttons.
+///
 
-		else
-			//- create toggle button at upper right
+function XCellCreateControlButtons(form)
 
-			create xtoggle /xcell/{name} \
-				-xgeom 90% \
-				-ygeom 5% \
-				-wgeom 10% \
-				-script "XCellSetOutput <w>"
+str form
 
-			//- remember that buttons are created
+	//- create button to show compartment names
 
-			bButtonsCreated = 1
-		end
+	create xbutton {form}/closer \
+		-xgeom 90% \
+		-ygeom -2:info1.bottom \
+		-wgeom 10% \
+		-title "Close window" \
+		-script {"XCellCloseWindow " @ {form}}
 
-		//- add field for parameters
-
-		addfield ^ \
-			parameters -description "parameters for messages"
-
-		//- set the parameter field to channels
-
-		setfield ^ \
-			parameters "IGE"
-	end
 end
 
 
@@ -2178,68 +2343,235 @@ end
 
 
 ///
-/// SH:	XCellCreateButtons
+/// SH:	XCellCreateColorDialogs
 ///
-/// DE:	Create the xcell buttons and toggles.
-///	Looks at the library to check which tabchannels are present
+/// PA:	form..: container form.
+///
+/// DE:	Create the xcell color dialogs at the bottom
 ///
 
-function XCellCreateButtons
+function XCellCreateColorDialogs(form)
+
+str form
+
+	//- create color min dialog
+
+	create xdialog {form}/colormax \
+		-xgeom 0:parent.left \
+		-ygeom 5:draw.bottom \
+		-wgeom 70% \
+		-title "Color maximum (red)  : " \
+		-script {"XCellSetConfigure " @ {form}}
+
+	//- create color max dialog
+
+	create xdialog {form}/colormin \
+		-xgeom 0:parent.left \
+		-ygeom 0:last.bottom \
+		-wgeom 70% \
+		-title "Color minimum (blue) : " \
+		-script {"XCellSetConfigure " @ {form}}
+end
+
+
+///
+/// SH:	XCellCreateInfoArea
+///
+/// PA:	form..: container form.
+///
+/// DE:	Create the xcell info area.
+///
+
+function XCellCreateInfoArea(form)
+
+str form
+
+	//- create color min dialog
+
+	create xlabel {form}/info1 \
+		-xgeom 0:parent.left \
+		-ygeom 15:colormin.bottom \
+		-wgeom 90% \
+		-title "Initialized"
+
+	create xlabel {form}/info2 \
+		-xgeom 0:parent.left \
+		-ygeom 0:last.bottom \
+		-wgeom 90% \
+		-title " "
+end
+
+
+///
+/// SH:	XCellCreateHeadings
+///
+/// PA:	form.: container form.
+///
+/// DE:	Create the xcell headings for the draw and buttons
+///
+
+function XCellCreateHeadings(form)
+
+str form
+
+	//- create header label
+
+	create xlabel {form}/heading [0,0,70%,5%] \
+		-title "Comp. voltage"
+
+	//- create buttons label
+
+	create xlabel {form}/outputs \
+		-xgeom 0:last.right \
+		-ygeom 0 \
+		-wgeom 30% \
+		-hgeom 5% \
+		-title "Possible outputs"
+end
+
+
+///
+/// SH:	XCellCreateDraw
+///
+/// PA:	form..: container form.
+///
+/// DE:	Create the xcell draw
+///
+
+function XCellCreateDraw(form)
+
+str form
+
+	//- create draw within form
+
+	create xdraw {form}/draw [0,5%,70%,70%] \
+		-wx 2e-3 \
+		-wy 2e-3 \
+		-transform ortho3d \
+		-bg white
+
+	//- set dimensions for draw
+
+	setfield {form}/draw \
+		xmin -1.5e-4 \
+		xmax 1.5e-4 \
+		ymin -0.4e-4 \
+		ymax 3.1e-4
+
+	//- set projection mode
+
+	addglobal str "xcell_transform_mode"
+
+	setfield {form}/draw \
+		transform {xcell_transform_mode}
+
+	//- retreive the wildcard from the config file
+
+	str wPath = {getfield /config xCellPath}
+
+	//- create cell display
+
+	create xcell {form}/draw/xcell1 \
+	        -path {wPath} \
+	        -colmin -0.09 \
+	        -colmax 0.02 \
+	        -diarange -20 
+
+	//- set clock to use
+
+	useclock {form}/draw/xcell1 9
+end
+
+
+///
+/// SH:	XCellCreateOutputButtons
+///
+/// PA:	form..: container form.
+///
+/// DE:	Create the xcell buttons and toggles.
+///
+/// Looks at the channel library to check which tabchannels are
+/// present.
+///
+
+function XCellCreateOutputButtons(form)
+
+str form
 
 	//- create toggle buttons per compartment
 
-	create xtoggle /xcell/comp \
+	create xtoggle {form}/comp \
 		-xgeom 70% \
 		-ygeom 5% \
 		-wgeom 20% \
 		-title "Comp. Vm" \
-		-script "XCellSetOutput <w>"
+		-script {"XCellSetOutput " @ {form} @ " <w>"}
 	addfield ^ \
 		parameters -description "parameters for messages"
 	setfield ^ \
 		parameters "Vm"
 
-	create xtoggle /xcell/Caconcen \
+// 	create xtoggle {form}/Im \
+// 		-xgeom 70% \
+// 		-wgeom 20% \
+// 		-title "Comp. Im" \
+// 		-script {"XCellSetOutput " @ {form} @ " <w>"}
+// 	addfield ^ \
+// 		parameters -description "parameters for messages"
+// 	setfield ^ \
+// 		parameters "Im"
+
+// 	create xtoggle {form}/leak \
+// 		-xgeom 70% \
+// 		-wgeom 20% \
+// 		-title "Comp. Leak" \
+// 		-script {"XCellSetOutput " @ {form} @ " <w>"}
+// 	addfield ^ \
+// 		parameters -description "parameters for messages"
+// 	setfield ^ \
+// 		parameters "leak"
+
+	create xtoggle {form}/Caconcen \
 		-title "Comp. Ca" \
 		-xgeom 70% \
 		-wgeom 20% \
-		-script "XCellSetOutput <w>"
+		-script {"XCellSetOutput " @ {form} @ " <w>"}
 	addfield ^ \
 		parameters -description "parameters for messages"
 	setfield ^ \
 		parameters "Ca"
 
-	create xtoggle /xcell/channelSpines \
+	create xtoggle {form}/excitatory_channels \
 		-xgeom 70% \
 		-wgeom 20% \
 		-title "Exc. chan." \
-		-script "XCellSetOutput <w>"
+		-script {"XCellSetOutput " @ {form} @ " <w>"}
 	addfield ^ \
 		parameters -description "parameters for messages"
 	setfield ^ \
 		parameters "excIGE"
-	create xtoggle /xcell/channelSpinesInh \
+	create xtoggle {form}/inhibitory_channels \
 		-xgeom 70% \
 		-wgeom 20% \
 		-title "Inh. chan." \
-		-script "XCellSetOutput <w>"
+		-script {"XCellSetOutput " @ {form} @ " <w>"}
 	addfield ^ \
 		parameters -description "parameters for messages"
 	setfield ^ \
 		parameters "inhIGE"
-//	create xtoggle /xcell/compSpines \
+//	create xtoggle {form}/compSpines \
 //		-xgeom 70% \
 //		-wgeom 20% \
 //		-title "Spine comp." \
-//		-script "XCellSetOutput <w>"
+//		-script {"XCellSetOutput " @ {form} @ " <w>"}
 //	addfield ^ \
 //		parameters -description "parameters for messages"
 //	setfield ^ \
 //		parameters "spineVm"
-//	create xtoggle /xcell/nernst \
+//	create xtoggle {form}/nernst \
 //		-xgeom 70% \
 //		-wgeom 20% \
-//		-script "XCellSetOutput <w>"
+//		-script {"XCellSetOutput " @ {form} @ " <w>"}
 //	addfield ^ \
 //		parameters -description "parameters for messages"
 //	setfield ^ \
@@ -2247,7 +2579,7 @@ function XCellCreateButtons
 
 	//- create a label as seperator
 
-	create xlabel /xcell/sep1 \
+	create xlabel {form}/sep1 \
 		-xgeom 70% \
 		-ygeom 3:last.bottom \
 		-wgeom 20% \
@@ -2255,57 +2587,53 @@ function XCellCreateButtons
 
 	//- create toggle buttons for Ik,Gk,Ek
 
-	create xtoggle /xcell/Ik \
+	create xtoggle {form}/Ik \
 		-xgeom 70% \
 		-ygeom 1:sep1 \
 		-wgeom 20% \
-		-script "XCellSetChannelMode <w>"
-	create xtoggle /xcell/Gk \
+		-script {"XCellSetChannelMode " @ {form} @ " <w>"}
+	create xtoggle {form}/Gk \
 		-xgeom 70% \
 		-wgeom 20% \
-		-script "XCellSetChannelMode <w>"
-	create xtoggle /xcell/Ek \
+		-script {"XCellSetChannelMode " @ {form} @ " <w>"}
+	create xtoggle {form}/Ek \
 		-xgeom 70% \
 		-wgeom 20% \
-		-script "XCellSetChannelMode <w>"
+		-script {"XCellSetChannelMode " @ {form} @ " <w>"}
 
 	//- add descriptions
 
-	addfield /xcell/Ik \
+	addfield {form}/Ik \
 		description -description "Description of output"
-	addfield /xcell/Gk \
+	addfield {form}/Gk \
 		description -description "Description of output"
-	addfield /xcell/Ek \
+	addfield {form}/Ek \
 		description -description "Description of output"
 
 	//- set descriptions
 
-	setfield /xcell/Ik \
+	setfield {form}/Ik \
 		description "current"
-	setfield /xcell/Gk \
+	setfield {form}/Gk \
 		description "conductance"
-	setfield /xcell/Ek \
+	setfield {form}/Ek \
 		description "reversal potential"
 
-	create xlabel /xcell/noIk \
+	create xlabel {form}/noIk \
 		-xgeom 70% \
 		-ygeom 4:sep1 \
 		-wgeom 20% \
 		-title "No Ik"
-	create xlabel /xcell/noGk \
+	create xlabel {form}/noGk \
 		-xgeom 70% \
 		-ygeom 3:last.bottom \
 		-wgeom 20% \
 		-title "No Gk"
-	create xlabel /xcell/noEk \
+	create xlabel {form}/noEk \
 		-xgeom 70% \
 		-ygeom 3:last.bottom \
 		-wgeom 20% \
 		-title "No Ek"
-
-	//- create a library of all channels
-
-	XCellCreateChannelLibrary
 
 	//- loop over all purkinje channels found in the library
 
@@ -2319,219 +2647,145 @@ function XCellCreateButtons
 
 		//- create a toggle if necessary
 
-		XCellCreateToggle {tail}
+		XCellCreateToggle {form} {tail}
 	end
 
 	//- create toggle to show recording electrodes
 
-	create xtoggle /xcell/electrodes \
+	create xtoggle {form}/electrodes \
 		-xgeom 70% \
 		-ygeom 6:draw.bottom \
 		-wgeom 30% \
 		-title "" \
 		-onlabel "Electrodes" \
 		-offlabel "No Electrodes" \
-		-script "XCellSetupElectrodes <v>"
+		-script "XCellSetupElectrodes <w> <v>"
 
 	//- create button to show compartment names
 
-	create xbutton /xcell/naming \
+	create xbutton {form}/naming \
 		-xgeom 70% \
 		-ygeom 5:last.bottom \
 		-wgeom 30% \
 		-title "Compartment Namer" \
-		-script "XCellShowCompartmentShowWindow"
-
-	//- create toggle to change normalized / absolute output
-
-	create xtoggle /xcell/chanmode \
-		-xgeom 70% \
-		-ygeom 6:electrodes.top \
-		-wgeom 30% \
-		-title "" \
-		-onlabel "Normalized" \
-		-offlabel "Absolute" \
-		-script "XCellSwitchChanMode <v>"
-
-	//- create label with normalized / absolute description
-
-	create xlabel /xcell/chanlabel \
-		-xgeom 70% \
-		-ygeom 6:chanmode.top \
-		-wgeom 30% \
-		-title "Output mode :"
-end
-
-
-///
-/// SH:	XCellCreateColorDialogs
-///
-/// DE:	Create the xcell color dialogs at the bottom
-///
-
-function XCellCreateColorDialogs
-
-	//- create color min dialog
-
-	create xdialog /xcell/colormax \
-		-xgeom 0:parent.left \
-		-ygeom 5:draw.bottom \
-		-wgeom 70% \
-		-title "Color maximum (red)  : " \
-		-script "XCellSetConfigure"
-
-	//- create color max dialog
-
-	create xdialog /xcell/colormin \
-		-xgeom 0:parent.left \
-		-ygeom 0:last.bottom \
-		-wgeom 70% \
-		-title "Color minimum (blue) : " \
-		-script "XCellSetConfigure"
-end
-
-
-///
-/// SH:	XCellCreateInfoArea
-///
-/// DE:	Create the xcell info area.
-///
-
-function XCellCreateInfoArea
-
-	//- create color min dialog
-
-	create xlabel /xcell/info1 \
-		-xgeom 0:parent.left \
-		-ygeom 15:colormin.bottom \
-		-title "Initialized"
-
-	create xlabel /xcell/info2 \
-		-xgeom 0:parent.left \
-		-ygeom 0:last.bottom \
-		-title " "
-end
-
-
-///
-/// SH:	XCellCreateHeadings
-///
-/// DE:	Create the xcell headings for the draw and buttons
-///
-
-function XCellCreateHeadings
-
-	//- create header label
-
-	create xlabel /xcell/heading [0,0,70%,5%] \
-		-title "Comp. voltage"
-
-	//- create buttons label
-
-	create xlabel /xcell/outputs \
-		-xgeom 0:last.right \
-		-ygeom 0 \
-		-wgeom 30% \
-		-hgeom 5% \
-		-title "Possible outputs"
-end
-
-
-///
-/// SH:	XCellCreateDraw
-///
-/// DE:	Create the xcell draw
-///
-
-function XCellCreateDraw
-
-	//- create draw within form
-
-	create xdraw /xcell/draw [0,5%,70%,70%] \
-		-wx 2e-3 \
-		-wy 2e-3 \
-		-transform ortho3d \
-		-bg white
-
-	//- set dimensions for draw
-
-	setfield /xcell/draw \
-		xmin -1.5e-4 \
-		xmax 1.5e-4 \
-		ymin -0.4e-4 \
-		ymax 3.1e-4
-
-	//- set projection mode
-
-	addglobal str "xcell_transform_mode"
-
-	setfield /xcell/draw \
-		transform {xcell_transform_mode}
-
-	//- retreive the wildcard from the config file
-
-	str wPath = {getfield /config xCellPath}
-
-	//- create cell display
-
-	create xcell /xcell/draw/xcell1 \
-	        -path {wPath} \
-	        -colmin -0.09 \
-	        -colmax 0.02 \
-	        -diarange -20 
-
-	//- set clock to use
-
-	useclock /xcell/draw/xcell1 9
+		-script {"XCellShowCompartmentShowWindow " @ {form}}
 end
 
 
 ///
 /// SH:	XCellReset
 ///
+/// PA:	form..: container form.
+///	source: output source, "default" for default.
+///	mode..: default channel mode, "default" for default.
+///
 /// DE:	Set the default state for the xcell
 ///
 
-function XCellReset
+function XCellReset(form,source,mode)
 
-	//- default output is compartmental Vm
+str form
+str source
+str mode
 
-	setfield /xcell \
-		output "/xcell/comp"
+	//- apply default source if necessary
 
-	//- default channel mode is conductance
+	if ( {source} == "default" )
 
-	setfield /xcell \
-		channelMode "Gk"
+		source = "/comp"
 
-	//- if chanmode is 5
-
-	if ({getglobal iChanMode} == 5)
-
-		//- set widget to normalized output
-
-		setfield /xcell/chanmode \
-			state 1
-
-	//- else
-
-	else
-		//- set widget to absolute output
-
-		setfield /xcell/chanmode \
-			state 0
 	end
+
+	//! source is a ref to a subelement, add path separator
+
+	//- set output
+
+	setfield {form} \
+		output {{form} @ {source}}
+
+	//- apply default channel mode if necessary
+
+	if ( {mode} == "default" || {mode} == "")
+
+		mode = "Gk"
+
+	end
+
+	//- set channel mode
+
+	setfield {form} \
+		channelMode {mode}
 
 	//- default : electrodes are not visible
 
-	setfield /xcell/electrodes \
+	setfield {form}/electrodes \
 		state 0
 
 	//- update all output (buttons, colors)
 
 	//! this just simulates a click on the comp. volt. button
 
-	XCellSetOutput {getfield /xcell output}
+	XCellSetOutput {form} {getfield {form} output}
+end
+
+
+///
+/// SH:	XCellCreateToggle
+///
+/// PA:	form..: container form.
+///	name..:	name of widget to create
+///
+/// DE:	Create a channel toggle button in the xcell form.
+///	The button is only created if it does not exist yet.
+///
+
+function XCellCreateToggle(form,name)
+
+str form
+str name
+
+	//- if the widget does not exist yet
+
+	if ( ! {exists {form}/{name}} )
+
+		//- if there are already channels created
+
+		if ({getfield {form} bButtonsCreated} == 1)
+
+			//- create a toggle button beneath previous
+
+			create xtoggle {form}/{name} \
+				-xgeom 90% \
+				-wgeom 10% \
+				-script {"XCellSetOutput " @ {form} @ " <w>"}
+
+		//- else 
+
+		else
+			//- create toggle button at upper right
+
+			create xtoggle {form}/{name} \
+				-xgeom 90% \
+				-ygeom 5% \
+				-wgeom 10% \
+				-script {"XCellSetOutput " @ {form} @ " <w>"}
+
+			//- remember that buttons are created
+
+			setfield {form} \
+				bButtonsCreated 1
+		end
+
+		//- add field for parameters
+
+		addfield ^ \
+			parameters -description "parameters for messages"
+
+		//- set the parameter field to channels
+
+		setfield ^ \
+			parameters "IGE"
+	end
 end
 
 
@@ -2560,97 +2814,112 @@ end
 ///
 /// SH:	XCellCreate
 ///
-/// DE:	Create the xcell display widget with all buttons
-///	set the update clock to clock 9
+/// PA:	source...: requested output source (button name).
+///	chanmode.: default channel mode.
+///
+/// DE:	Create the xcell display widget with all buttons.
+///	Also sets the update clock to clock 9
 ///
 
-function XCellCreate
+function XCellCreate(source,chanmode)
 
-	//- create form container
+str source
+str chanmode
 
-	create xform /xcell [0, 0, 500, 500]
+	//- create container form
+
+	int x1 = 0 + {iCreatedCells * 500}
+	int y1 = 0 + {iCreatedCells * 0}
+	int x2 = 500
+	int y2 = 500
+
+	iCreatedCells = {iCreatedCells + 1}
+
+	//- create form
+
+	str container = {"/xcells/views"}
+
+	str form = {{container} @ "/cell_view_" @ {iCreatedCells}}
+
+	create xform {form} [{x1}, {y1}, {x2}, {y2}]
 
 	//- add field for output
 
-	addfield /xcell \
+	addfield {form} \
 		output -description "Output (toggled widget)"
 
 	//- add field for output source
 
-	addfield /xcell \
-		outputSource -description \
-				"Output source (compartment subelement)"
+	addfield {form} \
+		outputSource \
+		-description "Output source (compartment subelement)"
 
 	//- add field for output value
 
-	addfield /xcell \
+	addfield {form} \
 		outputValue -description "Output value (Vm, Ik, Gk, Ek, Ca)"
 
 	//- add field for output flags
 
-	addfield /xcell \
+	addfield {form} \
 		outputFlags -description "Output flags (1-7)"
 
 	//- add field for output description
 
-	addfield /xcell \
+	addfield {form} \
 		outputDescription -description "Output description (Title)"
 
 	//- add field for channel mode
 
-	addfield /xcell \
+	addfield {form} \
 		channelMode -description "Channel display mode (Ik, Gk, Ek)"
 
 	//- add field for registering boundary element
 
-	addfield /xcell \
+	addfield {form} \
 		boundElement -description "Element with display boundaries"
+
+	//- add field to indicate first toggle for tabchannel has been created
+
+	addfield {form} \
+		bButtonsCreated -description "First channel button created indicator"
+
+	setfield {form} \
+		bButtonsCreated 0
 
 	//- add a field to link with an xcell name requester
 
-	addfield /xcell \
+	addfield {form} \
 		requestername -description "xcell name requester"
-
-	//- add an initialized field for allocated colors
-
-	addfield /xcell cNextColor -descr "next color to allocate"
-	setfield /xcell cNextColor {iXCellElectrodeDefaultColor}
-
-	//- create a stack for the electrode callback
-
-	create neutral /xcell/stack
-
-	StackCreate /xcell/stack/
 
 	//- create the heading at the top
 
-	XCellCreateHeadings
+	XCellCreateHeadings {form}
 
 	//- create the draw
 
-	XCellCreateDraw
+	XCellCreateDraw {form}
 
 	//- create color dialog widgets at the bottom
 
-	XCellCreateColorDialogs
+	XCellCreateColorDialogs {form}
 
 	//- create the buttons and toggles
 
-	XCellCreateButtons
+	XCellCreateOutputButtons {form}
 
 	//- create the information area
 
-	XCellCreateInfoArea
+	XCellCreateInfoArea {form}
 
-	//- prepare the electrodes
+	//- create the close button
 
-	XCellPrepareElectrodes
+	XCellCreateControlButtons {form}
 
-	setfield /xcell/draw/xcell1 \
-		script "XCellElectrodeAdd.d1 <w> <v>"
+	//- enable adding electrodes and callback triggering
 
-// 	setfield /xcell/draw/xcell1 \
-// 		script "XCellElectrodeAdd.d1 <w> <v> ; XCellCBRemovePlot.d3 <v>"
+	setfield {form}/draw/xcell1 \
+		script "XCellCallback.d1 <w> <v>"
 
 	//- create the form to request a compartment name
 
@@ -2662,22 +2931,62 @@ function XCellCreate
 			"to know its name, or type a compartment " \
 			"name to check its existence:" \
 			"Compartment name : " \
-			"XCellShowCompartment <v>" \
+			{"XCellShowCompartment " @ {form} @ " <v>"} \
 			"" \
 			"Done" \
-			"XCellShowCompartmentHideWindow"}
+			{"XCellShowCompartmentHideWindow " @ {form}}}
 
-	setfield /xcell \
+	setfield {form} \
 		requestername {requestername}
 
 	//- set an informational message in the info area
 
-	setfield /xcell/info1 \
+	setfield {form}/info1 \
 		label "Select an output variable for the xcell view, next click"
-	setfield /xcell/info2 \
+	setfield {form}/info2 \
 		label "on the dendrite to plot the selected variable in a graph."
 
+	xshow {form}
+
+	XCellReset {form} {source} {chanmode}
+
+	//- reset simulation
+
+	step
+
+	reset
 end
+
+
+//- create the cell view container if it does not exist yet
+
+if ( ! {exists /xcells} )
+
+	create neutral /xcells
+end
+
+//- create form container
+
+str container = {"/xcells/views"}
+
+if ( ! {exists {container}} )
+
+	create neutral {container}
+end
+
+//- create a stack for the electrode callback
+
+create neutral /xcells/stack
+
+StackCreate /xcells/stack/
+
+//- prepare the electrodes
+
+XCellPrepareElectrodes
+
+//- create a library of all channels
+
+XCellCreateChannelLibrary
 
 
 end

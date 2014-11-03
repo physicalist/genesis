@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: simulation_sequence.g,v 1.6 2006/02/22 05:56:56 svitak Exp $
+// $Id: simulation_sequence.g 1.3.1.4 Tue, 21 Feb 2006 16:51:16 +0100 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////

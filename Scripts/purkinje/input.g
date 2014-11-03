@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: input.g,v 1.6 2006/02/22 05:56:56 svitak Exp $
+// $Id: input.g 1.9 Thu, 10 Aug 2006 21:08:48 +0200 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////
@@ -36,11 +36,6 @@ if ( {include_input} == 0 )
 include xcell_name_requester.g
 
 
-//v normal path for xcell script
-
-str cbInputXCell
-
-
 ///
 /// SH:	InputInitialize
 ///
@@ -71,7 +66,7 @@ function InputInitialize
 			"to inject current," \
 			"or type a compartment name below :" \
 			"Location for current injection : " \
-			"InputTargetSet <v>" \
+			{"InputTargetSet " @ {cellpath} @ " <v> -1 -1"} \
 			{"Current site is (" @ {getglobal iClampCurrentTarget} @ ")"} \
 			"Done" \
 			"InputTargetHideRequester"}
@@ -99,14 +94,14 @@ function InputTargetAsk(widget)
 
 str widget
 
-	//- store field for xcell script
+	//- set xcell callback
 
-	cbInputXCell = {getfield /xcell/draw/xcell1 script}
+	XCellGlobalElectrodeAddCallback {"ISOLATE"}
 
-	//- set field for xcell script
-
-	setfield /xcell/draw/xcell1 \
-		script "InputTargetSet <v>"
+	XCellGlobalElectrodeAddCallback \
+		{"InputTargetSet" \
+			@ "_" \
+			@ {cellpath}}
 
 	//- pop add plot form
 
@@ -126,10 +121,10 @@ end
 
 function InputTargetHideRequester
 
-	//- restore field for xcell script
+	//- restore xcell callbacks
 
-	setfield /xcell/draw/xcell1 \
-		script {cbInputXCell}
+	XCellGlobalElectrodePopCallback
+	XCellGlobalElectrodePopCallback
 
 	//- hide add plot window
 
@@ -146,9 +141,12 @@ end
 /// sequence.
 ///
 
-function InputTargetSet(name)
+function InputTargetSet(solver,name,color,cell)
 
+str solver
 str name
+int color
+str cell
 
 	//- for empty given name
 

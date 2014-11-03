@@ -10,7 +10,7 @@
      have created yourself, following the directions in ``Defining New
      Objects and Commands'' (NewObjects.txt), or existing libraries
      which have been contributed by other GENESIS users.  The
-     ``Scripts/examples/newlib'' directory contains an example of a
+     ``Scripts/newlib'' directory contains an example of a
      user-defined GENESIS library which you may use for testing these
      instructions.  For now, we will assume that you have one or more
      library directories.
@@ -54,7 +54,7 @@
      to the full path of the genesis installation directory, for
      example:
 
-          GENINST =       /usr/genesis
+          GENINST =       /usr/local/genesis-2.4/genesis
 
   If, for some reason, the GENESIS files have been moved from the origi-
   nal GENESIS installation directory, this line may need to be edited to

@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: utility.g,v 1.8 2006/02/22 05:56:56 svitak Exp $
+// $Id: utility.g 1.13 Thu, 10 Aug 2006 21:08:48 +0200 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////
@@ -89,6 +89,32 @@ str path
 	//- enumerate all elements with a wildcard
 
 	return {CountArguments {el {path}#[]}}
+end
+
+
+///
+/// SH:	Reverse
+///
+/// PA:	args..:	argument list to be reversed.
+///
+/// RE:	reversed argument list.
+///
+/// DE:	Reverse the given argument list.
+///
+
+function Reverse
+
+	str result = ""
+
+	int i
+
+	for ( i = 1 ; i <= {argc} ; i = i + 1 )
+
+		result = {{argv {i}} @ " " @ {result}}
+
+	end
+
+	return {result}
 end
 
 

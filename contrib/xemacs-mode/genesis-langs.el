@@ -53,4 +53,4 @@
 
 
 (provide 'genesis-langs)
-;;; cc-langs.el ends here
+;;; genesis-langs.el ends here

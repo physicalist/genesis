@@ -169,7 +169,8 @@ OBJECTS = 	\
 		synchan_utils.o	\
 		SynE.o SynG.o SynS.o \
 		weight.o		\
-		weight2.o
+		weight2.o		\
+		stdp_rules.o
 
 HEADERS = 	\
 		fac_debug.h		\

@@ -1,8 +1,8 @@
 //genesis
 //
-// $ProjectVersion: Release2-2.11 $
+// $ProjectVersion: Release2-2.17 $
 // 
-// $Id: settings.g,v 1.8 2006/02/22 05:56:56 svitak Exp $
+// $Id: settings.g 1.8.2.2.1.1.1.1.1.1.3.4.1.1.1.1.1.13 Mon, 21 Aug 2006 23:07:20 +0200 hugo $
 //
 
 //////////////////////////////////////////////////////////////////////////////
@@ -35,11 +35,6 @@ if ( {include_settings} == 0 )
 
 include actions.g
 include input.g
-
-
-//v normal path for xcell script
-
-str cbXCell
 
 
 ///
@@ -126,7 +121,7 @@ str path
 
 	//- create form
 
-	create xform {path}basket [{xgeom},{ygeom},350,95]
+	create xform {path}basket [{xgeom},{ygeom},360,175]
 
 	//- make it the current element
 
@@ -136,6 +131,20 @@ str path
 
 	create xlabel heading \
 		-label "Basket axon settings"
+
+	//- and help the user further by explaining how it works
+
+	create xlabel info0 \
+		-label ""
+
+	create xlabel info1 \
+		-label "The basket axon gives a fast and strong"
+
+	create xlabel info2 \
+		-label "feedforward inhibition coming from the parallel"
+
+	create xlabel info3 \
+		-label "fiber system to the Purkinje cell soma."
 
 	//- create dialog for synaptic strength
 
@@ -212,7 +221,7 @@ float value
 
 	//- set global variable
 
-	delay = {value * 1.0e-3}
+	climbingDelay = {value * 1.0e-3}
 end
 
 
@@ -263,7 +272,7 @@ str path
 
 	//- create form
 
-	create xform {path}climbing [{xgeom},{ygeom},350,120]
+	create xform {path}climbing [{xgeom},{ygeom},350,230]
 
 	//- make it the current element
 
@@ -274,10 +283,27 @@ str path
 	create xlabel heading \
 		-label "Climbing fiber settings"
 
+	//- and help the user further by explaining how it works
+
+	create xlabel info0 \
+		-label ""
+
+	create xlabel info1 \
+		-label "The climbing fiber is a single axon per"
+
+	create xlabel info2 \
+		-label "Purkinje cell, that gives a very strong"
+
+	create xlabel info3 \
+		-label "excitation and calcium influx in the smooth"
+
+	create xlabel info4 \
+		-label "part of the dendritic tree."
+
 	//- create dialog for delay between synapses
 
 	create xdialog delay \
-		-value {delay * 1000} \
+		-value {climbingDelay * 1000} \
 		-title "Delay between synapses (msec) : " \
 		-script "SettingsClimbingSetDelay <v>"
 
@@ -638,18 +664,21 @@ function SettingsIClampToggleMode
 
 	int state = {getfield /settings/iClamp/pulse state}
 
-	//- check if current mode is enabled
 
-	if ( {iCurrentMode} != 0)
+	//! why again was this synchronization needed ?
 
-		//- stop current mode
+// 	//- check if current mode is enabled
 
-		ActionIClampStop
+// 	if ( {iCurrentMode} != 0)
 
-		//- start new current with appropriate state
+// 		//- stop current mode
 
-		ActionIClampStart {state}
-	end
+// 		ActionIClampStop
+
+// 		//- start new current with appropriate state
+
+// 		ActionIClampStart {state}
+// 	end
 
 	//- check state of toggle button
 
@@ -721,7 +750,7 @@ str path
 
 	//- create form
 
-	create xform {path}iClamp [{xgeom},{ygeom},{wgeom},{hgeom}]
+	create xform {path}iClamp [{xgeom},{ygeom},350,400]
 
 	//- make it the current element
 
@@ -731,6 +760,20 @@ str path
 
 	create xlabel heading \
 		-label "Current clamp settings"
+
+	//- and help the user further by explaining how it works
+
+	create xlabel info0 \
+		-label ""
+
+	create xlabel info1 \
+		-label "The current clamp protocol injects a fixed"
+
+	create xlabel info2 \
+		-label "amount of current in a dendritic segment"
+
+	create xlabel info3 \
+		-label "or the soma"
 
 	//- create dialog for current injection
 
@@ -813,7 +856,7 @@ str path
 
 	create xlabel nooffset \
 		-ygeom 3:pulse \
-		-title "First pulse amplitude not available"
+		-title "First pulse amplitude not applicable"
 
 	//- hide the offset dialog
 
@@ -823,7 +866,7 @@ str path
 
 	create xlabel nodelay1 \
 		-ygeom 3:offset \
-		-title "First pulse delay not available"
+		-title "First pulse delay not applicable"
 
 	//- hide the delay1 dialog
 
@@ -833,7 +876,7 @@ str path
 
 	create xlabel nowidth \
 		-ygeom 3:delay1 \
-		-title "First pulse width not available"
+		-title "First pulse width not applicable"
 
 	//- hide the width dialog
 
@@ -843,7 +886,7 @@ str path
 
 	create xlabel nooffset2 \
 		-ygeom 3:width \
-		-title "Second pulse amplitude not available"
+		-title "Second pulse amplitude not applicable"
 
 	//- hide the offset dialog
 
@@ -853,7 +896,7 @@ str path
 
 	create xlabel noperiod \
 		-ygeom 3:offset2 \
-		-title "Second pulse delay not available"
+		-title "Second pulse delay not applicable"
 
 	//- hide the period dialog
 
@@ -863,7 +906,7 @@ str path
 
 	create xlabel nowidth2 \
 		-ygeom 3:period \
-		-title "Second pulse width not available"
+		-title "Second pulse width not applicable"
 
 	//- hide the width dialog
 
@@ -890,7 +933,7 @@ function SettingsParallel
 
 	echo "Settings for synchronous parallel fiber firing"
 
-	//- show the form for current clamping
+	//- show the form for parallel fiber
 
 	//! this still uses a hard coded path
 
@@ -923,7 +966,12 @@ end
 ///	Resets script field for xcell widget
 ///
 
-function SettingsParallelLocalSet(branch)
+function SettingsParallelLocalSet(solver,branch,color,cell)
+
+str solver
+str branch
+int color
+str cell
 
 	//- default we give a popup
 
@@ -931,8 +979,8 @@ function SettingsParallelLocalSet(branch)
 
 	//- reset field for xcell script
 
-	setfield /xcell/draw/xcell1 \
-		script {cbXCell}
+	XCellGlobalElectrodePopCallback
+	XCellGlobalElectrodePopCallback
 
 	//- isolate tail from clicked membrane
 
@@ -1002,14 +1050,14 @@ end
 
 function SettingsParallelLocalChoose
 
-	//- store field for xcell script
+	//- set xcell callback
 
-	cbXCell = {getfield /xcell/draw/xcell1 script}
+	XCellGlobalElectrodeAddCallback {"ISOLATE"}
 
-	//- set field for xcell script
-
-	setfield /xcell/draw/xcell1 \
-		script "SettingsParallelLocalSet <v>"
+	XCellGlobalElectrodeAddCallback \
+		{"SettingsParallelLocalSet" \
+			@ "_" \
+			@ {cellpath}}
 
 	//- show the local set action window
 
@@ -1033,10 +1081,11 @@ function SettingsParallelLocalCancel
 
 	xhide /settings/localSet
 
-	//- restore field for xcell script
+	//- restore xcell callback
 
-	setfield /xcell/draw/xcell1 \
-		script {cbXCell}
+	XCellGlobalElectrodePopCallback
+	XCellGlobalElectrodePopCallback
+
 end
 
 
@@ -1260,7 +1309,7 @@ str path
 
 	//- create form
 
-	create xform {path}parallel [{xgeom},{ygeom},350,170]
+	create xform {path}parallel [{xgeom},{ygeom},350,280]
 
 	//- make it the current element
 
@@ -1270,6 +1319,23 @@ str path
 
 	create xlabel heading \
 		-label "Synchronous parallel fiber firing settings"
+
+	//- and help the user further by explaining how it works
+
+	create xlabel info0 \
+		-label ""
+
+	create xlabel info1 \
+		-label "The parallel fiber system provides the main"
+
+	create xlabel info2 \
+		-label "excitatory drive to the Purkinje cell."
+
+	create xlabel info3 \
+		-label "The settings below allow to fire multiple"
+
+	create xlabel info4 \
+		-label "parallel fibers synchronously."
 
 	//- create dialog for distributed synaptic activation
 
@@ -1281,7 +1347,7 @@ str path
 	//- create label for local synaptic activation
 
 	create xlabel ctenumber \
-		-ygeom 3:heading \
+		-ygeom 3:info4 \
 		-title "Number of synapses is set to 20"
 
 	//- hide the label
@@ -1304,7 +1370,7 @@ str path
 		-title "Toggle distributed/local" \
 		-script "SettingsParallelToggleMode"
 
-	//! the label field in follwing widget is not relevant,
+	//! the label field in following widget is not relevant,
 	//! it will be updated later on
 
 	//- create label to indicate current state of firing
@@ -1639,14 +1705,9 @@ str path
 	int wgeom = {getfield /settings/globals wgeom}
 	int hgeom = {getfield /settings/globals hgeom}
 
-	//- set values for geometry
-
-	wgeom = 300
-	hgeom = 120
-
 	//- create form
 
-	create xform {path}vivoVitro [{xgeom},{ygeom},{wgeom},{hgeom}]
+	create xform {path}vivoVitro [{xgeom},{ygeom},350,190]
 
 	//- make it the current element
 
@@ -1656,6 +1717,17 @@ str path
 
 	create xlabel heading \
 		-label " In vivo settings"
+
+	//- and help the user further by explaining how it works
+
+	create xlabel info0 \
+		-label ""
+
+	create xlabel info1 \
+		-label "The settings provide the background inhibitory"
+
+	create xlabel info2 \
+		-label "and excitatory drive for the Purkinje cell."
 
 	//- create dialog for parallel fiber firing rate
 

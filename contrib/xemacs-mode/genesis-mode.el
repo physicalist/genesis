@@ -1,4 +1,4 @@
-;;; genesis-langs.el --- specific language support for Genesis Mode
+;;; genesis-mode.el --- specific language support for Genesis Mode
 
 ;; Copyright (C) 2005-2006 Hugo Cornelis
 
@@ -274,6 +274,7 @@ Key bindings:
 		 "\\|deletemsgdef"
 		 "\\|deletetasks"
 		 "\\|disable"
+		 "\\|duplicatetable"
 		 "\\|echo"
 		 "\\|egg"
 		 "\\|el"
@@ -283,6 +284,7 @@ Key bindings:
 		 "\\|exists"
 		 "\\|exit"
 		 "\\|exp"
+		 "\\|extern"
 		 "\\|file2tab"
 		 "\\|fileconnect"
 		 "\\|findchar"
@@ -327,6 +329,7 @@ Key bindings:
 		 "\\|listfiles"
 		 "\\|listglobals"
 		 "\\|listobjects"
+		 "\\|loadtab"
 		 "\\|log"
 		 "\\|logfile"
 		 "\\|max"
@@ -441,7 +444,7 @@ Key bindings:
    (cons (concat "#\\(define\\|e\\(lse\\|ndif\\)\\|"
 		 "i\\(f\\(\\|def\\|ndef\\)\\|nclude\\)\\|undef\\)\\>")
 	 'font-lock-keyword-face)
-   '("^[ \n\t]*function[ \t]+\\([^ \t]+\\)" 1 font-lock-function-name-face)
+   '("^[ \n\t]*\\(function\\|extern\\)[ \t]+\\([^ \t]+\\)" 1 font-lock-function-name-face)
    '("\\(--- .* ---\\|=== .* ===\\)" . font-lock-string-face)
    ))
   "Additional expressions to highlight in Genesis mode.")

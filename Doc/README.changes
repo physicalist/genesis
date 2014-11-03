@@ -1,5 +1,40 @@
 The following files have been added or modified since earlier releases:
 
+Changes for the 2.4 distribution
+
+The new 'stdp_rules' object has been added for efficiently implementing spike
+timing dependent plasticity in large networks of hsolved multicompartmental
+cells. There have also been additions to fields of the 'synapse' subelement of
+the synchan to provide time of last spike arrival, and fields to implment
+synaptic plasticity.
+
+Three new network connection commands, 'volumeconnect3', 'volumeweight3', and
+'volumedelay3', have been added and documented. These allow distance-dependent
+connection probabilities and/or weights and the use of periodic boundary
+conditions for network connectivity.
+
+A new version of the chemesis library for modeling second messengers and calcium
+dynamics is now installed by default.
+
+New tutorial Scripts and Doc entries were added for:
+     * chemesis
+     * the gpython-tools Python utility collection
+     * An updated Purkinje tutorial
+     * stdp_rules, including 'NewPlasticityObjects' documentation for
+       implementing similar objects.
+     * An improved hsolved implementation of the dual exponential
+       conductance version of the Vogels-Abbott network model. It serves
+       as a tutorial on how to achieve a speed improvement of 10 to 20
+       times when using hsolve with network models.
+
+The genesis/contrib directory contains utilities, scripts, and other files that
+have been contributed by users. It may also used in a personal GENESIS
+installation for storing downloaded patches, updates, and other material that
+has become available since the last GENESIS release. It currently contains
+emacs macros for editing GENESIS scripts.
+
+Makefile changes and bug fixes were made to ease installation.
+
 Changes for the 2.3 distribution
 
 Several updates have been made to the documentation, including a section
