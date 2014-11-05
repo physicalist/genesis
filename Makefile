@@ -61,14 +61,14 @@
 #
 
 # ----------------------------------------------------------------------
-# . INSTALLATION AND MISC CONFIGURATION SETTINGS
+# B. INSTALLATION AND MISC CONFIGURATION SETTINGS
 # ----------------------------------------------------------------------
 
 # The following variable determines where GENESIS is placed by the
 # "make install" command. Substituting the full path here is preferable
 # to using `pwd`.
 ifndef PREFIX
-	INSTALLDIR=$(shell pwd)
+	INSTALLDIR?=$(shell pwd)
 else
 	INSTALLDIR = $(PREFIX)/genesis
 endif
@@ -84,9 +84,9 @@ TMPDIR = /tmp
 
 # extract machine (OS) and architecture names
 # (depends on POSIX-standard uname utility)
-MACHINE = $(shell uname -s)
-ARCH = $(shell uname -m)
-
+MACHINE  ?= $(shell uname -m)
+ARCH     ?= $(shell uname -s)
+PLATFORM ?= $(shell uname -p)
 
 # ----------------------------------------------------------------------
 # C. OPTIONAL LIBRARIES
@@ -213,7 +213,7 @@ SPRNGLIB   = $(SPRNGDIR)/lib/lib$(SPRNG_LIB).a
 # ----------------------------------------------------------------------
 # F. BEGINNING OF NON-CONFIGURABLE DEFINITIONS
 #
-# This end the user configurable part of the Makefile.  You shouldn't
+# This ends the user configurable part of the Makefile.  You shouldn't
 # have to change things below this point.
 # ----------------------------------------------------------------------
 
@@ -230,13 +230,13 @@ XLIBS =		-L$(XLIB) \
 RCSRELEASE =	DR2-2-P1
 
 # Makefile depending on machine architecture -> finegrain later
-MF = 		Makefile.$(MACHINE)
+MF = 		Makefile.$(ARCH)
 
 # ensure that a proper Makefile for the current architecture exists
 # Terminate if not
 MFD = $(SRCDIR)/$(MF)
 ifeq ($(wildcard $(MFD)),)
-    $(error fatal error - Makefile `$(MFD)` not found for architecture $(MACHINE))
+    $(error fatal error - Makefile `$(MFD)` not found for architecture $(ARCH))
 endif
 
 SHELL = 	/bin/sh
@@ -324,32 +324,18 @@ NXLIBLIST = 	output \
 		$(OLDCONNLIB) \
 		$(KINETICSLIB)
 
-# collect parameters
-PARAMS = 	MACHINE=$(MACHINE) \
-		TMPDIR="$(TMPDIR)" \
-		INSTALLDIR="$(INSTALLDIR)" \
-		INSTALLBIN="$(INSTALLBIN)" \
-		CFLAGS_IN="$(CFLAGS) $(DISKIOFLAGS) $(SPRNG_FLAG)" \
-		SPRNG_LIB="$(SPRNG_LIB)" \
-		XLIBS="$(XLIBS)" \
-		SUBDIR="$(SUBDIR)" \
-		DISKIOSUBDIR="$(DISKIOSUBDIR)" \
-		BASECODE="$(BASECODE)" \
-		OBJLIBS="$(OBJLIBS)" \
-		EXTRALIBS="$(EXTRALIBS)" \
-		XODUS="$(XODUS)"
-
-#PARAMS = 	CC=$(CC) \
-		TMPDIR="$(TMPDIR)" \
+PARAMS = OS="$(OS)" \
+		PLATFORM=$(PLATFORM)
+		MACHINE=$(MACHINE) \
+		CC=$(CC) \
+		CPP="$(CPP)" \
 		LD="$(LD)" \
 		AR="$(AR)" \
 		RANLIB="$(RANLIB)" \
-		CPP="$(CPP)" \
 		YACC="$(YACC)" \
 		LEX="$(LEX)" \
 		LEXLIB="$(LEXLIB)" \
-		OS="$(OS)" \
-		MACHINE="$(MACHINE)" \
+		TMPDIR="$(TMPDIR)" \
 		INSTALLDIR="$(INSTALLDIR)" \
 		INSTALLBIN="$(INSTALLBIN)" \
 		CFLAGS_IN="$(CFLAGS) $(DISKIOFLAGS) $(SPRNG_FLAG)" \

@@ -54,7 +54,7 @@ LIBS= $(LEXLIB)
 TERMCAP=-lcurses
 TERMOPT=-DTERMIO -DDONT_USE_SIGIO
 
-## end  MacOS X and Darwin (PPC-based systems)
+## end  MacOS X and Darwin
 
 LLIBS    = $(LIBS) $(EXTRALIBS)
 CFLAGS	+=	$(CFLAGS_IN)
@@ -63,8 +63,13 @@ CFLAGS	+=	$(CFLAGS_IN)
 ## sprng may need different flags in order to compile.
 ## In general, it can be optimized at a higher level than genesis code.
 ##
-#RNG_CFLAGS = -O3 -DBIGENDIAN -D$(MACHINE) #PPC
-RNG_CFLAGS = -O3 -D$(MACHINE)
+RNG_CFLAGS = -O3 -D$(MACHINE) -D$(ARCH)
+
+# PowerPC needs special bigendian treatment in sprng
+ifeq ($(PLATFORM),"powerpc")
+  RNG_CFLAGS += -DBIGENDIAN
+endif
+
 
 include Makefile.BASE
 
